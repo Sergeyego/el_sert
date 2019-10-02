@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>FormDoc</class>
+ <widget class="QWidget" name="FormDoc">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1127</width>
+    <height>744</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout_7">
+   <item>
+    <widget class="QSplitter" name="splitter">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <widget class="QWidget" name="">
+      <layout class="QVBoxLayout" name="verticalLayout_6">
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <item>
+          <widget class="QPushButton" name="cmdUpd">
+           <property name="text">
+            <string>Обновить список марок</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_2">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="checkBoxActive">
+         <property name="text">
+          <string>Только действующие</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="DbViewer" name="tableViewDoc">
+         <property name="editTriggers">
+          <set>QAbstractItemView::NoEditTriggers</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="layoutWidget">
+      <layout class="QVBoxLayout" name="verticalLayout_5">
+       <item>
+        <layout class="QGridLayout" name="gridLayout">
+         <item row="7" column="0">
+          <widget class="QLabel" name="label_11">
+           <property name="text">
+            <string>Группы тех. устр.</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="label">
+           <property name="text">
+            <string>Номер документа</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QLineEdit" name="lineEditDoc"/>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_2">
+           <property name="text">
+            <string>Назв. документа</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="1">
+          <widget class="QComboBox" name="comboBoxVid">
+           <property name="editable">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="1">
+          <widget class="QLineEdit" name="lineEditNumBl"/>
+         </item>
+         <item row="5" column="0">
+          <widget class="QLabel" name="label_8">
+           <property name="text">
+            <string>Номер бланка</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="label_4">
+           <property name="text">
+            <string>Дата принятия</string>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="0">
+          <widget class="QLabel" name="label_9">
+           <property name="text">
+            <string>Номер наклейки</string>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="1">
+          <widget class="QLineEdit" name="lineEditNumNak"/>
+         </item>
+         <item row="4" column="0">
+          <widget class="QLabel" name="label_7">
+           <property name="text">
+            <string>Вид документа</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="DateEdit" name="dateEditDoc"/>
+         </item>
+         <item row="1" column="1">
+          <widget class="QLineEdit" name="lineEditNam"/>
+         </item>
+         <item row="7" column="1">
+          <widget class="QLineEdit" name="lineEditGtu"/>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="label_6">
+           <property name="text">
+            <string>Ведомство</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QComboBox" name="comboBoxVed">
+           <property name="editable">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="2">
+          <widget class="QLabel" name="label_3">
+           <property name="text">
+            <string>Дата начала дейст.</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="3">
+          <widget class="DateEdit" name="dateEditBeg"/>
+         </item>
+         <item row="1" column="2">
+          <widget class="QLabel" name="label_5">
+           <property name="text">
+            <string>Дата оконч. дейст.</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="3">
+          <widget class="DateEdit" name="dateEditEnd"/>
+         </item>
+         <item row="2" column="2">
+          <widget class="QLabel" name="label_10">
+           <property name="text">
+            <string>Текст документа</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="3" rowspan="6">
+          <widget class="QPlainTextEdit" name="textEditDoc"/>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QGridLayout" name="gridLayout_2">
+         <item row="0" column="1">
+          <widget class="QGroupBox" name="groupBox_2">
+           <property name="title">
+            <string>Марка</string>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_3">
+            <item>
+             <widget class="DbViewer" name="tableViewEl"/>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item row="1" column="1" rowspan="2">
+          <widget class="QGroupBox" name="groupBox_4">
+           <property name="title">
+            <string>Справочник категорий</string>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_4">
+            <item>
+             <widget class="DbViewer" name="tableVieewGrade"/>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QGroupBox" name="groupBox_3">
+           <property name="title">
+            <string>Марка и диаметр</string>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_2">
+            <item>
+             <widget class="DbViewer" name="tableViewElDim"/>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item row="1" column="0" rowspan="2">
+          <widget class="QGroupBox" name="groupBox">
+           <property name="title">
+            <string>Вид электродов</string>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout">
+            <item>
+             <widget class="DbViewer" name="tableViewVid"/>
+            </item>
+           </layout>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayoutMap">
+         <item>
+          <spacer name="horizontalSpacer">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>DbViewer</class>
+   <extends>QTableView</extends>
+   <header>db/dbviewer.h</header>
+  </customwidget>
+  <customwidget>
+   <class>DateEdit</class>
+   <extends>QDateEdit</extends>
+   <header>db/dbviewer.h</header>
+  </customwidget>
+ </customwidgets>
+ <tabstops>
+  <tabstop>checkBoxActive</tabstop>
+  <tabstop>tableViewDoc</tabstop>
+  <tabstop>lineEditDoc</tabstop>
+  <tabstop>lineEditNam</tabstop>
+  <tabstop>comboBoxVed</tabstop>
+  <tabstop>dateEditDoc</tabstop>
+  <tabstop>comboBoxVid</tabstop>
+  <tabstop>lineEditNumBl</tabstop>
+  <tabstop>lineEditNumNak</tabstop>
+  <tabstop>lineEditGtu</tabstop>
+  <tabstop>dateEditBeg</tabstop>
+  <tabstop>dateEditEnd</tabstop>
+  <tabstop>textEditDoc</tabstop>
+  <tabstop>tableViewElDim</tabstop>
+  <tabstop>tableViewEl</tabstop>
+  <tabstop>tableViewVid</tabstop>
+  <tabstop>tableVieewGrade</tabstop>
+ </tabstops>
+ <resources/>
+ <connections/>
+</ui>

@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1016</width>
+    <height>722</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Сертификаты качества</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout"/>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1016</width>
+     <height>24</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menu">
+    <property name="title">
+     <string>Производство</string>
+    </property>
+    <addaction name="actionPart"/>
+   </widget>
+   <widget class="QMenu" name="menu_2">
+    <property name="title">
+     <string>Отгрузки</string>
+    </property>
+    <addaction name="actionSert"/>
+   </widget>
+   <widget class="QMenu" name="menu_3">
+    <property name="title">
+     <string>Сертификация</string>
+    </property>
+    <addaction name="actionNormDoc"/>
+    <addaction name="actionVed"/>
+    <addaction name="actionDoc"/>
+   </widget>
+   <widget class="QMenu" name="menu_4">
+    <property name="title">
+     <string>Справочники</string>
+    </property>
+    <addaction name="actionMark"/>
+    <addaction name="actionType"/>
+    <addaction name="actionPos"/>
+   </widget>
+   <widget class="QMenu" name="menu_5">
+    <property name="title">
+     <string>Сервис</string>
+    </property>
+    <addaction name="actionUpd"/>
+   </widget>
+   <addaction name="menu"/>
+   <addaction name="menu_2"/>
+   <addaction name="menu_3"/>
+   <addaction name="menu_4"/>
+   <addaction name="menu_5"/>
+  </widget>
+  <action name="actionPart">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Партии</string>
+   </property>
+  </action>
+  <action name="actionSert">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Сертификаты</string>
+   </property>
+  </action>
+  <action name="actionNormDoc">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Нормативная документация</string>
+   </property>
+  </action>
+  <action name="actionVed">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Ведомства и виды документов</string>
+   </property>
+  </action>
+  <action name="actionDoc">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Свидетельства и документы</string>
+   </property>
+  </action>
+  <action name="actionMark">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Марки электродов</string>
+   </property>
+  </action>
+  <action name="actionType">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Справочник типов</string>
+   </property>
+  </action>
+  <action name="actionUpd">
+   <property name="text">
+    <string>Обновить все данные</string>
+   </property>
+  </action>
+  <action name="actionPos">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Положения при сварке</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
