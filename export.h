@@ -20,13 +20,17 @@ public:
     void createXml();
 private:
     QDomElement getMark(int id_el,  QDomDocument *doc);
+    QDomElement getWire(int id_pr,  QDomDocument *doc);
     QDomElement getSert(int id_sert,  QDomDocument *doc);
     QDomElement getSertMark(int id_sert,  QDomDocument *doc);
+    QDomElement getSertWire(int id_sert,  QDomDocument *doc);
     QDomElement newElement(QString nam, QString val,  QDomDocument *doc);
     QDomElement getTu(int id_el,  QDomDocument *doc);
+    QDomElement getWireTu(int id_pr,  QDomDocument *doc);
     QDomElement getAmp(int id_el,  QDomDocument *doc);
     QDomElement getPlav(int id_el,  QDomDocument *doc);
-    QDomElement getChem(int id_el,  QDomDocument *doc);
+    QDomElement getChem(int id_pr,  QDomDocument *doc);
+    QDomElement getWireChem(int id_el,  QDomDocument *doc);
     QDomElement getMech(int id_el,  QDomDocument *doc);
     QString testStr(const QString &s);
     QString fromDouble(const QVariant &v, int d=1);

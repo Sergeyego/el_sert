@@ -26,6 +26,18 @@ void Export::createXml()
     }
     root.appendChild(kat);
 
+    QDomElement katWire = doc.createElement(QString::fromUtf8("Каталог_проволоки"));
+    QSqlQuery queryWire;
+    queryWire.prepare("select p.id from provol as p where p.katalog=true order by p.nam");
+    if (queryWire.exec()){
+        while (queryWire.next()){
+            katWire.appendChild(getWire(queryWire.value(0).toInt(),&doc));
+        }
+    } else {
+        QMessageBox::critical(NULL,tr("Ошибка"),queryWire.lastError().text(),QMessageBox::Ok);
+    }
+    root.appendChild(katWire);
+
     QDomElement sert = doc.createElement(QString::fromUtf8("Свидетельства_и_документы"));
     QSqlQuery querySert;
     querySert.prepare("select s.id from zvd_sert as s "
@@ -149,6 +161,34 @@ QDomElement Export::getMark(int id_el, QDomDocument *doc)
     return mark;
 }
 
+QDomElement Export::getWire(int id_pr, QDomDocument *doc)
+{
+    QDomElement mark = doc->createElement(QString::fromUtf8("Марка_проволоки"));
+    mark.setAttribute("id",id_pr);
+
+    QString nam, descr;
+
+    QSqlQuery query;
+    query.prepare("select p.nam, p.description from provol as p where p.id = :id ");
+    query.bindValue(":id",id_pr);
+    if (query.exec()){
+        while (query.next()){
+            nam=query.value(0).toString();
+            descr=query.value(1).toString();
+        }
+    } else {
+        qDebug()<<query.lastError().text();
+    }
+
+    mark.appendChild(newElement(QString::fromUtf8("Название"),nam,doc));
+    mark.appendChild(newElement(QString::fromUtf8("Описание"),descr,doc));
+
+    mark.appendChild(getWireTu(id_pr,doc));
+    mark.appendChild(getWireChem(id_pr,doc));
+
+    return mark;
+}
+
 QDomElement Export::getSert(int id_sert, QDomDocument *doc)
 {
     int id_typeDoc=-1;
@@ -206,13 +246,14 @@ QDomElement Export::getSert(int id_sert, QDomDocument *doc)
     sert.appendChild(newElement(QString::fromUtf8("Группы_технических_устройств"),gr_tech_ust,doc));
 
     sert.appendChild(getSertMark(id_sert,doc));
+    sert.appendChild(getSertWire(id_sert,doc));
 
     return sert;
 }
 
 QDomElement Export::getSertMark(int id_sert, QDomDocument *doc)
 {
-    QDomElement mar = doc->createElement(QString::fromUtf8("Сертифицированные_марки"));
+    QDomElement mar = doc->createElement(QString::fromUtf8("Сертифицированные_марки_электродов"));
     QSqlQuery markQuery;
     markQuery.prepare("select e.id_el, COALESCE(m.marka_sert,m.marka) from zvd_els as e "
                       "inner join elrtr as m on m.id=e.id_el "
@@ -254,6 +295,52 @@ QDomElement Export::getSertMark(int id_sert, QDomDocument *doc)
     return mar;
 }
 
+QDomElement Export::getSertWire(int id_sert, QDomDocument *doc)
+{
+    QDomElement mar = doc->createElement(QString::fromUtf8("Сертифицированные_марки_проволоки"));
+    QSqlQuery markWireQuery;
+    markWireQuery.prepare("select distinct z.id_provol, p.nam, p.id_base, pb.nam from zvd_wire_diam_sert as z "
+                          "inner join provol as p on p.id=z.id_provol "
+                          "left join provol as pb on p.id_base=pb.id "
+                          "where z.id_sert= :id ");
+    markWireQuery.bindValue(":id",id_sert);
+    if (markWireQuery.exec()){
+        while (markWireQuery.next()){
+            QDomElement mr=doc->createElement(QString::fromUtf8("Марка_проволоки"));
+            mr.setAttribute("id",markWireQuery.value(0).toInt());
+            mr.appendChild(newElement(QString::fromUtf8("Название"),markWireQuery.value(1).toString(),doc));
+            QDomElement mrb=doc->createElement(QString::fromUtf8("Базовая_марка"));
+            if (!markWireQuery.value(2).isNull()){
+                mrb.setAttribute("id",markWireQuery.value(2).toInt());
+                mrb.appendChild(newElement(QString::fromUtf8("Название"),markWireQuery.value(3).toString(),doc));
+            }
+            mr.appendChild(mrb);
+            QSqlQuery query;
+            query.prepare("select distinct z.id_diam, d.diam from zvd_wire_diam_sert as z "
+                          "inner join diam as d on z.id_diam=d.id "
+                          "where z.id_sert= :id_sert and z.id_provol= :id_pr "
+                          "order by d.diam ");
+            query.bindValue(":id_sert",id_sert);
+            query.bindValue(":id_pr",markWireQuery.value(0).toInt());
+            QDomElement diam = doc->createElement(QString::fromUtf8("Только_диаметры"));
+            if (query.exec()){
+                while (query.next()){
+                    diam.appendChild(newElement(QString::fromUtf8("Диаметр"),fromDouble(query.value(1),1),doc));
+                }
+            } else {
+                //QMessageBox::critical(NULL,tr("Error"),query.lastError().text(),QMessageBox::Ok);
+                qDebug()<<query.lastError().text();
+            }
+            mr.appendChild(diam);
+            mar.appendChild(mr);
+        }
+    } else {
+        //QMessageBox::critical(NULL,tr("Error"),markQuery.lastError().text(),QMessageBox::Ok);
+        qDebug()<<markWireQuery.lastError().text();
+    }
+    return mar;
+}
+
 QDomElement Export::newElement(QString nam, QString val, QDomDocument *doc)
 {
     QDomElement l = doc->createElement(nam);
@@ -271,6 +358,25 @@ QDomElement Export::getTu(int id_el, QDomDocument *doc)
     tuQuery.bindValue(":date",QDate::currentDate());
     tuQuery.bindValue(":id_el",id_el);
     tuQuery.bindValue(":id_diam",4);
+    if (tuQuery.exec()){
+        while (tuQuery.next()){
+            tu.appendChild(newElement(QString::fromUtf8("Документ"),tuQuery.value(0).toString(),doc));
+        }
+    } else {
+        //QMessageBox::critical(NULL,tr("Error"),tuQuery.lastError().text(),QMessageBox::Ok);
+        qDebug()<<tuQuery.lastError().text();
+    }
+    return tu;
+}
+
+QDomElement Export::getWireTu(int id_pr, QDomDocument *doc)
+{
+    QDomElement tu = doc->createElement(QString::fromUtf8("Нормативная_документация"));
+    QSqlQuery tuQuery;
+    tuQuery.prepare("select g.nam from wire_gost as w "
+                    "inner join gost_new as g on w.id_gost=g.id "
+                    "where w.id_provol= :id_pr order by g.nam");
+    tuQuery.bindValue(":id_pr",id_pr);
     if (tuQuery.exec()){
         while (tuQuery.next()){
             tu.appendChild(newElement(QString::fromUtf8("Документ"),tuQuery.value(0).toString(),doc));
@@ -341,7 +447,31 @@ QDomElement Export::getChem(int id_el, QDomDocument *doc)
             QDomElement ch = doc->createElement(QString::fromUtf8("Элемент"));
             ch.appendChild(newElement(QString::fromUtf8("Название"),queryChem.value(0).toString(),doc));
             ch.appendChild(newElement(QString::fromUtf8("Обозначение"),queryChem.value(1).toString(),doc));
-            ch.appendChild(newElement(QString::fromUtf8("Мининум"),fromDouble(queryChem.value(2),3),doc));
+            ch.appendChild(newElement(QString::fromUtf8("Минимум"),fromDouble(queryChem.value(2),3),doc));
+            ch.appendChild(newElement(QString::fromUtf8("Максимум"),fromDouble(queryChem.value(3),3),doc));
+            chem.appendChild(ch);
+        }
+    } else {
+        //QMessageBox::critical(NULL,tr("Error"),queryChem.lastError().text(),QMessageBox::Ok);
+        qDebug()<<queryChem.lastError().text();
+    }
+    return chem;
+}
+
+QDomElement Export::getWireChem(int id_pr, QDomDocument *doc)
+{
+    QDomElement chem = doc->createElement(QString::fromUtf8("Химический_состав_проволоки"));
+    QSqlQuery queryChem;
+    queryChem.prepare("select t.nam, t.sig, c.min, c.max from wire_chem_tu as c "
+                      "inner join chem_tbl as t on t.id=c.id_chem "
+                      "where c.id_provol = :id order by t.sig");
+    queryChem.bindValue(":id",id_pr);
+    if (queryChem.exec()){
+        while (queryChem.next()){
+            QDomElement ch = doc->createElement(QString::fromUtf8("Элемент"));
+            ch.appendChild(newElement(QString::fromUtf8("Название"),queryChem.value(0).toString(),doc));
+            ch.appendChild(newElement(QString::fromUtf8("Обозначение"),queryChem.value(1).toString(),doc));
+            ch.appendChild(newElement(QString::fromUtf8("Минимум"),fromDouble(queryChem.value(2),3),doc));
             ch.appendChild(newElement(QString::fromUtf8("Максимум"),fromDouble(queryChem.value(3),3),doc));
             chem.appendChild(ch);
         }
@@ -365,7 +495,7 @@ QDomElement Export::getMech(int id_el, QDomDocument *doc)
             QDomElement ch = doc->createElement(QString::fromUtf8("Параметр"));
             ch.appendChild(newElement(QString::fromUtf8("Название_html"),queryMech.value(0).toString(),doc));
             ch.appendChild(newElement(QString::fromUtf8("Обозначение_html"),queryMech.value(1).toString(),doc));
-            ch.appendChild(newElement(QString::fromUtf8("Мининум"),fromDouble(queryMech.value(2),3),doc));
+            ch.appendChild(newElement(QString::fromUtf8("Минимум"),fromDouble(queryMech.value(2),3),doc));
             ch.appendChild(newElement(QString::fromUtf8("Максимум"),fromDouble(queryMech.value(3),3),doc));
             mech.appendChild(ch);
         }
