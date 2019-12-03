@@ -8,12 +8,9 @@
 #include <QHeaderView>
 #include <QAction>
 #include <QMenu>
-#include <QDateEdit>
-#include <QCalendarWidget>
 
 class QMenu;
 class QAction;
-
 class DbViewer : public QTableView
 {
     Q_OBJECT
@@ -29,39 +26,24 @@ protected:
 private:
     QAction *updAct;
     QAction *removeAct;
-    QAction *saveAct;
+    //QAction *saveAct;
     bool menuEnabled;
     bool writeOk;
 
 private slots:
      void upd();
      void remove();
-     void save();
      void submit(QModelIndex ind, QModelIndex oldInd);
      void focusOutEvent(QFocusEvent *event);
 
 public slots:
      void setMenuEnabled(bool value);
-
-};
-
-class CustomCalendarWidget : public QCalendarWidget
-{
-    Q_OBJECT
-public:
-    CustomCalendarWidget(QWidget *parent = 0);
-    virtual void showEvent(QShowEvent *event);
-signals:
-    void shown();
 };
 
 class DateEdit : public QDateEdit{
     Q_OBJECT
 public:
     DateEdit(QWidget *parent=0);
-private slots:
-    void txtChangeSlot(QString txt);
-    void shVid();
 };
 
 #endif // DBVIEWER_H

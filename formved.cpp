@@ -8,8 +8,8 @@ FormVed::FormVed(QWidget *parent) :
     ui->setupUi(this);
 
     modelDocType = new DbTableModel("zvd_doc_type",this);
-    modelDocType->addColumn("id","id",true,TYPE_INT);
-    modelDocType->addColumn("nam",QString::fromUtf8("Наименование"),false,TYPE_STRING);
+    modelDocType->addColumn("id","id");
+    modelDocType->addColumn("nam",QString::fromUtf8("Наименование"));
     modelDocType->setSort("zvd_doc_type.nam");
     modelDocType->select();
 

@@ -33,10 +33,11 @@ DbMapper::DbMapper(QAbstractItemView *v, QWidget *parent) :
     mapper->setModel(v->model());
     mapper->setItemDelegate(new DbDelegate(this));
     isEdt=false;
+    defaultFocus=0;
 
     DbTableModel *sqlModel = qobject_cast<DbTableModel *>(mapper->model());
     if (sqlModel){
-        connect(sqlModel,SIGNAL(sigRefresh()),this,SLOT(first()));
+        connect(sqlModel,SIGNAL(sigRefresh()),this,SLOT(last()));
         connect(sqlModel,SIGNAL(sigRefresh()),this,SLOT(checkEmpty()));
     }
 
@@ -117,6 +118,11 @@ int DbMapper::currentIndex()
     return mapper->currentIndex();
 }
 
+void DbMapper::setDefaultFocus(int n)
+{
+    defaultFocus=n;
+}
+
 void DbMapper::setItemDelegate(QAbstractItemDelegate *delegate)
 {
     mapper->setItemDelegate(delegate);
@@ -156,11 +162,15 @@ void DbMapper::slotNew()
         mapper->toLast();
         setCurrentViewRow(sqlModel->rowCount()-1);
         if (sqlModel->isAdd()) lock(true);
-        for (int i=0; i<mapper->model()->columnCount(); i++){
-            if (mapper->mappedWidgetAt(i)) {
-                mapper->mappedWidgetAt(i)->setFocus();
-                break;
+        if (!defaultFocus){
+            for (int i=0; i<mapper->model()->columnCount(); i++){
+                if (mapper->mappedWidgetAt(i)) {
+                    mapper->mappedWidgetAt(i)->setFocus();
+                    break;
+                }
             }
+        } else {
+            if (mapper->mappedWidgetAt(defaultFocus)) mapper->mappedWidgetAt(defaultFocus)->setFocus();
         }
     }
 }
@@ -194,7 +204,7 @@ void DbMapper::slotWrite()
     if (sqlModel) {
         this->setFocus();
         bool ok=mapper->submit();
-        if (sqlModel->isAdd() || sqlModel->isEdt()) ok=sqlModel->submitRow();
+        //if (sqlModel->isAdd() || sqlModel->isEdt()) ok=sqlModel->submit();
         if (ok) {
             lock(false);
         }
@@ -208,10 +218,12 @@ void DbMapper::slotEsc()
     this->setFocus();
     if (sqlModel){
         if (sqlModel->isAdd()) {
-            sqlModel->escAdd();
+            //sqlModel->escAdd();
+            sqlModel->revert();
             setCurrentViewRow(sqlModel->rowCount()-1);
         } else if (sqlModel->isEdt()){
-            sqlModel->escAdd();
+            //sqlModel->escAdd();
+            sqlModel->revert();
         }
     }
     lock(false);
@@ -223,4 +235,10 @@ void DbMapper::first()
 {
     mapper->toFirst();
     setCurrentViewRow(0);
+}
+
+void DbMapper::last()
+{
+    mapper->toLast();
+    setCurrentViewRow(mapper->model()->rowCount()-1);
 }

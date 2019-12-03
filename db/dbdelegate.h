@@ -3,12 +3,10 @@
 #include <QtGui>
 #include <QtSql>
 #include "dbtablemodel.h"
-#include "dbviewer.h"
-//#include <QDateEdit>
+#include <QDateEdit>
 #include <QCompleter>
 #include <QCalendarWidget>
 #include <QLineEdit>
-
 
 class DbDelegate : public QItemDelegate
 {
@@ -48,4 +46,22 @@ public:
     void keyPressEvent(QKeyEvent *e);
 };
 
+class CustomCalendarWidget : public QCalendarWidget
+{
+    Q_OBJECT
+public:
+    CustomCalendarWidget(QWidget *parent = 0);
+    virtual void showEvent(QShowEvent *event);
+signals:
+    void shown();
+};
+
+class CustomDateEdit : public QDateEdit{
+    Q_OBJECT
+public:
+    CustomDateEdit(QWidget *parent=0);
+private slots:
+    void txtChangeSlot(QString txt);
+    void shVid();
+};
 #endif // DBDELEGATE_H

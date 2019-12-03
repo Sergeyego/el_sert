@@ -30,7 +30,7 @@ private:
     QDomElement getAmp(int id_el,  QDomDocument *doc);
     QDomElement getPlav(int id_el,  QDomDocument *doc);
     QDomElement getChem(int id_pr,  QDomDocument *doc);
-    QDomElement getWireChem(int id_el,  QDomDocument *doc);
+    QDomElement getWireChem(int id_pr,  QDomDocument *doc);
     QDomElement getMech(int id_el,  QDomDocument *doc);
     QString testStr(const QString &s);
     QString fromDouble(const QVariant &v, int d=1);

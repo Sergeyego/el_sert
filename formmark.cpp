@@ -19,12 +19,12 @@ FormMark::FormMark(QWidget *parent) :
     }
 
     modelAmp = new DbTableModel("amp",this);
-    modelAmp->addColumn("id","id",true,TYPE_INT);
-    modelAmp->addColumn("id_el","id_el",false,TYPE_INT);
-    modelAmp->addColumn("id_diam",QString::fromUtf8("Диаметр, мм"),false,TYPE_STRING,NULL,Rels::instance()->relDiam);
-    modelAmp->addColumn("bot",QString::fromUtf8("Нижнее"),false,TYPE_STRING);
-    modelAmp->addColumn("vert",QString::fromUtf8("Вертикальное"),false,TYPE_STRING);
-    modelAmp->addColumn("ceil",QString::fromUtf8("Потолочное"),false,TYPE_STRING);
+    modelAmp->addColumn("id","id");
+    modelAmp->addColumn("id_el","id_el");
+    modelAmp->addColumn("id_diam",QString::fromUtf8("Диаметр, мм"),NULL,Rels::instance()->relDiam);
+    modelAmp->addColumn("bot",QString::fromUtf8("Нижнее"));
+    modelAmp->addColumn("vert",QString::fromUtf8("Вертикальное"));
+    modelAmp->addColumn("ceil",QString::fromUtf8("Потолочное"));
     modelAmp->setSuffix("inner join diam on amp.id_diam=diam.id");
     modelAmp->setSort("diam.sdim");
 
@@ -37,10 +37,10 @@ FormMark::FormMark(QWidget *parent) :
     ui->tableViewAmp->setColumnWidth(5,150);
 
     modelChemTu = new DbTableModel("chem_tu",this);
-    modelChemTu->addColumn("id_el","id_el",true,TYPE_INT);
-    modelChemTu->addColumn("id_chem",QString::fromUtf8("Элемент"),true,TYPE_STRING,NULL,Rels::instance()->relChem);
-    modelChemTu->addColumn("min",QString::fromUtf8("Минимум, %"),false,TYPE_DOUBLE,new QDoubleValidator(0,1000000000,3,this));
-    modelChemTu->addColumn("max",QString::fromUtf8("Максимум, %"),false,TYPE_DOUBLE,new QDoubleValidator(0,1000000000,3,this));
+    modelChemTu->addColumn("id_el","id_el");
+    modelChemTu->addColumn("id_chem",QString::fromUtf8("Элемент"),NULL,Rels::instance()->relChem);
+    modelChemTu->addColumn("min",QString::fromUtf8("Минимум, %"),new QDoubleValidator(0,1000000000,3,this));
+    modelChemTu->addColumn("max",QString::fromUtf8("Максимум, %"),new QDoubleValidator(0,1000000000,3,this));
     modelChemTu->setSort("chem_tu.id_chem");
 
     ui->tableViewChem->setModel(modelChemTu);
@@ -50,10 +50,10 @@ FormMark::FormMark(QWidget *parent) :
     ui->tableViewChem->setColumnWidth(3,100);
 
     modelMechTu = new DbTableModel("mech_tu",this);
-    modelMechTu->addColumn("id_el","id_el",true,TYPE_INT);
-    modelMechTu->addColumn("id_mech",QString::fromUtf8("Параметр"),true,TYPE_STRING,NULL,Rels::instance()->relMech);
-    modelMechTu->addColumn("min",QString::fromUtf8("Минимум"),false,TYPE_DOUBLE,new QDoubleValidator(-1000000000,1000000000,3,this));
-    modelMechTu->addColumn("max",QString::fromUtf8("Максимум"),false,TYPE_DOUBLE,new QDoubleValidator(-1000000000,1000000000,3,this));
+    modelMechTu->addColumn("id_el","id_el");
+    modelMechTu->addColumn("id_mech",QString::fromUtf8("Параметр"),NULL,Rels::instance()->relMech);
+    modelMechTu->addColumn("min",QString::fromUtf8("Минимум"),new QDoubleValidator(-1000000000,1000000000,3,this));
+    modelMechTu->addColumn("max",QString::fromUtf8("Максимум"),new QDoubleValidator(-1000000000,1000000000,3,this));
     modelMechTu->setSort("mech_tu.id_mech");
 
     ui->tableViewMech->setModel(modelMechTu);
@@ -63,9 +63,9 @@ FormMark::FormMark(QWidget *parent) :
     ui->tableViewMech->setColumnWidth(3,100);
 
     modelPlav = new DbTableModel("el_plav",this);
-    modelPlav->addColumn("id_el","id_el",true,TYPE_INT);
-    modelPlav->addColumn("id_plav",QString::fromUtf8("Параметр"),true,TYPE_STRING,NULL,Rels::instance()->relPlav);
-    modelPlav->addColumn("value",QString::fromUtf8("Значение"),false,TYPE_DOUBLE,new QDoubleValidator(-1000000000,1000000000,2,this));
+    modelPlav->addColumn("id_el","id_el");
+    modelPlav->addColumn("id_plav",QString::fromUtf8("Параметр"),NULL,Rels::instance()->relPlav);
+    modelPlav->addColumn("value",QString::fromUtf8("Значение"),new QDoubleValidator(-1000000000,1000000000,2,this));
 
     ui->tableViewPlav->setModel(modelPlav);
     ui->tableViewPlav->setColumnHidden(0,true);
@@ -73,25 +73,25 @@ FormMark::FormMark(QWidget *parent) :
     ui->tableViewPlav->setColumnWidth(2,80);
 
     modelMark = new DbTableModel("elrtr",this);
-    modelMark->addColumn("id","id",true,TYPE_INT);
-    modelMark->addColumn("marka",QString::fromUtf8("Марка"),false,TYPE_STRING);
-    modelMark->addColumn("marka_sert",QString::fromUtf8("Название для сертификата"),false,TYPE_STRING);
-    modelMark->addColumn("id_grp",QString::fromUtf8("Группа"),false,TYPE_STRING,NULL,Rels::instance()->relGrp);
-    modelMark->addColumn("id_vid",QString::fromUtf8("Вид"),false,TYPE_STRING,NULL,Rels::instance()->relVid);
-    modelMark->addColumn("id_gost",QString::fromUtf8("Проволока"),false,TYPE_STRING,NULL,Rels::instance()->relProvol);
-    modelMark->addColumn("id_pic",QString::fromUtf8("Положение при сварке"),false,TYPE_STRING,NULL,Rels::instance()->relPol);
-    modelMark->addColumn("id_gost_type",QString::fromUtf8("Тип по ГОСТ"),false,TYPE_STRING,NULL,Rels::instance()->relGostType);
-    modelMark->addColumn("id_iso_type",QString::fromUtf8("Тип по ISO"),false,TYPE_STRING,NULL,Rels::instance()->relIso);
-    modelMark->addColumn("id_aws_type",QString::fromUtf8("Тип по AWS"),false,TYPE_STRING,NULL,Rels::instance()->relAws);
-    modelMark->addColumn("id_denominator",QString::fromUtf8("Знаменатель"),false,TYPE_STRING,NULL,Rels::instance()->relZnam);
-    modelMark->addColumn("id_purpose",QString::fromUtf8("Буквенное обозначение"),false,TYPE_STRING,NULL,Rels::instance()->relBukv);
-    modelMark->addColumn("descr",QString::fromUtf8("Описание"),false,TYPE_STRING);
-    modelMark->addColumn("vl",QString::fromUtf8("Допустимое содержание влаги"),false,TYPE_STRING);
-    modelMark->addColumn("pr",QString::fromUtf8("Режим повторной прокалки"),false,TYPE_STRING);
-    modelMark->addColumn("id_u",QString::fromUtf8("Индекс сортировки"),false,TYPE_INT,new QIntValidator(this));
-    modelMark->addColumn("katalog",QString::fromUtf8("Каталог"),false,TYPE_BOOL);
-    modelMark->addColumn("descr_spec",QString::fromUtf8("Особые свойства"),false,TYPE_STRING);
-    modelMark->addColumn("descr_feature",QString::fromUtf8("Особенности сварки"),false,TYPE_STRING);
+    modelMark->addColumn("id","id");
+    modelMark->addColumn("marka",QString::fromUtf8("Марка"));
+    modelMark->addColumn("marka_sert",QString::fromUtf8("Название для сертификата"));
+    modelMark->addColumn("id_grp",QString::fromUtf8("Группа"),NULL,Rels::instance()->relGrp);
+    modelMark->addColumn("id_vid",QString::fromUtf8("Вид"),NULL,Rels::instance()->relVid);
+    modelMark->addColumn("id_gost",QString::fromUtf8("Проволока"),NULL,Rels::instance()->relProvol);
+    modelMark->addColumn("id_pic",QString::fromUtf8("Положение при сварке"),NULL,Rels::instance()->relPol);
+    modelMark->addColumn("id_gost_type",QString::fromUtf8("Тип по ГОСТ"),NULL,Rels::instance()->relGostType);
+    modelMark->addColumn("id_iso_type",QString::fromUtf8("Тип по ISO"),NULL,Rels::instance()->relIso);
+    modelMark->addColumn("id_aws_type",QString::fromUtf8("Тип по AWS"),NULL,Rels::instance()->relAws);
+    modelMark->addColumn("id_denominator",QString::fromUtf8("Знаменатель"),NULL,Rels::instance()->relZnam);
+    modelMark->addColumn("id_purpose",QString::fromUtf8("Буквенное обозначение"),NULL,Rels::instance()->relBukv);
+    modelMark->addColumn("descr",QString::fromUtf8("Описание"));
+    modelMark->addColumn("vl",QString::fromUtf8("Допустимое содержание влаги"));
+    modelMark->addColumn("pr",QString::fromUtf8("Режим повторной прокалки"));
+    modelMark->addColumn("id_u",QString::fromUtf8("Индекс сортировки"),new QIntValidator(this));
+    modelMark->addColumn("katalog",QString::fromUtf8("Каталог"));
+    modelMark->addColumn("descr_spec",QString::fromUtf8("Особые свойства"));
+    modelMark->addColumn("descr_feature",QString::fromUtf8("Особенности сварки"));
     modelMark->setSort("elrtr.marka");
     modelMark->setFilter("elrtr.id<>0");
     modelMark->select();

@@ -50,9 +50,9 @@ FormPart::FormPart(QWidget *parent) :
     ui->tableViewSertMech->setColumnWidth(2,80);
 
     modelSertMechx = new DbTableModel("sert_mechx",this);
-    modelSertMechx->addColumn("id_part","id_part",true,TYPE_INT);
-    modelSertMechx->addColumn("id_mechx",tr("Параметр"),true,TYPE_STRING,NULL,Rels::instance()->relMechx);
-    modelSertMechx->addColumn("id_value",tr("Значение"),false,TYPE_STRING,NULL,Rels::instance()->relMechxVal);
+    modelSertMechx->addColumn("id_part","id_part");
+    modelSertMechx->addColumn("id_mechx",tr("Параметр"),NULL,Rels::instance()->relMechx);
+    modelSertMechx->addColumn("id_value",tr("Значение"),NULL,Rels::instance()->relMechxVal);
     ui->tableViewSertMechx->setModel(modelSertMechx);
     ui->tableViewSertMechx->setColumnHidden(0,true);
     ui->tableViewSertMechx->setColumnWidth(1,150);

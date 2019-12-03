@@ -12,62 +12,62 @@ Rels *Rels::instance()
 Rels::Rels(QObject *parent) : QObject(parent)
 {
     modelGrade = new DbTableModel("zvd_grade",this);
-    modelGrade->addColumn("id","id",true,TYPE_INT);
-    modelGrade->addColumn("nam",QString::fromUtf8("Наименование"),false,TYPE_STRING);
+    modelGrade->addColumn("id","id");
+    modelGrade->addColumn("nam",QString::fromUtf8("Наименование"));
     modelGrade->setSort("zvd_grade.nam");
     modelGrade->select();
 
     modelListGost = new DbTableModel("gost_new",this);
-    modelListGost->addColumn("id","id",true,TYPE_INT);
-    modelListGost->addColumn("nam",QString::fromUtf8("Наименование"),false,TYPE_STRING);
+    modelListGost->addColumn("id","id");
+    modelListGost->addColumn("nam",QString::fromUtf8("Наименование"));
     modelListGost->setSort("gost_new.nam");
     modelListGost->select();
 
     relDocType = new DbRelation(QString("select id, nam from zvd_doc_type order by nam"),0,1,this);
 
     modelDoc = new DbTableModel("zvd_doc",this);
-    modelDoc->addColumn("id","id",true,TYPE_INT);
-    modelDoc->addColumn("nam",QString::fromUtf8("Название"),false,TYPE_STRING);
-    modelDoc->addColumn("fnam",QString::fromUtf8("Полное название"),false,TYPE_STRING);
-    modelDoc->addColumn("id_doc_type",QString::fromUtf8("Тип"),false,TYPE_STRING,NULL,relDocType);
+    modelDoc->addColumn("id","id");
+    modelDoc->addColumn("nam",QString::fromUtf8("Название"));
+    modelDoc->addColumn("fnam",QString::fromUtf8("Полное название"));
+    modelDoc->addColumn("id_doc_type",QString::fromUtf8("Тип"),NULL,relDocType);
     modelDoc->setSort("zvd_doc.nam");
     modelDoc->select();
 
     modelVed = new DbTableModel("zvd_ved",this);
-    modelVed->addColumn("id","id",true,TYPE_INT);
-    modelVed->addColumn("nam",QString::fromUtf8("Название"),false,TYPE_STRING);
-    modelVed->addColumn("short",QString::fromUtf8("Кратеое название"),false,TYPE_STRING);
-    modelVed->addColumn("fnam",QString::fromUtf8("Полное название"),false,TYPE_STRING);
+    modelVed->addColumn("id","id");
+    modelVed->addColumn("nam",QString::fromUtf8("Название"));
+    modelVed->addColumn("short",QString::fromUtf8("Кратеое название"));
+    modelVed->addColumn("fnam",QString::fromUtf8("Полное название"));
     modelVed->setSort("zvd_ved.nam");
     modelVed->select();
 
     modelGost = new DbTableModel("gost_types",this);
-    modelGost->addColumn("id","id",true,TYPE_INT);
-    modelGost->addColumn("nam",QString::fromUtf8("Название"),false,TYPE_STRING);
+    modelGost->addColumn("id","id");
+    modelGost->addColumn("nam",QString::fromUtf8("Название"));
     modelGost->setSort("gost_types.nam");
     modelGost->select();
 
     modelIso = new DbTableModel("iso_types",this);
-    modelIso->addColumn("id","id",true,TYPE_INT);
-    modelIso->addColumn("nam",QString::fromUtf8("Название"),false,TYPE_STRING);
+    modelIso->addColumn("id","id");
+    modelIso->addColumn("nam",QString::fromUtf8("Название"));
     modelIso->setSort("iso_types.nam");
     modelIso->select();
 
     modelAws = new DbTableModel("aws_types",this);
-    modelAws->addColumn("id","id",true,TYPE_INT);
-    modelAws->addColumn("nam",QString::fromUtf8("Название"),false,TYPE_STRING);
+    modelAws->addColumn("id","id");
+    modelAws->addColumn("nam",QString::fromUtf8("Название"));
     modelAws->setSort("aws_types.nam");
     modelAws->select();
 
     modelZnam = new DbTableModel("denominator",this);
-    modelZnam->addColumn("id","id",true,TYPE_INT);
-    modelZnam->addColumn("nam",QString::fromUtf8("Название"),false,TYPE_STRING);
+    modelZnam->addColumn("id","id");
+    modelZnam->addColumn("nam",QString::fromUtf8("Название"));
     modelZnam->setSort("denominator.nam");
     modelZnam->select();
 
     modelBukv = new DbTableModel("purpose",this);
-    modelBukv->addColumn("id","id",true,TYPE_INT);
-    modelBukv->addColumn("nam",QString::fromUtf8("Название"),false,TYPE_STRING);
+    modelBukv->addColumn("id","id");
+    modelBukv->addColumn("nam",QString::fromUtf8("Название"));
     modelBukv->setSort("purpose.nam");
     modelBukv->select();
 

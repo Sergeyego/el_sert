@@ -13,16 +13,9 @@
 #include <QValidator>
 #include <QSortFilterProxyModel>
 #include <QLocale>
-
-enum {
-    TYPE_VARIANT = 0,
-    TYPE_STRING,
-    TYPE_INT,
-    TYPE_DOUBLE,
-    TYPE_DATE,
-    TYPE_BOOL,
-    TYPE_INTBOOL
-};
+#include <QSqlDriver>
+#include <QSqlRecord>
+#include <QSqlIndex>
 
 class DbRelationalModel : public QSqlQueryModel{
     Q_OBJECT
@@ -65,11 +58,10 @@ typedef struct
 {
     QString name;
     QString display;
-    bool isPk;
-    int type;
     DbRelation *relation;
     QVector<QVariant> data;
     QValidator *validator;
+    Qt::ItemFlags flags;
 } col;
 
 
@@ -128,21 +120,21 @@ public:
     int columnCount(const QModelIndex &parent=QModelIndex()) const;
     bool setData(const QModelIndex &index, const QVariant &value, int role);
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
-    bool addColumn(QString name, QString display, bool isPk, int type, QValidator *validator=NULL, DbRelation *relation=NULL);
+    bool addColumn(QString name, QString display, QValidator *validator=NULL, DbRelation *relation=NULL);
     bool removeRow(int row, const QModelIndex &parent = QModelIndex());
     void setFilter(QString s);
     void setSort(QString s);
     void setSuffix(QString s);
     bool isAdd();
     bool isEdt();
-    void escAdd();
-    virtual bool submitRow();
     virtual bool insertRow(int row, const QModelIndex &parent=QModelIndex());
     DbRelation *relation(int column) const;
-    int columnType(int column) const;
+    QVariant::Type columnType(int column) const;
+    QVariant nullVal(int column) const;
     int currentEdtRow();
     QValidator* validator(int column) const;
     void setDefaultValue(int column, QVariant value);
+    void setColumnFlags(int column, Qt::ItemFlags flags);
 
 protected:
     QString tableName;
@@ -150,14 +142,16 @@ protected:
     QString sort;
     QString suffix;
     QVector<QVariant> defaultTmpRow;
-    bool insertDb();
-    bool updateDb();
-    bool deleteDb(int row);
+    virtual bool insertDb();
+    virtual bool updateDb();
+    virtual bool deleteDb(int row);
     
 private:
     MData *modelData;
     DataEditor *editor;
     bool block;
+    QSqlIndex pkList;
+    QSqlRecord defaultRecord;
 
 signals:
     void sigUpd();
@@ -165,6 +159,8 @@ signals:
     
 public slots:
     virtual bool select();
+    virtual void revert();
+    virtual bool submit();
 };
 
 

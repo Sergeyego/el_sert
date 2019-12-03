@@ -23,6 +23,7 @@ public:
     bool isLock();
     void addMapping(QWidget *widget, int section);
     int currentIndex();
+    void setDefaultFocus(int n);
     void setItemDelegate(QAbstractItemDelegate *delegate);
     
 private:
@@ -38,6 +39,7 @@ private:
     QPushButton *cmdDel;
     QHBoxLayout *mainLayout;
     bool isEdt;
+    int defaultFocus;
 
 public slots:
     void refresh();
@@ -47,6 +49,7 @@ public slots:
     void slotWrite();
     void slotEsc();
     void first();
+    void last();
     void setCurrentViewRow(int row);
 
 private slots:

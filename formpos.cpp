@@ -8,8 +8,8 @@ FormPos::FormPos(QWidget *parent) :
     ui->setupUi(this);
 
     modelPos = new DbTableModel("pics",this);
-    modelPos->addColumn("id","id",true,TYPE_INT);
-    modelPos->addColumn("descr",QString::fromUtf8("Описание"),false,TYPE_STRING);
+    modelPos->addColumn("id","id");
+    modelPos->addColumn("descr",QString::fromUtf8("Описание"));
     modelPos->setSort("pics.descr");
     modelPos->select();
     ui->tableViewPos->setModel(modelPos);

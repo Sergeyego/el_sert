@@ -25,10 +25,10 @@ FormNormDoc::FormNormDoc(QWidget *parent) :
     ui->tableViewListGost->setColumnWidth(1,210);
 
     modelGostEl = new DbTableModel("gost_elnew",this);
-    modelGostEl->addColumn("ide",tr("Марка"),true,TYPE_INT);
-    modelGostEl->addColumn("dat",tr("Дата начала действия"),false,TYPE_DATE);
-    modelGostEl->addColumn("id_gost",tr("Документ"),true,TYPE_STRING,NULL,Rels::instance()->relGost);
-    modelGostEl->addColumn("dat_end",tr("Дата окончания действия"),false,TYPE_DATE);
+    modelGostEl->addColumn("ide",tr("Марка"));
+    modelGostEl->addColumn("dat",tr("Дата начала действия"));
+    modelGostEl->addColumn("id_gost",tr("Документ"),NULL,Rels::instance()->relGost);
+    modelGostEl->addColumn("dat_end",tr("Дата окончания действия"));
     modelGostEl->setSort("gost_elnew.dat, gost_elnew.id_gost");
     modelGostEl->setDefaultValue(3,QVariant());
     ui->tableViewGostEl->setModel(modelGostEl);

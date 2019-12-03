@@ -10,17 +10,17 @@ FormDoc::FormDoc(QWidget *parent) :
     loadsettings();
 
     modelElTypes = new DbTableModel("zvd_types",this);
-    modelElTypes->addColumn("id_sert","id_sert",true,TYPE_INT);
-    modelElTypes->addColumn("id_tip",QString::fromUtf8("Тип"),true,TYPE_STRING,NULL,Rels::instance()->relElTypes);
+    modelElTypes->addColumn("id_sert","id_sert");
+    modelElTypes->addColumn("id_tip",QString::fromUtf8("Тип"),NULL,Rels::instance()->relElTypes);
     modelElTypes->setSort("zvd_types.id_tip");
     ui->tableViewVid->setModel(modelElTypes);
     ui->tableViewVid->setColumnHidden(0,true);
     ui->tableViewVid->setColumnWidth(1,120);
 
     modelEl = new DbTableModel("zvd_els",this);
-    modelEl->addColumn("id_sert","id_sert",true,TYPE_INT);
-    modelEl->addColumn("id_el",QString::fromUtf8("Марка"),true,TYPE_STRING,NULL,Rels::instance()->relElMark);
-    modelEl->addColumn("id_grade",QString::fromUtf8("Категория"),false,TYPE_STRING,NULL,Rels::instance()->relGrade);
+    modelEl->addColumn("id_sert","id_sert");
+    modelEl->addColumn("id_el",QString::fromUtf8("Марка"),NULL,Rels::instance()->relElMark);
+    modelEl->addColumn("id_grade",QString::fromUtf8("Категория"),NULL,Rels::instance()->relGrade);
     modelEl->setSuffix("inner join elrtr as e on e.id=zvd_els.id_el");
     modelEl->setSort("e.marka");
     ui->tableViewEl->setModel(modelEl);
@@ -29,9 +29,9 @@ FormDoc::FormDoc(QWidget *parent) :
     ui->tableViewEl->setColumnWidth(2,200);
 
     modelElDim = new DbTableModel("zvd_eldim",this);
-    modelElDim->addColumn("id_sert","id_sert",true,TYPE_INT);
-    modelElDim->addColumn("id_eldr",QString::fromUtf8("Марка / диам."),true,TYPE_STRING,NULL,Rels::instance()->relElDim);
-    modelElDim->addColumn("id_grade",QString::fromUtf8("Категория"),false,TYPE_STRING,NULL,Rels::instance()->relGrade);
+    modelElDim->addColumn("id_sert","id_sert");
+    modelElDim->addColumn("id_eldr",QString::fromUtf8("Марка / диам."),NULL,Rels::instance()->relElDim);
+    modelElDim->addColumn("id_grade",QString::fromUtf8("Категория"),NULL,Rels::instance()->relGrade);
     modelElDim->setSuffix("inner join dry_els as d on d.ide=zvd_eldim.id_eldr");
     modelElDim->setSort("d.fnam");
     ui->tableViewElDim->setModel(modelElDim);
@@ -44,18 +44,18 @@ FormDoc::FormDoc(QWidget *parent) :
     ui->tableVieewGrade->setColumnWidth(1,250);
 
     modelDoc = new DbTableModel("zvd_sert",this);
-    modelDoc->addColumn("id","id",true,TYPE_INT);
-    modelDoc->addColumn("nom_doc",QString::fromUtf8("Номер документа"),false,TYPE_STRING);
-    modelDoc->addColumn("nazv",QString::fromUtf8("Название документа"),false,TYPE_STRING);
-    modelDoc->addColumn("dat_doc",QString::fromUtf8("Дата документа"),false,TYPE_DATE);
-    modelDoc->addColumn("dat_beg",QString::fromUtf8("Дата начала"),false,TYPE_DATE);
-    modelDoc->addColumn("dat_end",QString::fromUtf8("Дата конца"),false,TYPE_DATE);
-    modelDoc->addColumn("nom_bl",QString::fromUtf8("Номер бланка"),false,TYPE_STRING);
-    modelDoc->addColumn("nom_sl",QString::fromUtf8("Номер наклейки"),false,TYPE_STRING);
-    modelDoc->addColumn("txt",QString::fromUtf8("Текст документа"),false,TYPE_STRING);
-    modelDoc->addColumn("gr_tech_ust",QString::fromUtf8("ГТУ"),false,TYPE_STRING);
-    modelDoc->addColumn("id_ved",QString::fromUtf8("Ведомство"),false,TYPE_STRING,NULL,Rels::instance()->relVed);
-    modelDoc->addColumn("id_doc",QString::fromUtf8("Тип документа"),false,TYPE_STRING,NULL,Rels::instance()->relVidDoc);
+    modelDoc->addColumn("id","id");
+    modelDoc->addColumn("nom_doc",QString::fromUtf8("Номер документа"));
+    modelDoc->addColumn("nazv",QString::fromUtf8("Название документа"));
+    modelDoc->addColumn("dat_doc",QString::fromUtf8("Дата документа"));
+    modelDoc->addColumn("dat_beg",QString::fromUtf8("Дата начала"));
+    modelDoc->addColumn("dat_end",QString::fromUtf8("Дата конца"));
+    modelDoc->addColumn("nom_bl",QString::fromUtf8("Номер бланка"));
+    modelDoc->addColumn("nom_sl",QString::fromUtf8("Номер наклейки"));
+    modelDoc->addColumn("txt",QString::fromUtf8("Текст документа"));
+    modelDoc->addColumn("gr_tech_ust",QString::fromUtf8("ГТУ"));
+    modelDoc->addColumn("id_ved",QString::fromUtf8("Ведомство"),NULL,Rels::instance()->relVed);
+    modelDoc->addColumn("id_doc",QString::fromUtf8("Тип документа"),NULL,Rels::instance()->relVidDoc);
 
     modelDoc->setSort("zvd_sert.nom_doc, zvd_sert.dat_doc");
     selectDoc(ui->checkBoxActive->isChecked());
