@@ -26,7 +26,6 @@ protected:
 private:
     QAction *updAct;
     QAction *removeAct;
-    //QAction *saveAct;
     bool menuEnabled;
     bool writeOk;
 

@@ -191,8 +191,6 @@ bool DbTableModel::insertRow(int /*row*/, const QModelIndex& /*parent*/)
 {
     if (block) return false;
     bool ok=false;
-    submit();
-    //qDebug()<<"add="<<editor->isAdd()<<" edt="<<editor->isEdt();
     if (!editor->isAdd() && !editor->isEdt()){
         beginInsertRows(QModelIndex(),rowCount(),rowCount());
         ok=editor->add(rowCount(),defaultTmpRow);
@@ -428,16 +426,20 @@ void DbTableModel::revert()
 bool DbTableModel::submit()
 {
     if (block) return false;
-    if (editor->isAdd() && editor->isEdt()){
-        if (insertDb()) {
-            editor->submit();
-            //qDebug()<<"SUBMIT_ADD";
+    if (editor->isEdt()){
+        if (editor->isAdd()){
+            if (insertDb()) {
+                editor->submit();
+                //qDebug()<<"SUBMIT_ADD";
+            }
+        } else if (!editor->isAdd()){
+            if (updateDb()){
+                editor->submit();
+                //qDebug()<<"SUBMIT_EDT";
+            }
         }
-    } else if (!editor->isAdd() && editor->isEdt()){
-        if (updateDb()){
-            editor->submit();
-            //qDebug()<<"SUBMIT_EDT";
-        }
+    } else if (editor->isAdd()){
+        revert();
     }
     return !(editor->isAdd() || editor->isEdt());
 }

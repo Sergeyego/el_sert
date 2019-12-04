@@ -204,7 +204,6 @@ void DbMapper::slotWrite()
     if (sqlModel) {
         this->setFocus();
         bool ok=mapper->submit();
-        //if (sqlModel->isAdd() || sqlModel->isEdt()) ok=sqlModel->submit();
         if (ok) {
             lock(false);
         }
@@ -218,11 +217,9 @@ void DbMapper::slotEsc()
     this->setFocus();
     if (sqlModel){
         if (sqlModel->isAdd()) {
-            //sqlModel->escAdd();
             sqlModel->revert();
             setCurrentViewRow(sqlModel->rowCount()-1);
         } else if (sqlModel->isEdt()){
-            //sqlModel->escAdd();
             sqlModel->revert();
         }
     }
