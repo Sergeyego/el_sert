@@ -30,6 +30,7 @@ Rels::Rels(QObject *parent) : QObject(parent)
     modelDoc->addColumn("nam",QString::fromUtf8("Название"));
     modelDoc->addColumn("fnam",QString::fromUtf8("Полное название"));
     modelDoc->addColumn("id_doc_type",QString::fromUtf8("Тип"),NULL,relDocType);
+    modelDoc->addColumn("fnam_en",QString::fromUtf8("Полное название анг."));
     modelDoc->setSort("zvd_doc.nam");
     modelDoc->select();
 
@@ -38,6 +39,8 @@ Rels::Rels(QObject *parent) : QObject(parent)
     modelVed->addColumn("nam",QString::fromUtf8("Название"));
     modelVed->addColumn("short",QString::fromUtf8("Кратеое название"));
     modelVed->addColumn("fnam",QString::fromUtf8("Полное название"));
+    modelVed->addColumn("fnam_en",QString::fromUtf8("Полное название анг."));
+    modelVed->addColumn("short_en",QString::fromUtf8("Кратеое название анг."));
     modelVed->setSort("zvd_ved.nam");
     modelVed->select();
 

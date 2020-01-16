@@ -15,19 +15,22 @@ FormVed::FormVed(QWidget *parent) :
 
     ui->tableViewDocType->setModel(modelDocType);
     ui->tableViewDocType->setColumnHidden(0,true);
-    ui->tableViewDocType->setColumnWidth(1,150);
+    ui->tableViewDocType->setColumnWidth(1,140);
 
     ui->tableViewVed->setModel(Rels::instance()->modelVed);
     ui->tableViewVed->setColumnHidden(0,true);
-    ui->tableViewVed->setColumnWidth(1,180);
-    ui->tableViewVed->setColumnWidth(2,180);
+    ui->tableViewVed->setColumnWidth(1,170);
+    ui->tableViewVed->setColumnWidth(2,170);
     ui->tableViewVed->setColumnWidth(3,530);
+    ui->tableViewVed->setColumnWidth(4,530);
+    ui->tableViewVed->setColumnWidth(5,170);
 
     ui->tableViewDocVid->setModel(Rels::instance()->modelDoc);
     ui->tableViewDocVid->setColumnHidden(0,true);
-    ui->tableViewDocVid->setColumnWidth(1,200);
-    ui->tableViewDocVid->setColumnWidth(2,530);
-    ui->tableViewDocVid->setColumnWidth(3,150);
+    ui->tableViewDocVid->setColumnWidth(1,180);
+    ui->tableViewDocVid->setColumnWidth(2,370);
+    ui->tableViewDocVid->setColumnWidth(3,110);
+    ui->tableViewDocVid->setColumnWidth(4,360);
 
     connect(ui->tableViewVed->selectionModel(),SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),this,SLOT(loadImg(QModelIndex)));
     connect(ui->cmdBrowse,SIGNAL(clicked(bool)),this,SLOT(newImg()));

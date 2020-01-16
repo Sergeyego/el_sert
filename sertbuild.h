@@ -29,10 +29,13 @@ public:
     QDate datePart;
     QString prov;
     QString poluch;
+    QString poluch_en;
     QStringList tuList;
     QString adres;
+    QString adres_en;
     QString contact;
     QString otk;
+    QString otk_en;
     QString marka;
     double diam;
     QString tip1;
@@ -75,11 +78,19 @@ private:
     bool prn;
     int current_id;
     bool current_is_ship;
+    bool l_rus;
+    bool l_en;
+    void insertText(QTextCursor &c, const QString &rus, const QString &eng, bool newpar=false, bool sep=true, bool html=false);
+    void insertDouble(QTextCursor &c, const QVariant &val, int dec);
+    void insertDate(QTextCursor &c, const QDate &date, bool newpar=true);
     
 signals:
     
 public slots:
     void setPrn(bool p);
+    void setLRus(bool b);
+    void setLEn(bool b);
+    void setLMix(bool b);
 };
 
 

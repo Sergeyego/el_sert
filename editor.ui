@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>750</width>
-    <height>794</height>
+    <height>792</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -62,6 +62,30 @@
       <widget class="QCheckBox" name="checkBoxPrn">
        <property name="text">
         <string>Подпись</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QRadioButton" name="radioButtonRus">
+       <property name="text">
+        <string>Русский</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QRadioButton" name="radioButtonEn">
+       <property name="text">
+        <string>Английский</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QRadioButton" name="radioButtonMix">
+       <property name="text">
+        <string>Смешанный</string>
        </property>
       </widget>
      </item>

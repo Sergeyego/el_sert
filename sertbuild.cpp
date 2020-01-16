@@ -5,6 +5,8 @@ SertBuild::SertBuild(QObject *parent) :
 {
     data=new DataSert(this);
     prn=false;
+    l_rus=true;
+    l_en=false;
 }
 
 QString SertBuild::getNomPart()
@@ -71,10 +73,6 @@ void SertBuild::build(int id, bool is_ship)
 
     QTextCursor cursor(this);
     cursor.movePosition(QTextCursor::Start);
-    //cursor.setCharFormat(textNormalFormat);
-    /*cursor.setBlockFormat(formatRirht);
-    cursor.insertText(tr("СЕРТИФИКАТ КАЧЕСТВА (3.1) - Химический состав\n"),textNormalFormat);
-    cursor.insertText(tr("ОТЧЕТ ПО ИСПЫТАНИЯМ (2.2) - Механические свойства"),textNormalFormat);*/
 
     cursor.insertBlock(formatCenter,textNormalFormat);
 
@@ -85,13 +83,14 @@ void SertBuild::build(int id, bool is_ship)
     cursor.insertImage(f);
 
     cursor.insertBlock(formatRirht,textAdrFormat);
-    cursor.insertText(data->adres,textAdrFormat);
+    cursor.setCharFormat(textAdrFormat);
+    insertText(cursor,data->adres,data->adres_en,true,false);
     cursor.insertBlock(formatRirht,textAdrFormat);
     cursor.insertText(data->contact,textAdrFormat);
     cursor.insertBlock(formatLeft);
 
     QVector<int> id_ved;
-    QStringList odobr;
+    QHash<QString,QString> odobr;
     for (int i=0; i<data->sertModel->rowCount(); i++){
         int ved=data->sertModel->data(data->sertModel->index(i,0),Qt::EditRole).toInt();
 
@@ -101,20 +100,24 @@ void SertBuild::build(int id, bool is_ship)
 
         int id_doc_t=data->sertModel->data(data->sertModel->index(i,6),Qt::EditRole).toInt();
         if (id_doc_t==3){
-            QString str("Одобрено ");
-            str+=data->sertModel->data(data->sertModel->index(i,7),Qt::EditRole).toString();
-            QString cat=data->sertModel->data(data->sertModel->index(i,8),Qt::EditRole).toString();
-            QString sh=str+QString(".");
-            if (!cat.isEmpty()){
-                str+=QString(" по категории ")+cat;
-            }
-            str+=QString(".");
+                QString str("Одобрено ");
+                QString str_en("Approved by ");
+                str+=data->sertModel->data(data->sertModel->index(i,7),Qt::EditRole).toString();
+                str_en+=data->sertModel->data(data->sertModel->index(i,9),Qt::EditRole).toString();
+                QString cat=data->sertModel->data(data->sertModel->index(i,8),Qt::EditRole).toString();
+                QString sh=str+QString(".");
+                if (!cat.isEmpty()){
+                    str+=QString(" по категории ")+cat;
+                    str_en+=QString(" in category ")+cat;
+                }
+                str+=QString(".");
+                str_en+=QString(".");
             if (odobr.contains(sh) && (str!=sh)){
-                int ind=odobr.indexOf(sh);
-                odobr.removeAt(ind);
+                odobr.remove(sh);
             }
-            if (odobr.indexOf(QRegExp("^"+str+".*"))==-1) {
-                odobr.push_back(str);
+            QStringList lst=odobr.keys();
+            if (lst.indexOf(QRegExp("^"+str+".*"))==-1) {
+                odobr.insert(str,str_en);
             }
         }
     }
@@ -132,17 +135,26 @@ void SertBuild::build(int id, bool is_ship)
     }
 
     cursor.insertBlock(formatCenter,textTitleFormat);
-    cursor.insertText(tr("СЕРТИФИКАТ КАЧЕСТВА №")+data->nomPart+"-"+QString::number(data->yearPart),textTitleFormat);
+    cursor.setCharFormat(textTitleFormat);
+    insertText(cursor,tr("СЕРТИФИКАТ КАЧЕСТВА"),tr("QUALITY CERTIFICATE"));
+
+    cursor.insertText(tr(" №")+data->nomPart+"-"+QString::number(data->yearPart),textTitleFormat);
     if (is_ship){
         cursor.insertText("/"+data->nomSert,textTitleFormat);
     }
     cursor.insertBlock(formatLeft);
-    cursor.insertText(tr("Нормативная документация: "),textBoldFormat);
+    cursor.setCharFormat(textBoldFormat);
+    insertText(cursor,tr("Нормативная документация"),tr("Normative documents"));
+    cursor.insertText(tr(": "),textBoldFormat);
+    QString tulist;
+
     for (int i=0; i<data->tuList.size(); i++){
-        cursor.insertText(data->tuList.at(i),textNormalFormat);
-        if (i!=data->tuList.size()-1)
-            cursor.insertText(tr(", "),textNormalFormat);
+        tulist.push_back(data->tuList.at(i));
+        if (i!=data->tuList.size()-1){
+            tulist+=", ";
+        }
     }
+    cursor.insertText(tulist,textNormalFormat);
     cursor.insertBlock();
 
     QTextTableFormat tableFormat;
@@ -173,29 +185,38 @@ void SertBuild::build(int id, bool is_ship)
 
     cursor=mainTable->cellAt(0,0).firstCursorPosition();  
     cursor.setBlockFormat(formatCenter);
-    cursor.insertText(tr("Условное обозначение электрода"),textBoldFormat);
+    cursor.setBlockCharFormat(textBoldFormat);
+    insertText(cursor,tr("Условное обозначение электрода"),tr("Electrode symbol"),true);
 
     cursor=mainTable->cellAt(0,1).firstCursorPosition();
     cursor.setBlockFormat(formatCenter);
-    cursor.insertText(tr("Проволока по ГОСТ 2246-70"),textBoldFormat);
+    cursor.setBlockCharFormat(textBoldFormat);
+    insertText(cursor,tr("Проволока \nпо ГОСТ 2246-70"),tr("Wire \naccording to ГОСТ 2246-70"),true);
 
     cursor=mainTable->cellAt(0,2).firstCursorPosition();
     cursor.setBlockFormat(formatCenter);
-    cursor.insertText(tr("Номер партии"),textBoldFormat);
+    cursor.setBlockCharFormat(textBoldFormat);
+    insertText(cursor,tr("Номер партии"),tr("Batch number"),true);
 
     cursor=mainTable->cellAt(0,3).firstCursorPosition();
     cursor.setBlockFormat(formatCenter);
-    cursor.insertText(tr("Дата \nпроизводства"),textBoldFormat);
+    cursor.setBlockCharFormat(textBoldFormat);
+    insertText(cursor,tr("Дата \nпроизводства"),tr("Date of manufacture"),true);
 
     cursor=mainTable->cellAt(0,4).firstCursorPosition();
     cursor.setBlockFormat(formatCenter);
-    cursor.insertText(is_ship ? tr("Объем \nотгрузки, кг") : tr("Объем \nвыпуска, кг"),textBoldFormat);
+    cursor.setBlockCharFormat(textBoldFormat);
+    if (is_ship){
+        insertText(cursor,tr("Объем \nотгрузки, кг"),tr("Shipment volume, kg"),true);
+    } else {
+        insertText(cursor,tr("Объем \nвыпуска, кг"),tr("Volume of release, kg"),true);
+    }
 
     mainTable->insertRows(mainTable->rows(),1);
     cursor=mainTable->cellAt(1,0).firstCursorPosition();
     cursor.setBlockFormat(formatCenter);
     QString ob= (data->tip1.isNull() || data->tip2.isNull() || data->znam.isNull() || data->tip1==QString("-"))?
-                (data->marka+"-"+tr("∅")+QLocale().toString(data->diam)) : (data->tip1+"-"+data->marka+"-"+tr("∅")+QLocale().toString(data->diam)+"-"+data->tip2+"\n"+data->znam);
+                (data->marka+"-"+tr("∅")+QString::number(data->diam)) : (data->tip1+"-"+data->marka+"-"+tr("∅")+QString::number(data->diam)+"-"+data->tip2+"\n"+data->znam);
     cursor.insertText(ob,textTableFormat);
     cursor=mainTable->cellAt(1,1).firstCursorPosition();
     cursor.setBlockFormat(formatCenter);
@@ -205,33 +226,35 @@ void SertBuild::build(int id, bool is_ship)
     cursor.insertText(data->nomPart,textTableFormat);
     cursor=mainTable->cellAt(1,3).firstCursorPosition();
     cursor.setBlockFormat(formatCenter);
-    cursor.insertText(data->datePart.toString("dd.MM.yy"),textTableFormat);
+    cursor.setCharFormat(textTableFormat);
+    insertDate(cursor,data->datePart);
     cursor=mainTable->cellAt(1,4).firstCursorPosition();
     cursor.setBlockFormat(formatCenter);
-    cursor.insertText(QLocale().toString(data->netto,'f',1),textTableFormat);
+    cursor.setCharFormat(textTableFormat);
+    insertDouble(cursor,data->netto,1);
 
     cursor.movePosition(QTextCursor::End);
     cursor.setBlockFormat(formatCenter);
     cursor.insertBlock();
     cursor.insertBlock();
-    double value=0;
-    QString head;
+
     int row=data->chemModel->rowCount();
     if (row) {
         QTextTable *chemTable = cursor.insertTable(3, row, tableFormat);
         cursor=chemTable->cellAt(0,0).firstCursorPosition();
         cursor.setBlockFormat(formatCenter);
-        cursor.insertText(tr("Химический состав наплавленного металла, %\n"),textBoldFormat);
-        cursor.insertText(tr("Испытания: согласно EN 10204 - 3.1"),textBoldFormat);
+        cursor.setCharFormat(textBoldFormat);
+        insertText(cursor,tr("Химический состав наплавленного металла, %\nИспытания: согласно EN 10204 - 3.1"),tr("Chemical composition of weld metal, %\nTesting: according to EN 10204 - 3.1"),true);
         chemTable->mergeCells(0,0,1,row);
         for (int i=0; i<row; i++)
         {
-            head=data->chemModel->data(data->chemModel->index(i,0)).toString();
-            value=data->chemModel->data(data->chemModel->index(i,1)).toDouble();
-            if (value!=0){
+            QString head=data->chemModel->data(data->chemModel->index(i,0)).toString();
+            QVariant value=data->chemModel->data(data->chemModel->index(i,1));
+            if (!value.isNull()){
                 cursor=chemTable->cellAt(2,i).firstCursorPosition();
                 cursor.setBlockFormat(formatCenter);
-                cursor.insertText(" "+QLocale().toString(value,'f',3)+" ",textTableFormat);
+                cursor.setCharFormat(textTableFormat);
+                insertDouble(cursor,value,3);
                 cursor=chemTable->cellAt(1,i).firstCursorPosition();
                 cursor.setBlockFormat(formatCenter);
                 cursor.insertText(head,textTableFormat);
@@ -252,29 +275,36 @@ void SertBuild::build(int id, bool is_ship)
         }
     }
     QTextTable *mechTable0 = cursor.insertTable(data->mechModel->rowCount()+meh.size(),3,tableMechFormat);
-    QString sig, prefix, val;
     int pos=0;
     for (int n=0; n<meh.size(); n++){
+            QString sig, prefix, head, head_en, sig_en, prefix_en;
             mechTable0->cellAt(pos,0).firstCursorPosition().setBlockFormat(formatCenter);
             QString nameCat=data->mechCategory->data(data->mechCategory->index(meh.at(n),1)).toString();
+            QString nameCat_en=data->mechCategory->data(data->mechCategory->index(meh.at(n),2)).toString();
             if (n==0) {
                 nameCat+=tr("\n Испытания: согласно EN 10204 - 3.1");
+                nameCat_en+=tr("\n Tests: according to EN 10204 - 3.1");
             }
-            mechTable0->cellAt(pos,0).firstCursorPosition().insertText(nameCat,textBoldFormat);
+            cursor=mechTable0->cellAt(pos,0).firstCursorPosition();
+            cursor.setBlockFormat(formatCenter);
+            cursor.setCharFormat(textBoldFormat);
+            insertText(cursor,nameCat,nameCat_en,true);
             mechTable0->mergeCells(pos,0,1,3);
             pos++;
             for (int i=0; i<data->mechModel->rowCount(); i++){
                 if (data->mechModel->data(data->mechModel->index(i,0)).toInt()==meh.at(n)){
                     head=data->mechModel->data(data->mechModel->index(i,1)).toString();
+                    head_en=data->mechModel->data(data->mechModel->index(i,5)).toString();
                     sig=data->mechModel->data(data->mechModel->index(i,2)).toString();
+                    sig_en=data->mechModel->data(data->mechModel->index(i,6)).toString();
                     prefix=data->mechModel->data(data->mechModel->index(i,3)).toString();
-                    val=data->mechModel->data(data->mechModel->index(i,4)).isNull() ? "" : QLocale().toString(data->mechModel->data(data->mechModel->index(i,4)).toDouble(),'f',2);
-
+                    prefix_en=data->mechModel->data(data->mechModel->index(i,7)).toString();
+                    QVariant val=data->mechModel->data(data->mechModel->index(i,4));
                     mechTable0->cellAt(pos,0).firstCursorPosition().setBlockFormat(formatLeft);
                     mechTable0->cellAt(pos,0).firstCursorPosition().setCharFormat(textTableFormat);
                     QTextDocument hd;
-                    hd.setHtml(head);
                     QTextCursor chd(&hd);
+                    insertText(chd,head,head_en,true,true,true);
                     chd.select(QTextCursor::Document);
                     chd.mergeCharFormat(textTableFormat);
                     mechTable0->cellAt(pos,0).firstCursorPosition().insertFragment(chd.selection());
@@ -282,14 +312,22 @@ void SertBuild::build(int id, bool is_ship)
                     mechTable0->cellAt(pos,1).firstCursorPosition().setBlockFormat(formatCenter);
                     mechTable0->cellAt(pos,1).firstCursorPosition().setCharFormat(textTableFormat);                   
                     QTextDocument sd;
-                    sd.setHtml(sig);
                     QTextCursor csd(&sd);
+                    insertText(csd,sig,sig_en,true,true,true);
                     csd.select(QTextCursor::Document);
                     csd.mergeCharFormat(textTableFormat);
                     mechTable0->cellAt(pos,1).firstCursorPosition().insertFragment(csd.selection());
 
                     mechTable0->cellAt(pos,2).firstCursorPosition().setBlockFormat(formatRirht);
-                    mechTable0->cellAt(pos,2).firstCursorPosition().insertText(prefix+" "+val,textTableFormat);
+                    cursor=mechTable0->cellAt(pos,2).firstCursorPosition();
+                    cursor.setBlockFormat(formatRirht);
+                    cursor.setCharFormat(textTableFormat);
+                    insertText(cursor,prefix,prefix_en,true,true);
+                    if (!prefix.isEmpty()){
+                        cursor.insertText(" ",textTableFormat);
+                    }
+                    insertDouble(cursor,val,2);
+
                     pos++;
                 }
             }
@@ -300,43 +338,65 @@ void SertBuild::build(int id, bool is_ship)
 
     if (data->sertModel->rowCount()){
         cursor.setBlockFormat(formatCenter);
-        cursor.insertText(tr("Аттестация и сертификация"),textTitleFormat);
+        cursor.setCharFormat(textTitleFormat);
+        insertText(cursor,tr("Аттестация и сертификация"),tr("Certification"),false,true);
         cursor.insertBlock();
         QTextTable *sertTable = cursor.insertTable(data->sertModel->rowCount()+1,4,tableFormat);
-        sertTable->cellAt(0,0).firstCursorPosition().setBlockFormat(formatCenter);
-        sertTable->cellAt(0,0).firstCursorPosition().insertText(tr("Вид документа"),textBoldFormat);
-        sertTable->cellAt(0,1).firstCursorPosition().setBlockFormat(formatCenter);
-        sertTable->cellAt(0,1).firstCursorPosition().insertText(tr("Сертифицирующий орган"),textBoldFormat);
-        sertTable->cellAt(0,2).firstCursorPosition().setBlockFormat(formatCenter);
-        sertTable->cellAt(0,2).firstCursorPosition().insertText(tr("Номер документа"),textBoldFormat);
-        sertTable->cellAt(0,3).firstCursorPosition().setBlockFormat(formatCenter);
-        sertTable->cellAt(0,3).firstCursorPosition().insertText(tr("Дата"),textBoldFormat);
-        QString vid, organ, nom, dat;
+        cursor=sertTable->cellAt(0,0).firstCursorPosition();
+        cursor.setBlockFormat(formatCenter);
+        cursor.setCharFormat(textBoldFormat);
+        insertText(cursor,tr("Вид документа"),tr("Type of document"),true);
+        cursor=sertTable->cellAt(0,1).firstCursorPosition();
+        cursor.setBlockFormat(formatCenter);
+        cursor.setCharFormat(textBoldFormat);
+        insertText(cursor,tr("Сертифицирующий орган"),tr("Certification authority"),true);
+        cursor=sertTable->cellAt(0,2).firstCursorPosition();
+        cursor.setBlockFormat(formatCenter);
+        cursor.setCharFormat(textBoldFormat);
+        insertText(cursor,tr("Номер документа"),tr("Document Number"),true);
+        cursor=sertTable->cellAt(0,3).firstCursorPosition();
+        cursor.setBlockFormat(formatCenter);
+        cursor.setCharFormat(textBoldFormat);
+        insertText(cursor,tr("Дата"),tr("Date"),true);
+
         for(int i=0; i<data->sertModel->rowCount(); i++){
-            vid=data->sertModel->data(data->sertModel->index(i,1)).toString();
+            QString vid=data->sertModel->data(data->sertModel->index(i,1)).toString();
+            QString vid_en=data->sertModel->data(data->sertModel->index(i,10)).toString();
             vid=vid.simplified();
-            organ=data->sertModel->data(data->sertModel->index(i,2)).toString();
+            QString organ=data->sertModel->data(data->sertModel->index(i,2)).toString();
+            QString organ_en=data->sertModel->data(data->sertModel->index(i,11)).toString();
             organ=organ.simplified();
-            nom=data->sertModel->data(data->sertModel->index(i,3)).toString();
+            QString nom=data->sertModel->data(data->sertModel->index(i,3)).toString();
             nom=nom.simplified();
-            dat=data->sertModel->data(data->sertModel->index(i,4)).toDate().toString("dd.MM.yy");
-            sertTable->cellAt(i+1,0).firstCursorPosition().setBlockFormat(formatCenter);
-            sertTable->cellAt(i+1,0).firstCursorPosition().insertText(vid,textTableFormat);
-            sertTable->cellAt(i+1,1).firstCursorPosition().setBlockFormat(formatCenter);
-            sertTable->cellAt(i+1,1).firstCursorPosition().insertText(organ,textTableFormat);
+            QDate dat=data->sertModel->data(data->sertModel->index(i,4)).toDate();
+            cursor=sertTable->cellAt(i+1,0).firstCursorPosition();
+            cursor.setBlockFormat(formatCenter);
+            cursor.setCharFormat(textTableFormat);
+            insertText(cursor,vid,vid_en,true);
+            cursor=sertTable->cellAt(i+1,1).firstCursorPosition();
+            cursor.setBlockFormat(formatCenter);
+            cursor.setCharFormat(textTableFormat);
+            insertText(cursor,organ,organ_en,true);
+
             sertTable->cellAt(i+1,2).firstCursorPosition().setBlockFormat(formatCenter);
             sertTable->cellAt(i+1,2).firstCursorPosition().insertText(nom,textTableFormat);
-            sertTable->cellAt(i+1,3).firstCursorPosition().setBlockFormat(formatCenter);
-            sertTable->cellAt(i+1,3).firstCursorPosition().insertText(dat,textTableFormat);
+
+            cursor=sertTable->cellAt(i+1,3).firstCursorPosition();
+            cursor.setBlockFormat(formatCenter);
+            cursor.setCharFormat(textTableFormat);
+            insertDate(cursor,dat);
         }
         cursor.movePosition(QTextCursor::End);
     }
 
     cursor.setBlockFormat(formatLeft);
+    cursor.setCharFormat(textNormalFormat);
 
-    for (int i=0; i<odobr.size(); i++){
-        cursor.insertText(odobr.at(i),textNormalFormat);
+    QHash<QString, QString>::const_iterator it = odobr.constBegin();
+    while (it != odobr.constEnd()) {
+        insertText(cursor,it.key(),it.value());
         cursor.insertBlock();
+        ++it;
     }
 
     QString gto="";
@@ -344,32 +404,41 @@ void SertBuild::build(int id, bool is_ship)
         gto+=data->sertModel->data(data->sertModel->index(i,5)).toString();
     }
     if (!gto.isEmpty()) {
-        cursor.insertText(tr("Группы технических устройств "),textBoldFormat);
+        cursor.setCharFormat(textBoldFormat);
+        insertText(cursor,tr("Группы технических устройств"),tr("Groups of technical devices"));
+        cursor.insertText(": ",textBoldFormat);
         cursor.insertText(gto,textNormalFormat);
         cursor.insertBlock();
     }
 
     if (is_ship){
-        cursor.insertText(tr("Грузополучатель: "),textBoldFormat);
-        cursor.insertText(data->poluch,textNormalFormat);
+        cursor.setCharFormat(textBoldFormat);
+        insertText(cursor,tr("Грузополучатель"),tr("Consignee"));
+        cursor.insertText(":\n",textBoldFormat);
+        cursor.setCharFormat(textNormalFormat);
+        insertText(cursor,data->poluch,data->poluch_en,true);
         cursor.insertBlock();
     }
     cursor.setBlockFormat(formatCenter);
-    cursor.insertText(tr("При переписке по вопросам качества просьба ссылаться на номер партии"),textNormalFormat);
+    cursor.setCharFormat(textNormalFormat);
+    insertText(cursor,tr("При переписке по вопросам качества просьба ссылаться на номер партии"),tr("When correspondence on quality issues, please refer to the batch number"),true);
     cursor.insertBlock();
     cursor.setBlockFormat(formatLeft);
-    cursor.insertText(tr("Заключение: "),textBoldFormat);
-    cursor.insertText(tr("соответствует "),textNormalFormat);
-    for (int i=0; i<data->tuList.size(); i++){
-        cursor.insertText(data->tuList.at(i),textNormalFormat);
-        if (i!=data->tuList.size()-1)
-            cursor.insertText(tr(", "),textNormalFormat);
-    }
+    cursor.setCharFormat(textBoldFormat);
+    insertText(cursor,tr("Заключение"),tr("Conclusion"));
+    cursor.insertText(tr(":\n"),textBoldFormat);
+    cursor.setCharFormat(textNormalFormat);
+    insertText(cursor,tr("соответствует ")+tulist,tr("corresponds to ")+tulist,true);
+
     cursor.insertBlock();
     cursor.setBlockFormat(formatCenter);
+    cursor.setCharFormat(textBoldFormat);
     QDate date;
     date=(is_ship)? data->dateVidSert : QDate::currentDate();
-    cursor.insertText(tr("Дата ")+date.toString("dd.MM.yy"),textNormalFormat);
+    insertText(cursor,tr("Дата"),tr("Date"),false);
+    cursor.insertText(tr(": "),textBoldFormat);
+    cursor.setCharFormat(textNormalFormat);
+    insertDate(cursor,date,false);
     cursor.insertBlock();
 
     cursor.setBlockFormat(formatLeft);
@@ -379,7 +448,7 @@ void SertBuild::build(int id, bool is_ship)
     qrformat.setHeight(150);
     cursor.insertImage(qrformat);
 
-    cursor.insertText("                                    ",textNormalFormat);
+    cursor.insertText("   ",textNormalFormat);
     if (prn) {
         addResource(QTextDocument::ImageResource, QUrl("sign"), data->sign);
         QTextImageFormat signformat;
@@ -387,7 +456,70 @@ void SertBuild::build(int id, bool is_ship)
         signformat.setHeight(150);
         cursor.insertImage(signformat);
     } else {
-        cursor.insertText(tr("Начальник ОТК______________")+data->otk,textNormalFormat);
+        cursor.setCharFormat(textNormalFormat);
+        insertText(cursor,tr("Начальник ОТК"),tr("Head of Quality Department"));
+        cursor.insertText(tr("______________"),textNormalFormat);
+        insertText(cursor,data->otk,data->otk_en);
+    }
+}
+
+void SertBuild::insertText(QTextCursor &c, const QString &rus, const QString &eng, bool newpar, bool sep, bool html)
+{
+    QTextBlockFormat blockFormat=c.blockFormat();
+    QTextCharFormat charFormat=c.charFormat();
+    if (l_rus || eng.isEmpty() || rus==eng){
+        if (html){
+            c.insertHtml(rus);
+        } else {
+            c.insertText(rus,charFormat);
+        }
+    }
+    if (l_en && !eng.isEmpty() && rus!=eng){
+        if (l_rus){
+                c.insertText(sep ? " / " : " ",charFormat);
+            if (newpar){
+                c.insertBlock(blockFormat);
+            }
+        }
+        if (html){
+            c.insertHtml(eng);
+        } else {
+            c.insertText(eng,charFormat);
+        }
+    }
+}
+
+void SertBuild::insertDouble(QTextCursor &c, const QVariant &val, int dec)
+{
+    if (!val.isNull()){
+        QLocale lrus(QLocale::Russian);
+        bool ok=false;
+        double v=val.toDouble(&ok);
+        if (ok) {
+            if (l_rus && !l_en){
+                c.insertText(lrus.toString(v,'f',dec));
+            } else {
+                c.insertText(QString::number(v,'f',dec));
+            }
+        }
+    }
+}
+
+void SertBuild::insertDate(QTextCursor &c, const QDate &date, bool newpar)
+{
+    QLocale lrus(QLocale::Russian);
+    QLocale leng(QLocale::English);
+    if (l_rus && !l_en){
+        c.insertText(lrus.toString(date,QLocale::ShortFormat));
+    }
+    if (l_en){
+        if (l_rus){
+            c.insertText(lrus.toString(date,"dd MMM yyyy")+" / ");
+            if(newpar){
+                c.insertText("\n");
+            }
+        }
+        c.insertText(leng.toString(date,"MMM dd, yyyy"));
     }
 }
 
@@ -395,6 +527,33 @@ void SertBuild::setPrn(bool p)
 {
     prn=p;
     this->build(current_id,current_is_ship);
+}
+
+void SertBuild::setLRus(bool b)
+{
+    if (b){
+        l_rus=true;
+        l_en=false;
+        this->build(current_id,current_is_ship);
+    }
+}
+
+void SertBuild::setLEn(bool b)
+{
+    if (b){
+        l_rus=false;
+        l_en=true;
+        this->build(current_id,current_is_ship);
+    }
+}
+
+void SertBuild::setLMix(bool b)
+{
+    if (b){
+        l_rus=true;
+        l_en=true;
+        this->build(current_id,current_is_ship);
+    }
 }
 
 DataSert::DataSert(QObject *parent) : QObject(parent)
@@ -405,12 +564,14 @@ DataSert::DataSert(QObject *parent) : QObject(parent)
     mechCategory = new QSqlQueryModel(this);
     refreshMechCategory();
     QSqlQuery query;
-    query.prepare("select adr, telboss||', '||telfax||', '||teldop||' '||site||' '||email, otk from hoz where id=1");
+    query.prepare("select adr, telboss||', '||telfax||', '||teldop||' '||site||' '||email, otk, adr_en, otk_en from hoz where id=1");
     if (query.exec()){
         while(query.next()){
             adres=query.value(0).toString();
             contact=query.value(1).toString();
             otk=query.value(2).toString();
+            adres_en=query.value(3).toString();
+            otk_en=query.value(4).toString();
         }
     } else {
         QMessageBox::critical(NULL,tr("Error"),query.lastError().text(),QMessageBox::Ok);
@@ -424,7 +585,7 @@ void DataSert::refresh(int id, bool is_ship)
     QSqlQuery query;
     QString sQuery;
     sQuery= is_ship ? QString("select p.id, p.n_s, p.yea, p.dat_part, e.marka_sert, p.diam, "
-                              "gt.nam, pu.nam, p.ibco, v.nam, pol.naim, s.nom_s, s.dat_vid, o.massa "
+                              "gt.nam, pu.nam, p.ibco, v.nam, pol.naim, s.nom_s, s.dat_vid, o.massa, pol.naim_en "
                               "from otpusk as o "
                               "inner join sertifikat as s on o.id_sert=s.id "
                               "inner join parti as p on o.id_part=p.id "
@@ -435,7 +596,7 @@ void DataSert::refresh(int id, bool is_ship)
                               "inner join purpose as pu on e.id_purpose=pu.id "
                               "where o.id = :id") :
                   QString("select p.id, p.n_s, p.yea, p.dat_part, e.marka_sert, p.diam, "
-                          "gt.nam, pu.nam, p.ibco, v.nam, NULL, NULL, NULL, j.sum "
+                          "gt.nam, pu.nam, p.ibco, v.nam, NULL, NULL, NULL, j.sum, NULL "
                           "from parti as p "
                           "inner join elrtr as e on e.id=p.id_el "
                           "inner join provol as v on v.id=e.id_gost "
@@ -461,6 +622,7 @@ void DataSert::refresh(int id, bool is_ship)
             nomSert=query.value(11).toString();
             dateVidSert=query.value(12).toDate();
             netto=query.value(13).toDouble();
+            poluch_en=query.value(14).toString();
         }
         refreshTu();
         refreshChem();
@@ -503,12 +665,12 @@ void DataSert::refreshChem()
 
 void DataSert::refreshMech()
 {
-    mechModel->setQuery("select m.id_cat, m.nam_html, m.sig_html, m.prefix, s.value "
+    mechModel->setQuery("select m.id_cat, m.nam_html, m.sig_html, m.prefix, s.value, m.nam_html_en, m.sig_html_en, m.prefix_en "
                         "from sert_mech as s "
                         "inner join mech_tbl as m on s.id_mech=m.id "
                         "where s.id_part= "+QString::number(id_parti)+" "
                         "union "
-                        "select t.id_cat, t.nam, null, n.nam, null from sert_mechx as x "
+                        "select t.id_cat, t.nam, null, n.nam, null, t.nam_en, null, n.nam_en from sert_mechx as x "
                         "inner join mechx_tbl as t on x.id_mechx=t.id "
                         "inner join mechx_nams as n on x.id_value=n.id "
                         "where x.id_part= "+QString::number(id_parti)+" order by 2");
@@ -519,7 +681,7 @@ void DataSert::refreshMech()
 void DataSert::refreshSert()
 {
     QString id_part=QString::number(id_parti);
-    sertModel->setQuery("select z.id_ved, z.doc_nam, z.ved_nam, z.nom_doc, z.dat_doc, z.gr_tech_ust, z.id_doc_t, z.ved_short, z.grade_nam "
+    sertModel->setQuery("select z.id_ved, z.doc_nam, z.ved_nam, z.nom_doc, z.dat_doc, z.gr_tech_ust, z.id_doc_t, z.ved_short, z.grade_nam, z.ved_short_en, z.doc_nam_en, z.ved_nam_en "
                         "from zvd_get_sert((select dat_part from parti where id = "+id_part+" ), "
                         "(select id_el from parti where id = "+id_part+" ), "
                         "(select d.id from diam as d where d.diam = (select diam from parti where id = "+id_part+" )) ) as z");
@@ -595,7 +757,7 @@ void DataSert::refreshQR(int id, bool is_ship)
 
 void DataSert::refreshMechCategory()
 {
-    mechCategory->setQuery("select id, nam from mech_category");
+    mechCategory->setQuery("select id, nam, nam_en from mech_category");
     if (mechCategory->lastError().isValid())
         QMessageBox::critical(NULL,"Error",mechCategory->lastError().text(),QMessageBox::Ok);
 }
