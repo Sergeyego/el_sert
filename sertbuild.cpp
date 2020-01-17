@@ -244,7 +244,7 @@ void SertBuild::build(int id, bool is_ship)
         cursor=chemTable->cellAt(0,0).firstCursorPosition();
         cursor.setBlockFormat(formatCenter);
         cursor.setCharFormat(textBoldFormat);
-        insertText(cursor,tr("Химический состав наплавленного металла, %\nИспытания: согласно EN 10204 - 3.1"),tr("Chemical composition of weld metal, %\nTesting: according to EN 10204 - 3.1"),true);
+        insertText(cursor,tr("Испытания: согласно EN 10204 - 3.1. Химический состав наплавленного металла, %"),tr("Testing: according to EN 10204 - 3.1. Chemical composition of weld metal, %"),true);
         chemTable->mergeCells(0,0,1,row);
         for (int i=0; i<row; i++)
         {
@@ -274,17 +274,20 @@ void SertBuild::build(int id, bool is_ship)
             meh.push_back(mCat);
         }
     }
+    //qDebug()<<meh;
     QTextTable *mechTable0 = cursor.insertTable(data->mechModel->rowCount()+meh.size(),3,tableMechFormat);
     int pos=0;
     for (int n=0; n<meh.size(); n++){
             QString sig, prefix, head, head_en, sig_en, prefix_en;
             mechTable0->cellAt(pos,0).firstCursorPosition().setBlockFormat(formatCenter);
-            QString nameCat=data->mechCategory->data(data->mechCategory->index(meh.at(n),1)).toString();
-            QString nameCat_en=data->mechCategory->data(data->mechCategory->index(meh.at(n),2)).toString();
+            QString nameCat;
+            QString nameCat_en;
             if (n==0) {
-                nameCat+=tr("\n Испытания: согласно EN 10204 - 3.1");
-                nameCat_en+=tr("\n Tests: according to EN 10204 - 3.1");
+                nameCat+=tr("Испытания: согласно EN 10204 - 3.1. ");
+                nameCat_en+=tr("Tests: according to EN 10204 - 3.1. ");
             }
+            nameCat+=data->mechCategory->data(data->mechCategory->index(meh.at(n),1)).toString();
+            nameCat_en+=data->mechCategory->data(data->mechCategory->index(meh.at(n),2)).toString();
             cursor=mechTable0->cellAt(pos,0).firstCursorPosition();
             cursor.setBlockFormat(formatCenter);
             cursor.setCharFormat(textBoldFormat);
@@ -399,7 +402,7 @@ void SertBuild::build(int id, bool is_ship)
         ++it;
     }
 
-    QString gto="";
+    /*QString gto="";
     for (int i=0; i<data->sertModel->rowCount(); i++){
         gto+=data->sertModel->data(data->sertModel->index(i,5)).toString();
     }
@@ -409,7 +412,7 @@ void SertBuild::build(int id, bool is_ship)
         cursor.insertText(": ",textBoldFormat);
         cursor.insertText(gto,textNormalFormat);
         cursor.insertBlock();
-    }
+    }*/
 
     if (is_ship){
         cursor.setCharFormat(textBoldFormat);
@@ -757,7 +760,7 @@ void DataSert::refreshQR(int id, bool is_ship)
 
 void DataSert::refreshMechCategory()
 {
-    mechCategory->setQuery("select id, nam, nam_en from mech_category");
+    mechCategory->setQuery("select id, nam, nam_en from mech_category order by id");
     if (mechCategory->lastError().isValid())
         QMessageBox::critical(NULL,"Error",mechCategory->lastError().text(),QMessageBox::Ok);
 }
