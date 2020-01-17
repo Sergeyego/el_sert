@@ -452,16 +452,36 @@ void SertBuild::build(int id, bool is_ship)
     cursor.insertImage(qrformat);
 
     cursor.insertText("   ",textNormalFormat);
+    QString nach=tr("Начальник ОТК");
+    QString nach_en=tr("Head of Quality Department");
+    QString line=tr("______________");
     if (prn) {
-        addResource(QTextDocument::ImageResource, QUrl("sign"), data->sign);
+        QImage im("images/otk.png");
+        QPainter p(&im);
+        QFont f("Droid Sans",44,QFont::Normal);
+        p.setFont(f);
+        int pos=100;
+        QString str;
+        if (l_en && !l_rus){
+            pos=400;
+            str=nach_en+line+data->otk_en;
+        } else if (l_rus && !l_en){
+            pos=630;
+            str=nach+line+data->otk;
+        } else if (l_rus && l_en){
+            pos=50;
+            str=nach+" / "+nach_en+line+data->otk+" / "+data->otk_en;
+        }
+        p.drawText(pos,150,str);
+        addResource(QTextDocument::ImageResource, QUrl("sign"), im);
         QTextImageFormat signformat;
         signformat.setName("sign");
         signformat.setHeight(150);
         cursor.insertImage(signformat);
     } else {
         cursor.setCharFormat(textNormalFormat);
-        insertText(cursor,tr("Начальник ОТК"),tr("Head of Quality Department"));
-        cursor.insertText(tr("______________"),textNormalFormat);
+        insertText(cursor,nach,nach_en);
+        cursor.insertText(line,textNormalFormat);
         insertText(cursor,data->otk,data->otk_en);
     }
 }

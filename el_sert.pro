@@ -83,3 +83,8 @@ RESOURCES += \
     res.qrc
 
 LIBS += -lqrencode
+
+DISTFILES += \
+    images/bg.png \
+    images/logo2.png \
+    images/otk.png
