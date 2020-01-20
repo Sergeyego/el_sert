@@ -303,23 +303,16 @@ void SertBuild::build(int id, bool is_ship)
                     prefix=data->mechModel->data(data->mechModel->index(i,3)).toString();
                     prefix_en=data->mechModel->data(data->mechModel->index(i,7)).toString();
                     QVariant val=data->mechModel->data(data->mechModel->index(i,4));
-                    mechTable0->cellAt(pos,0).firstCursorPosition().setBlockFormat(formatLeft);
-                    mechTable0->cellAt(pos,0).firstCursorPosition().setCharFormat(textTableFormat);
-                    QTextDocument hd;
-                    QTextCursor chd(&hd);
-                    insertText(chd,head,head_en,true,true,true);
-                    chd.select(QTextCursor::Document);
-                    chd.mergeCharFormat(textTableFormat);
-                    mechTable0->cellAt(pos,0).firstCursorPosition().insertFragment(chd.selection());
 
-                    mechTable0->cellAt(pos,1).firstCursorPosition().setBlockFormat(formatCenter);
-                    mechTable0->cellAt(pos,1).firstCursorPosition().setCharFormat(textTableFormat);                   
-                    QTextDocument sd;
-                    QTextCursor csd(&sd);
-                    insertText(csd,sig,sig_en,true,true,true);
-                    csd.select(QTextCursor::Document);
-                    csd.mergeCharFormat(textTableFormat);
-                    mechTable0->cellAt(pos,1).firstCursorPosition().insertFragment(csd.selection());
+                    cursor= mechTable0->cellAt(pos,0).firstCursorPosition();
+                    cursor.setBlockFormat(formatLeft);
+                    cursor.setCharFormat(textTableFormat);
+                    insertText(cursor,head,head_en,true,true,true);
+
+                    cursor=mechTable0->cellAt(pos,1).firstCursorPosition();
+                    cursor.setBlockFormat(formatCenter);
+                    cursor.setCharFormat(textTableFormat);
+                    insertText(cursor,sig,sig_en,true,true,true);
 
                     mechTable0->cellAt(pos,2).firstCursorPosition().setBlockFormat(formatRirht);
                     cursor=mechTable0->cellAt(pos,2).firstCursorPosition();
@@ -456,9 +449,10 @@ void SertBuild::build(int id, bool is_ship)
     QString nach_en=tr("Head of Quality Department");
     QString line=tr("______________");
     if (prn) {
-        QImage im("images/otk.png");
+        QImage im(data->sign);
         QPainter p(&im);
-        QFont f("Droid Sans",44,QFont::Normal);
+        QFont f(textNormalFormat.font());
+        f.setPointSize(44);
         p.setFont(f);
         int pos=100;
         QString str;
@@ -480,6 +474,11 @@ void SertBuild::build(int id, bool is_ship)
         cursor.insertImage(signformat);
     } else {
         cursor.setCharFormat(textNormalFormat);
+        if (l_en && !l_rus){
+            cursor.insertText("                               ",textNormalFormat);
+        } else if (l_rus && !l_en){
+            cursor.insertText("                                                    ",textNormalFormat);
+        }
         insertText(cursor,nach,nach_en);
         cursor.insertText(line,textNormalFormat);
         insertText(cursor,data->otk,data->otk_en);
@@ -492,7 +491,7 @@ void SertBuild::insertText(QTextCursor &c, const QString &rus, const QString &en
     QTextCharFormat charFormat=c.charFormat();
     if (l_rus || eng.isEmpty() || rus==eng){
         if (html){
-            c.insertHtml(rus);
+            insertHtml(c,rus);
         } else {
             c.insertText(rus,charFormat);
         }
@@ -505,11 +504,24 @@ void SertBuild::insertText(QTextCursor &c, const QString &rus, const QString &en
             }
         }
         if (html){
-            c.insertHtml(eng);
+            insertHtml(c,eng);
         } else {
             c.insertText(eng,charFormat);
         }
     }
+}
+
+void SertBuild::insertHtml(QTextCursor &c, const QString &html)
+{
+    QTextDocument hd;
+    QTextCursor chd(&hd);
+    chd.setBlockFormat(c.blockFormat());
+    chd.setCharFormat(c.charFormat());
+    chd.insertHtml(html);
+    chd.select(QTextCursor::Document);
+    chd.mergeCharFormat(c.charFormat());
+    chd.mergeBlockFormat(c.blockFormat());
+    c.insertFragment(chd.selection());
 }
 
 void SertBuild::insertDouble(QTextCursor &c, const QVariant &val, int dec)
@@ -600,7 +612,7 @@ DataSert::DataSert(QObject *parent) : QObject(parent)
         QMessageBox::critical(NULL,tr("Error"),query.lastError().text(),QMessageBox::Ok);
     }
     logo.load("images/logo2.png");
-    sign.load("images/nach.png");
+    sign.load("images/otk.png");
 }
 
 void DataSert::refresh(int id, bool is_ship)

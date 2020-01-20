@@ -81,6 +81,7 @@ private:
     bool l_rus;
     bool l_en;
     void insertText(QTextCursor &c, const QString &rus, const QString &eng, bool newpar=false, bool sep=true, bool html=false);
+    void insertHtml(QTextCursor &c, const QString &html);
     void insertDouble(QTextCursor &c, const QVariant &val, int dec);
     void insertDate(QTextCursor &c, const QDate &date, bool newpar=true);
     
