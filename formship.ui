@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1092</width>
-    <height>753</height>
+    <width>1090</width>
+    <height>751</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -88,12 +88,6 @@
        <enum>Qt::Vertical</enum>
       </property>
       <widget class="QTableView" name="tableViewShip">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
        <property name="selectionMode">
         <enum>QAbstractItemView::SingleSelection</enum>
        </property>
@@ -138,7 +132,7 @@
           <item>
            <widget class="QPushButton" name="cmdMultipagePdf">
             <property name="text">
-             <string>Сохранить многостраничный PDF</string>
+             <string>Сохр. многостран. PDF</string>
             </property>
            </widget>
           </item>
