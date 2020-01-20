@@ -545,7 +545,7 @@ void SertBuild::insertDate(QTextCursor &c, const QDate &date, bool newpar)
     QLocale lrus(QLocale::Russian);
     QLocale leng(QLocale::English);
     if (l_rus && !l_en){
-        c.insertText(lrus.toString(date,QLocale::ShortFormat));
+        c.insertText(lrus.toString(date,"dd.MM.yy"));
     }
     if (l_en){
         if (l_rus){
