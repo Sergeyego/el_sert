@@ -36,7 +36,8 @@ SOURCES += main.cpp\
     formpos.cpp \
     rtf/rtfcpp.cpp \
     lblcreator.cpp \
-    export.cpp
+    export.cpp \
+    qr/qrencode.cpp
 
 HEADERS  += formpart.h \
     pgdialog.h \
@@ -63,7 +64,8 @@ HEADERS  += formpart.h \
     rtf/rtfcpp.h \
     rtf/rtfdefs.h \
     lblcreator.h \
-    export.h
+    export.h \
+    qr/qrencode.h
 
 FORMS    += formpart.ui \
     pgdialog.ui \
@@ -81,8 +83,6 @@ FORMS    += formpart.ui \
 
 RESOURCES += \
     res.qrc
-
-LIBS += -lqrencode
 
 DISTFILES += \
     images/bg.png \

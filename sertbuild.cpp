@@ -754,11 +754,12 @@ void DataSert::refreshQR(int id, bool is_ship)
     memcpy((u_int8_t*)&cod+4,(u_int8_t*)&id_part,4);
 
     str+="Код подлинности "+QString::number(cod).toUtf8();
-    QRcode *qr = QRcode_encodeString(str.toStdString().c_str(), 1, QR_ECLEVEL_L, QR_MODE_8, 0);
-    bool ok= qr!=0;
+
+    QrEncode qr;
+    bool ok=qr.encodeData(0,0,true,-1,str.toLocal8Bit().data());
     const int scale=10;
     int s=1;
-    if (ok) s=(qr->width>0)? qr->width : 1;
+    if (ok) s=(qr.size()>0)? qr.size() : 1;
     QImage img(s*scale,s*scale,QImage::Format_RGB32);
     QPainter painter(&img);
     if(ok){
@@ -768,24 +769,19 @@ void DataSert::refreshQR(int id, bool is_ship)
         painter.setPen(Qt::NoPen);
         painter.drawRect(0,0,s*scale,s*scale);
         painter.setBrush(fg);
-        for(int y=0;y<s;y++){
-            const int yy=y*s;
-            for(int x=0;x<s;x++){
-                const int xx=yy+x;
-                const unsigned char b=qr->data[xx];
-                if(b & 0x01){
+        for(int y=0; y<s; y++){
+            for(int x=0; x<s; x++){
+                if(qr.data(y,x)){
                     const double rx1=x*scale, ry1=y*scale;
                     QRectF r(rx1, ry1, scale, scale);
                     painter.drawRects(&r,1);
                 }
             }
         }
-        QRcode_free(qr);
-    }
-    else{
+    } else {
         QColor error("red");
         painter.setBrush(error);
-        painter.drawRect(0,0,s*scale,s*scale);
+        painter.drawRect(0,0,scale-1,scale-1);
     }
     qrCode=img;
 }

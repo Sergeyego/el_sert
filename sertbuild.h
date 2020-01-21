@@ -7,11 +7,12 @@
 #include <QSqlError>
 #include <QSqlQueryModel>
 #include <QTextCharFormat>
-#include <qrencode.h>
+//#include <qrencode.h>
 #include <QMessageBox>
 #include <QTextDocumentFragment>
 #include <QTextLength>
 #include "rels.h"
+#include "qr/qrencode.h"
 
 class DataSert : public QObject
 {
