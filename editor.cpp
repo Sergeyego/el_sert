@@ -56,7 +56,10 @@ Editor::Editor(QTextDocument *doc, QWidget *parent) :
 
     connect(ui->cmd_print,SIGNAL(clicked()),this,SLOT(filePrint()));
     connect(ui->cmd_pdf,SIGNAL(clicked()),this,SLOT(exportPdf()));
-    connect(ui->checkBoxObr,SIGNAL(clicked(bool)),this,SLOT(setObr(bool)));
+    connect(ui->checkBoxObr,SIGNAL(clicked(bool)),this,SLOT(setObr()));
+    connect(ui->radioButtonRus,SIGNAL(clicked(bool)),this,SLOT(setObr()));
+    connect(ui->radioButtonEn,SIGNAL(clicked(bool)),this,SLOT(setObr()));
+    connect(ui->radioButtonMix,SIGNAL(clicked(bool)),this,SLOT(setObr()));
 }
 
 QTextDocument *Editor::document()
@@ -210,6 +213,19 @@ void Editor::mergeFormatOnWordOrSelection(const QTextCharFormat &format)
     ui->textEdit->mergeCurrentCharFormat(format);
 }
 
+QString Editor::imBackPath()
+{
+    QString p;
+    if (ui->radioButtonRus->isChecked() && !ui->radioButtonEn->isChecked()){
+        p=":images/bgr.png";
+    } else if (!ui->radioButtonRus->isChecked() && ui->radioButtonEn->isChecked()){
+        p=":images/bge.png";
+    } else {
+        p=":images/bgm.png";
+    }
+    return p;
+}
+
 void Editor::print(QPrinter *p)
 {
     QPainter painter(p);
@@ -224,7 +240,7 @@ void Editor::drawDoc(QPainter *painter)
     size.scale(doc->size().toSize(),Qt::KeepAspectRatioByExpanding);
     painter->setWindow(0,0,size.width(),size.height());
     if (ui->checkBoxObr->isChecked()){
-        painter->drawImage(painter->window(),QImage("images/bg.png"));
+        painter->drawImage(painter->window(),QImage(imBackPath()));
     }
     doc->drawContents(painter);
 }
@@ -390,10 +406,10 @@ void Editor::textSize(const QString &p)
     }
 }
 
-void Editor::setObr(bool b)
+void Editor::setObr()
 {
-    if (b){
-        ui->textEdit->viewport()->setStyleSheet("background-image: url(images/bg.png);");
+    if (ui->checkBoxObr->isChecked()){
+        ui->textEdit->viewport()->setStyleSheet(QString("background-image: url(%1);").arg(imBackPath()));
     } else {
         ui->textEdit->viewport()->setStyleSheet(QString(""));
     }
@@ -498,6 +514,11 @@ void TextEdit::contextMenuEvent(QContextMenuEvent *e)
     }
     menu->exec(e->globalPos());
     delete menu;
+}
+
+void TextEdit::paintEvent(QPaintEvent *e)
+{
+    QTextEdit::paintEvent(e);
 }
 
 void TextEdit::addRow()

@@ -33,6 +33,7 @@ private:
     QAction *actionMerge;
     QAction *actionUnMerge;
     QAction *actionAddTable;
+    void paintEvent(QPaintEvent *e);
 
 private slots:
     void addRow();
@@ -74,6 +75,7 @@ private:
 
     void setupTextActions();
     void mergeFormatOnWordOrSelection(const QTextCharFormat &format);
+    QString imBackPath();
 
 public slots:
     void filePrint();
@@ -97,7 +99,7 @@ private slots:
     void textStyle(int styleIndex);
     void textFamily(const QString &f);
     void textSize(const QString &p);
-    void setObr(bool b);
+    void setObr();
 
 };
 

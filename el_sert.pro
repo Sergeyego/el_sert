@@ -85,6 +85,6 @@ RESOURCES += \
     res.qrc
 
 DISTFILES += \
-    images/bg.png \
     images/logo2.png \
-    images/otk.png
+    images/otk.png \
+    runlbl.sh

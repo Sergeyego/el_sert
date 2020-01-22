@@ -21,5 +21,8 @@
         <file>icons/textunder.png</file>
         <file>icons/zoomin.png</file>
         <file>icons/zoomout.png</file>
+        <file>images/bge.png</file>
+        <file>images/bgm.png</file>
+        <file>images/bgr.png</file>
     </qresource>
 </RCC>

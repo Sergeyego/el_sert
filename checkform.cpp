@@ -24,11 +24,11 @@ void CheckForm::closeEvent(QCloseEvent *e)
 void CheckForm::go()
 {
     ui->textEdit->clear();
-    u_int64_t cod=ui->lineEditCod->text().toLong();
-    u_int32_t id_p=0;
-    u_int32_t id_s=0;
-    memcpy((u_int8_t*)&id_s,(u_int8_t*)&cod,4);
-    memcpy((u_int8_t*)&id_p,(u_int8_t*)&cod+4,4);
+    quint64 cod=ui->lineEditCod->text().toULongLong();
+    quint32 id_p=0;
+    quint32 id_s=0;
+    memcpy((quint8*)&id_s,(quint8*)&cod,4);
+    memcpy((quint8*)&id_p,(quint8*)&cod+4,4);
     //qDebug()<<id_s<<" "<<id_p;
     int id_part=id_p;
     int id_ship=id_s;
