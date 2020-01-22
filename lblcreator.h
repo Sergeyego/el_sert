@@ -21,6 +21,7 @@ private:
     QString adres;
     QString otk;
     QString kach;
+    void sysCommand(QString fname);
 
 signals:
 

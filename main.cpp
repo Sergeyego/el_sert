@@ -5,7 +5,7 @@
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    a.setWindowIcon(QIcon(":/images/el.png"));
+    a.setWindowIcon(QIcon(":/images/ico.ico"));
 
     QString key;
     if (argc>1){

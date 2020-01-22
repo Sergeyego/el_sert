@@ -475,8 +475,23 @@ bool LblCreator::createLbl(int id_el, int id_diam, QString ibco, QDate date, boo
     }
 
     rtfWriter.end_doc();
-    rtfWriter.saveDoc("lbl.rtf");
-    system("./runlbl.sh &");
+    QString fname=QString("lbl.rtf");
+    if (rtfWriter.saveDoc(fname)){
+        sysCommand(fname);
+    }
 
     return true;
+}
+
+void LblCreator::sysCommand(QString fname)
+{
+    QString totalName=fname;
+#if defined(Q_OS_WIN)
+    totalName=totalName.replace(QChar('/'),QString("\\"));
+    QString cmd=QString("start office.bat ")+QString("\"")+totalName+QString("\"");
+#else
+    QString cmd=QString("./office.sh ")+QString("'")+totalName+QString("' &");
+#endif
+    system(cmd.toLocal8Bit().data());
+    return;
 }

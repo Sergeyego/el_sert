@@ -1,7 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>images/simb_labl.png</file>
-        <file>images/el.png</file>
         <file>icons/editcopy.png</file>
         <file>icons/editcut.png</file>
         <file>icons/editpaste.png</file>
@@ -24,5 +23,6 @@
         <file>images/bge.png</file>
         <file>images/bgm.png</file>
         <file>images/bgr.png</file>
+        <file>images/ico.ico</file>
     </qresource>
 </RCC>

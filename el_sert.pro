@@ -84,7 +84,11 @@ FORMS    += formpart.ui \
 RESOURCES += \
     res.qrc
 
+RC_FILE = ico.rc
+
 DISTFILES += \
     images/logo2.png \
     images/otk.png \
-    runlbl.sh
+    ico.rc \
+    office.sh \
+    office.bat
