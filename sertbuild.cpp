@@ -789,7 +789,7 @@ void DataSert::refreshQR(int id, bool is_ship)
     str+="Код подлинности "+QString::number(cod);
 
     QrEncode qr;
-    bool ok=qr.encodeData(0,0,true,-1,str.toLocal8Bit().data());
+    bool ok=qr.encodeData(0,0,true,-1,str.toUtf8().data());
     const int scale=10;
     int s=1;
     if (ok) s=(qr.size()>0)? qr.size() : 1;
