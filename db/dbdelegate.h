@@ -27,7 +27,10 @@ public:
              const QStyleOptionViewItem &option,
              const QModelIndex &index) const;
      bool eventFilter(QObject *object, QEvent *event);
- };
+
+signals:
+     void createEdt(const QModelIndex index) const;
+};
 
 class CustomCompletter : public QCompleter
 {

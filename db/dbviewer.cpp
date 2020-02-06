@@ -7,10 +7,13 @@ DbViewer::DbViewer(QWidget *parent) :
     menuEnabled=true;
     verticalHeader()->setDefaultSectionSize(verticalHeader()->fontMetrics().height()*1.5);
     verticalHeader()->setFixedWidth(verticalHeader()->fontMetrics().height()*1.2);
-    verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
 
-    updAct = new QAction(tr("Обновить"),this);
-    removeAct = new QAction(tr("Удалить"),this);
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+    verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
+#endif
+
+    updAct = new QAction(QString::fromUtf8("Обновить"),this);
+    removeAct = new QAction(QString::fromUtf8("Удалить"),this);
     this->setAutoScroll(true);
     this->setItemDelegate(new DbDelegate(this));
     writeOk=true;
@@ -21,8 +24,13 @@ DbViewer::DbViewer(QWidget *parent) :
 void DbViewer::setModel(QAbstractItemModel *model)
 {
     QTableView::setModel(model);
-    disconnect(selectionModel(), SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),this->model(), SLOT(submit()));
-    connect(this->selectionModel(),SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),this,SLOT(submit(QModelIndex,QModelIndex)));
+    DbTableModel *sqlModel = qobject_cast<DbTableModel *>(this->model());
+    if (sqlModel){
+        disconnect(selectionModel(), SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),this->model(), SLOT(submit()));
+        connect(this->selectionModel(),SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),this,SLOT(submit(QModelIndex,QModelIndex)));
+    } else {
+        setMenuEnabled(false);
+    }
 }
 
 void DbViewer::setColumnsWidth(QVector<int> width)
@@ -155,18 +163,18 @@ void DbViewer::setMenuEnabled(bool value)
 
 void DbViewer::contextMenuEvent(QContextMenuEvent *event)
 {
-    QMenu menu(this);
     if (menuEnabled){
+        QMenu menu(this);
         menu.addAction(updAct);
         menu.addSeparator();
         if (this->selectionModel()){
-            if (this->selectionModel()->currentIndex().isValid()){
+            if (this->indexAt(event->pos()).isValid()){
                 menu.addAction(removeAct);
                 menu.addSeparator();
             }
         }
+        menu.exec(event->globalPos());
     }
-    menu.exec(event->globalPos());
 }
 
 DateEdit::DateEdit(QWidget *parent): QDateEdit(parent)

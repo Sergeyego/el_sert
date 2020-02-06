@@ -38,6 +38,7 @@ public:
     DbRelation(QAbstractItemModel *queryModel, int key, int disp, QObject *parent=0);
     DbRelation(const QString &query, int key, int disp, QObject *parent=0);
     QVariant data(QString key);
+    QModelIndex modelIndex(QString key);
     QAbstractItemModel *model() const;
     QSortFilterProxyModel *proxyModel() const;
     int columnKey();
@@ -121,7 +122,7 @@ public:
     bool setData(const QModelIndex &index, const QVariant &value, int role);
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
     bool addColumn(QString name, QString display, QValidator *validator=NULL, DbRelation *relation=NULL);
-    bool removeRow(int row, const QModelIndex &parent = QModelIndex());
+    virtual bool removeRow(int row, const QModelIndex &parent = QModelIndex());
     void setFilter(QString s);
     void setSort(QString s);
     void setSuffix(QString s);

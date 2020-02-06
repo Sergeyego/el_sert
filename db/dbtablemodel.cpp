@@ -30,6 +30,8 @@ QVariant DbTableModel::data(const QModelIndex &index, int role) const
             } else {
                 if (type==QMetaType::QDate){
                     value=origVal.toDate().toString("dd.MM.yy");
+                } else if (type==QMetaType::QDateTime){
+                    value=origVal.toDateTime().toString("dd.MM.yy hh:mm");
                 } else if (type==QMetaType::Double || type==QMetaType::Float){
                     int dec=3;
                     if (modelData->column(index.column())->validator){
@@ -40,7 +42,7 @@ QVariant DbTableModel::data(const QModelIndex &index, int role) const
                 } else if (type==QMetaType::Int) {
                     value=(origVal.isNull() || origVal.toString().isEmpty())? QString("") : QLocale().toString(origVal.toInt());
                 } else if (type==QMetaType::Bool){
-                    value=origVal.toBool()? QString(tr("Да")) : QString(tr("Нет"));
+                    value=origVal.toBool()? QString(QString::fromUtf8("Да")) : QString(QString::fromUtf8("Нет"));
                 } else {
                     value=origVal;
                 }
@@ -113,6 +115,16 @@ QVariant DbTableModel::headerData(int section, Qt::Orientation orientation, int 
 
 bool DbTableModel::addColumn(QString name, QString display, QValidator *validator, DbRelation *relation)
 {
+    QVariant emptyval=defaultRecord.value(name);
+    if (!validator){
+        if (emptyval.type()==QMetaType::Int || emptyval.type()==QMetaType::LongLong){
+            validator = new QIntValidator(this);
+        } else if (emptyval.type()==QMetaType::Double){
+            QDoubleValidator *v = new QDoubleValidator(this);
+            v->setDecimals(1);
+            validator = v;
+        }
+    }
     col tmpColumn;
     tmpColumn.name=name;
     tmpColumn.display=display;
@@ -124,7 +136,6 @@ bool DbTableModel::addColumn(QString name, QString display, QValidator *validato
     if (validator){
         validator->setLocale(QLocale::English);
     }
-    QVariant emptyval=defaultRecord.value(name);
     QVariant defaultval;
     if (emptyval.type()==QMetaType::QDate){
         defaultval=QDate::currentDate();
@@ -144,8 +155,8 @@ bool DbTableModel::removeRow(int row, const QModelIndex& parent)
     QString dat;
     for(int i=0; i<columnCount(); i++) dat+=data(this->index(row,i)).toString()+", ";
     dat.truncate(dat.count()-2);
-    int n=QMessageBox::question(NULL,tr("Подтвердите удаление"),
-                                tr("Подтветждаете удаление ")+dat+tr("?"),QMessageBox::Yes| QMessageBox::No);
+    int n=QMessageBox::question(NULL,QString::fromUtf8("Подтвердите удаление"),
+                                QString::fromUtf8("Подтветждаете удаление ")+dat+QString::fromUtf8("?"),QMessageBox::Yes| QMessageBox::No);
     bool ok=false;
     if (n==QMessageBox::Yes) {
         if (deleteDb(row)) {
@@ -632,6 +643,11 @@ DbRelation::DbRelation(const QString &query, int key, int disp, QObject *parent)
 QVariant DbRelation::data(QString key)
 {
     return relQueryModel->data(dict.value(key,QModelIndex()),Qt::EditRole);
+}
+
+QModelIndex DbRelation::modelIndex(QString key)
+{
+    return dict.value(key,QModelIndex());
 }
 
 QAbstractItemModel *DbRelation::model() const

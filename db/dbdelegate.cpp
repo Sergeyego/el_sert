@@ -74,7 +74,10 @@ QWidget *DbDelegate::createEditor (QWidget * parent, const QStyleOptionViewItem 
             }
         }
     }
-    if (editor) editor->installEventFilter(const_cast<DbDelegate *>(this));
+    if (editor) {
+        editor->installEventFilter(const_cast<DbDelegate *>(this));
+        emit createEdt(index);
+    }
     return editor;
 }
 
@@ -163,7 +166,7 @@ void DbDelegate::setModelData ( QWidget * editor, QAbstractItemModel * model, co
                         }
                     }
                 }
-                QVariant val = v.isNull() ? QVariant() : v;
+                QVariant val = v.isNull() ? sqlModel->nullVal(index.column()) : v;
                 sqlModel->setData(index,val,Qt::EditRole);
                 return;
             }

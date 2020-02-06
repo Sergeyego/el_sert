@@ -30,6 +30,7 @@ FormPart::FormPart(QWidget *parent) :
     ui->tableViewSrcChem->setColumnHidden(1,true);
     ui->tableViewSrcChem->setColumnWidth(2,80);
     ui->tableViewSrcChem->setColumnWidth(3,70);
+    ui->tableViewSrcChem->setColumnWidth(4,110);
 
     modelSertChem = new ModelChemSert(this);
     ui->tableViewSertChem->setModel(modelSertChem);
