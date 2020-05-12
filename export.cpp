@@ -235,9 +235,9 @@ QDomElement Export::getSert(int id_sert, QDomDocument *doc)
     vd.setAttribute("id",id_ved);
     sert.appendChild(vd);
 
-    sert.appendChild(newElement(QString::fromUtf8("Начало_дейстия"),fromDate(dat_beg),doc));
+    sert.appendChild(newElement(QString::fromUtf8("Начало_действия"),fromDate(dat_beg),doc));
 
-    sert.appendChild(newElement(QString::fromUtf8("Конец_дейстия"),fromDate(dat_end),doc));
+    sert.appendChild(newElement(QString::fromUtf8("Конец_действия"),fromDate(dat_end),doc));
 
     sert.appendChild(newElement(QString::fromUtf8("Номер_документа"),nom_doc,doc));
 
