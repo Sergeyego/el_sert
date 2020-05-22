@@ -9,6 +9,10 @@ FormDoc::FormDoc(QWidget *parent) :
 
     loadsettings();
 
+    uploadmanager = new QNetworkAccessManager(this);
+    downloadmanager = new QNetworkAccessManager(this);
+    currentFname=QString("currentsert.pdf");
+
     modelElTypes = new DbTableModel("zvd_types",this);
     modelElTypes->addColumn("id_sert","id_sert");
     modelElTypes->addColumn("id_tip",QString::fromUtf8("Тип"),NULL,Rels::instance()->relElTypes);
@@ -89,6 +93,13 @@ FormDoc::FormDoc(QWidget *parent) :
     connect(ui->checkBoxActive,SIGNAL(clicked(bool)),this,SLOT(selectDoc(bool)));
     connect(ui->cmdUpd,SIGNAL(clicked(bool)),this,SLOT(updElDim()));
 
+    connect(ui->pushButtonUpload,SIGNAL(clicked(bool)),this,SLOT(upload()));
+    connect(ui->pushButtonView,SIGNAL(clicked(bool)),this,SLOT(viewSert()));
+    connect(uploadmanager,SIGNAL(finished(QNetworkReply*)),this,SLOT(uploadFinished(QNetworkReply*)));
+    connect(downloadmanager,SIGNAL(finished(QNetworkReply*)),this,SLOT(downloadFinished(QNetworkReply*)));
+    connect(ui->pushButtonSaveAs,SIGNAL(clicked(bool)),this,SLOT(saveAs()));
+
+
     if (ui->tableViewDoc->model()->rowCount()){
         ui->tableViewDoc->selectRow(0);
     }
@@ -112,6 +123,24 @@ void FormDoc::savesettings()
     settings.setValue("doc_splitter", ui->splitter->saveState());
 }
 
+void FormDoc::setOk(bool ok)
+{
+    ui->pushButtonSaveAs->setEnabled(ok);
+    ui->pushButtonView->setEnabled(ok);
+    QString pixname= ok ? QString(":/images/ok.png") : QString(":/images/notok.png");
+    ui->labelSert->setPixmap(QPixmap(pixname));
+}
+
+int FormDoc::currentId()
+{
+    return ui->tableViewDoc->model()->data(ui->tableViewDoc->model()->index(ui->tableViewDoc->currentIndex().row(),0),Qt::EditRole).toInt();
+}
+
+QString FormDoc::currentDocNumber()
+{
+    return ui->tableViewDoc->model()->data(ui->tableViewDoc->model()->index(ui->tableViewDoc->currentIndex().row(),1),Qt::EditRole).toString();
+}
+
 void FormDoc::refreshData(int index)
 {
     int id=ui->tableViewDoc->model()->data(ui->tableViewDoc->model()->index(index,0),Qt::EditRole).toInt();
@@ -127,6 +156,8 @@ void FormDoc::refreshData(int index)
     modelElDim->setDefaultValue(0,id);
     modelElDim->setFilter("zvd_eldim.id_sert = "+QString::number(id));
     modelElDim->select();
+
+    download();
 }
 
 void FormDoc::selectDoc(bool active)
@@ -147,5 +178,92 @@ void FormDoc::updElDim()
         Rels::instance()->relElDim->refreshModel();
     } else {
         QMessageBox::critical(this,tr("Error"),query.lastError().text(),QMessageBox::Ok);
+    }
+}
+
+void FormDoc::upload()
+{
+    QSettings settings("szsm", QApplication::applicationName());
+    QDir dir(settings.value("savePath",QDir::homePath()).toString());
+    QString filename=QFileDialog::getOpenFileName(this, QString::fromUtf8("Открыть файл"),dir.path(),tr("pdf (*.pdf)"));
+    QFile *file = new QFile(filename);
+    if (file->open(QIODevice::ReadOnly)){
+        QFileInfo info(*file);
+        settings.setValue("savePath",info.path());
+
+        QUrl url(QString("ftp://192.168.1.10/pub/sert/")+QString::number(currentId())+QString(".pdf"));
+        url.setUserName("sert");
+        url.setPassword("sert");
+        url.setPort(21);
+        QNetworkReply *reply = uploadmanager->put(QNetworkRequest(url),file);
+        connect(reply,&QNetworkReply::finished,[this,file](){
+            qDebug()<<"delete_file!";
+            file->close();
+            QFile f(this->currentFname);
+            if (f.exists()){
+                f.remove();
+            }
+            file->copy(f.fileName());
+            file->deleteLater();
+        });
+    }
+}
+
+void FormDoc::download()
+{
+    QFile file(currentFname);
+    if (file.exists()){
+        file.remove();
+    }
+    QUrl url(QString("ftp://192.168.1.10/pub/sert/")+QString::number(currentId())+QString(".pdf"));
+    url.setUserName("sert");
+    url.setPassword("sert");
+    url.setPort(21);
+    downloadmanager->get(QNetworkRequest(url));
+
+}
+
+void FormDoc::viewSert()
+{
+    QFile f(currentFname);
+    if (f.exists()){
+        QFileInfo fileInfo(f);
+        QDesktopServices::openUrl((QUrl(QUrl::fromLocalFile(fileInfo.absoluteFilePath()))));
+    }
+}
+
+void FormDoc::uploadFinished(QNetworkReply *reply)
+{
+    //qDebug()<<"upload finished! ";
+    bool ok=reply->error()==QNetworkReply::NoError;
+    if (!ok){
+        QMessageBox::critical(this,tr("Error"),reply->errorString(),QMessageBox::Ok);
+        qDebug()<<reply->errorString();
+    }
+    setOk(ok);
+    reply->deleteLater();
+}
+
+void FormDoc::downloadFinished(QNetworkReply *reply)
+{
+    //qDebug()<<"download finished! ";
+    bool ok=reply->error()==QNetworkReply::NoError;
+    if (ok){
+        QFile file(currentFname);
+        if (file.open(QIODevice::WriteOnly)){
+            file.write(reply->readAll());
+            file.close();
+        }
+    }
+    setOk(ok);
+    reply->deleteLater();
+}
+
+void FormDoc::saveAs()
+{
+    QString filename=QFileDialog::getSaveFileName(this, QString::fromUtf8("Сохранить файл"),QDir::homePath()+QString("/")+currentDocNumber()+".pdf",tr("pdf (*.pdf)"));
+    if (!filename.isEmpty()){
+        QFile file(currentFname);
+        file.copy(filename);
     }
 }

@@ -24,5 +24,7 @@
         <file>images/bgm.png</file>
         <file>images/bgr.png</file>
         <file>images/ico.ico</file>
+        <file>images/ok.png</file>
+        <file>images/notok.png</file>
     </qresource>
 </RCC>
