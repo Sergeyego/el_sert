@@ -9,10 +9,6 @@ FormDoc::FormDoc(QWidget *parent) :
 
     loadsettings();
 
-    uploadmanager = new QNetworkAccessManager(this);
-    downloadmanager = new QNetworkAccessManager(this);
-    currentFname=QString("currentsert.pdf");
-
     modelElTypes = new DbTableModel("zvd_types",this);
     modelElTypes->addColumn("id_sert","id_sert");
     modelElTypes->addColumn("id_tip",QString::fromUtf8("Тип"),NULL,Rels::instance()->relElTypes);
@@ -47,22 +43,9 @@ FormDoc::FormDoc(QWidget *parent) :
     ui->tableVieewGrade->setColumnHidden(0,true);
     ui->tableVieewGrade->setColumnWidth(1,250);
 
-    modelDoc = new DbTableModel("zvd_sert",this);
-    modelDoc->addColumn("id","id");
-    modelDoc->addColumn("nom_doc",QString::fromUtf8("Номер документа"));
-    modelDoc->addColumn("nazv",QString::fromUtf8("Название документа"));
-    modelDoc->addColumn("dat_doc",QString::fromUtf8("Дата документа"));
-    modelDoc->addColumn("dat_beg",QString::fromUtf8("Дата начала"));
-    modelDoc->addColumn("dat_end",QString::fromUtf8("Дата конца"));
-    modelDoc->addColumn("nom_bl",QString::fromUtf8("Номер бланка"));
-    modelDoc->addColumn("nom_sl",QString::fromUtf8("Номер наклейки"));
-    modelDoc->addColumn("txt",QString::fromUtf8("Текст документа"));
-    modelDoc->addColumn("gr_tech_ust",QString::fromUtf8("ГТУ"));
-    modelDoc->addColumn("id_ved",QString::fromUtf8("Ведомство"),NULL,Rels::instance()->relVed);
-    modelDoc->addColumn("id_doc",QString::fromUtf8("Тип документа"),NULL,Rels::instance()->relVidDoc);
+    modelDoc = new ModelDoc(this);
 
-    modelDoc->setSort("zvd_sert.nom_doc, zvd_sert.dat_doc");
-    selectDoc(ui->checkBoxActive->isChecked());
+    modelDoc->refresh(ui->checkBoxActive->isChecked());
 
     ui->tableViewDoc->setModel(modelDoc);
     ui->tableViewDoc->setColumnHidden(0,true);
@@ -90,14 +73,14 @@ FormDoc::FormDoc(QWidget *parent) :
     ui->horizontalLayoutMap->insertWidget(0,mapper);
 
     connect(mapper,SIGNAL(currentIndexChanged(int)),this,SLOT(refreshData(int)));
-    connect(ui->checkBoxActive,SIGNAL(clicked(bool)),this,SLOT(selectDoc(bool)));
+    connect(ui->checkBoxActive,SIGNAL(clicked(bool)),modelDoc,SLOT(refresh(bool)));
     connect(ui->cmdUpd,SIGNAL(clicked(bool)),this,SLOT(updElDim()));
 
     connect(ui->pushButtonUpload,SIGNAL(clicked(bool)),this,SLOT(upload()));
     connect(ui->pushButtonView,SIGNAL(clicked(bool)),this,SLOT(viewSert()));
-    connect(uploadmanager,SIGNAL(finished(QNetworkReply*)),this,SLOT(uploadFinished(QNetworkReply*)));
-    connect(downloadmanager,SIGNAL(finished(QNetworkReply*)),this,SLOT(downloadFinished(QNetworkReply*)));
     connect(ui->pushButtonSaveAs,SIGNAL(clicked(bool)),this,SLOT(saveAs()));
+    connect(ui->pushButtonDel,SIGNAL(clicked(bool)),this,SLOT(delSert()));
+    connect(modelDoc,SIGNAL(sigList()),this,SLOT(updState()));
 
 
     if (ui->tableViewDoc->model()->rowCount()){
@@ -127,6 +110,7 @@ void FormDoc::setOk(bool ok)
 {
     ui->pushButtonSaveAs->setEnabled(ok);
     ui->pushButtonView->setEnabled(ok);
+    ui->pushButtonDel->setEnabled(ok);
     QString pixname= ok ? QString(":/images/ok.png") : QString(":/images/notok.png");
     ui->labelSert->setPixmap(QPixmap(pixname));
 }
@@ -157,17 +141,7 @@ void FormDoc::refreshData(int index)
     modelElDim->setFilter("zvd_eldim.id_sert = "+QString::number(id));
     modelElDim->select();
 
-    download();
-}
-
-void FormDoc::selectDoc(bool active)
-{
-    if (active){
-        modelDoc->setFilter("COALESCE(zvd_sert.dat_end,'3000-01-01'::date) >= '"+QDate::currentDate().toString("yyyy-MM-dd")+"'");
-    } else {
-        modelDoc->setFilter("");
-    }
-    modelDoc->select();
+    updState();
 }
 
 void FormDoc::updElDim()
@@ -183,87 +157,25 @@ void FormDoc::updElDim()
 
 void FormDoc::upload()
 {
-    QSettings settings("szsm", QApplication::applicationName());
-    QDir dir(settings.value("savePath",QDir::homePath()).toString());
-    QString filename=QFileDialog::getOpenFileName(this, QString::fromUtf8("Открыть файл"),dir.path(),tr("pdf (*.pdf)"));
-    QFile *file = new QFile(filename);
-    if (file->open(QIODevice::ReadOnly)){
-        QFileInfo info(*file);
-        settings.setValue("savePath",info.path());
-
-        QUrl url(QString("ftp://192.168.1.10/pub/sert/")+QString::number(currentId())+QString(".pdf"));
-        url.setUserName("sert");
-        url.setPassword("sert");
-        url.setPort(21);
-        QNetworkReply *reply = uploadmanager->put(QNetworkRequest(url),file);
-        connect(reply,&QNetworkReply::finished,[this,file](){
-            qDebug()<<"delete_file!";
-            file->close();
-            QFile f(this->currentFname);
-            if (f.exists()){
-                f.remove();
-            }
-            file->copy(f.fileName());
-            file->deleteLater();
-        });
-    }
-}
-
-void FormDoc::download()
-{
-    QFile file(currentFname);
-    if (file.exists()){
-        file.remove();
-    }
-    QUrl url(QString("ftp://192.168.1.10/pub/sert/")+QString::number(currentId())+QString(".pdf"));
-    url.setUserName("sert");
-    url.setPassword("sert");
-    url.setPort(21);
-    downloadmanager->get(QNetworkRequest(url));
-
+    modelDoc->ftpPut(currentId());
 }
 
 void FormDoc::viewSert()
 {
-    QFile f(currentFname);
-    if (f.exists()){
-        QFileInfo fileInfo(f);
-        QDesktopServices::openUrl((QUrl(QUrl::fromLocalFile(fileInfo.absoluteFilePath()))));
-    }
-}
-
-void FormDoc::uploadFinished(QNetworkReply *reply)
-{
-    //qDebug()<<"upload finished! ";
-    bool ok=reply->error()==QNetworkReply::NoError;
-    if (!ok){
-        QMessageBox::critical(this,tr("Error"),reply->errorString(),QMessageBox::Ok);
-        qDebug()<<reply->errorString();
-    }
-    setOk(ok);
-    reply->deleteLater();
-}
-
-void FormDoc::downloadFinished(QNetworkReply *reply)
-{
-    //qDebug()<<"download finished! ";
-    bool ok=reply->error()==QNetworkReply::NoError;
-    if (ok){
-        QFile file(currentFname);
-        if (file.open(QIODevice::WriteOnly)){
-            file.write(reply->readAll());
-            file.close();
-        }
-    }
-    setOk(ok);
-    reply->deleteLater();
+    modelDoc->ftpGet(currentId(),1);
 }
 
 void FormDoc::saveAs()
 {
-    QString filename=QFileDialog::getSaveFileName(this, QString::fromUtf8("Сохранить файл"),QDir::homePath()+QString("/")+currentDocNumber()+".pdf",tr("pdf (*.pdf)"));
-    if (!filename.isEmpty()){
-        QFile file(currentFname);
-        file.copy(filename);
-    }
+    modelDoc->ftpGet(currentId(),2);
+}
+
+void FormDoc::updState()
+{
+    setOk(modelDoc->ftpExist(currentId()));
+}
+
+void FormDoc::delSert()
+{
+    modelDoc->ftpDel(currentId());
 }

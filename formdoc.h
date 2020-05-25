@@ -5,9 +5,7 @@
 #include "db/dbmapper.h"
 #include "db/dbviewer.h"
 #include "rels.h"
-#include <QNetworkAccessManager>
-#include <QNetworkReply>
-#include <QFileDialog>
+#include "modeldoc.h"
 
 namespace Ui {
 class FormDoc;
@@ -23,13 +21,11 @@ public:
 
 private:
     Ui::FormDoc *ui;
-    DbTableModel *modelDoc;
+    ModelDoc *modelDoc;
     DbTableModel *modelElTypes;
     DbTableModel *modelEl;
     DbTableModel *modelElDim;
     DbMapper *mapper;
-    QNetworkAccessManager *uploadmanager;
-    QNetworkAccessManager *downloadmanager;
     void loadsettings();
     void savesettings();
     void setOk(bool ok);
@@ -39,14 +35,12 @@ private:
 
 private slots:
     void refreshData(int index);
-    void selectDoc(bool active);
     void updElDim();
     void upload();
-    void download();
     void viewSert();
-    void uploadFinished(QNetworkReply *reply);
-    void downloadFinished(QNetworkReply *reply);
     void saveAs();
+    void updState();
+    void delSert();
 };
 
 #endif // FORMDOC_H

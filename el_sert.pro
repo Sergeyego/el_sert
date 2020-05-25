@@ -37,7 +37,10 @@ SOURCES += main.cpp\
     rtf/rtfcpp.cpp \
     lblcreator.cpp \
     export.cpp \
-    qr/qrencode.cpp
+    qr/qrencode.cpp \
+    qftp/qftp.cpp \
+    qftp/qurlinfo.cpp \
+    modeldoc.cpp
 
 HEADERS  += formpart.h \
     pgdialog.h \
@@ -65,7 +68,10 @@ HEADERS  += formpart.h \
     rtf/rtfdefs.h \
     lblcreator.h \
     export.h \
-    qr/qrencode.h
+    qr/qrencode.h \
+    qftp/qftp.h \
+    qftp/qurlinfo.h \
+    modeldoc.h
 
 FORMS    += formpart.ui \
     pgdialog.ui \
