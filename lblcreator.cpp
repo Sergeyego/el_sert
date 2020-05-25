@@ -485,7 +485,7 @@ bool LblCreator::createLbl(int id_el, int id_diam, QString ibco, QDate date, boo
 
 void LblCreator::sysCommand(QString fname)
 {
-    QString totalName=fname;
+/*    QString totalName=fname;
 #if defined(Q_OS_WIN)
     totalName=totalName.replace(QChar('/'),QString("\\"));
     QString cmd=QString("start office.bat ")+QString("\"")+totalName+QString("\"");
@@ -493,5 +493,9 @@ void LblCreator::sysCommand(QString fname)
     QString cmd=QString("./office.sh ")+QString("'")+totalName+QString("' &");
 #endif
     system(cmd.toLocal8Bit().data());
-    return;
+    return;*/
+
+    QFileInfo fileInfo(fname);
+    QDesktopServices::openUrl((QUrl(QUrl::fromLocalFile(fileInfo.absoluteFilePath()))));
+
 }

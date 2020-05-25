@@ -5,6 +5,9 @@
 #include <QSqlQuery>
 #include <QSqlError>
 #include <QMessageBox>
+#include <QFileInfo>
+#include <QDesktopServices>
+#include <QUrl>
 #include "rtf/rtfcpp.h"
 #include "rels.h"
 
