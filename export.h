@@ -12,12 +12,17 @@
 #include <QDate>
 #include <QFileDialog>
 #include <QDebug>
+#include "qftp/qftp.h"
 
 class Export: public QObject
 {
+    Q_OBJECT
 public:
     Export(QObject *parent = nullptr);
+    ~Export();
     void createXml();
+    void start();
+
 private:
     QDomElement getMark(int id_el,  QDomDocument *doc);
     QDomElement getWire(int id_pr,  QDomDocument *doc);
@@ -32,9 +37,27 @@ private:
     QDomElement getChem(int id_pr,  QDomDocument *doc);
     QDomElement getWireChem(int id_pr,  QDomDocument *doc);
     QDomElement getMech(int id_el,  QDomDocument *doc);
+    QDomElement getDiams(int id_el,  QDomDocument *doc);
+    QDomElement getWireDiams(int id_pr,  QDomDocument *doc);
     QString testStr(const QString &s);
     QString fromDouble(const QVariant &v, int d=1);
     QString fromDate(const QDate &d);
+    QFtp *ftpClient;
+    QMap <int, QString> docMap;
+    QString ftphost;
+    QString ftpuser;
+    QString ftppassword;
+    QString ftppath;
+
+private slots:
+    void ftpConnect();
+    void updateList();
+    void ftpCommandFinished(int commandId, bool error);
+    void ftpCommandStart(int commandId);
+    void addToList(const QUrlInfo &urlInfo);
+
+signals:
+    void finished();
 };
 
 #endif // EXPORT_H

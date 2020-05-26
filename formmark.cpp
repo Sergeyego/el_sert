@@ -210,10 +210,9 @@ void FormMark::gelLbl()
 
 void FormMark::exportXml()
 {
-    /*QModelIndex ind=ui->tableViewMark->model()->index(mapper->currentIndex(),0);
-    int id_el=ui->tableViewMark->model()->data(ind,Qt::EditRole).toInt();*/
-    Export e;
-    e.createXml(/*id_el*/);
+    Export *e = new Export;
+    connect(e,SIGNAL(finished()),e,SLOT(deleteLater()));
+    e->start();
 }
 
 CustomDelegate::CustomDelegate(QObject *parent) : DbDelegate(parent)

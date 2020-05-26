@@ -2,7 +2,19 @@
 
 Export::Export(QObject *parent) : QObject(parent)
 {
+    ftphost="85.113.210.58";
+    ftpuser="ftp";
+    ftppassword="ftp";
+    ftppath="/pub/sert";
+    ftpClient = new QFtp(this);
+    connect(ftpClient,SIGNAL(commandStarted(int)),this,SLOT(ftpCommandStart(int)));
+    connect(ftpClient, SIGNAL(commandFinished(int,bool)),this, SLOT(ftpCommandFinished(int,bool)));
+    connect(ftpClient, SIGNAL(listInfo(QUrlInfo)),this, SLOT(addToList(QUrlInfo)));
+}
 
+Export::~Export()
+{
+    qDebug()<<"delete!";
 }
 
 void Export::createXml()
@@ -63,6 +75,12 @@ void Export::createXml()
         doc.save(stream,1);
         file.close();
     }
+    emit finished();
+}
+
+void Export::start()
+{
+    updateList();
 }
 
 QDomElement Export::getMark(int id_el, QDomDocument *doc)
@@ -158,6 +176,8 @@ QDomElement Export::getMark(int id_el, QDomDocument *doc)
 
     mark.appendChild(getMech(id_el,doc));
 
+    mark.appendChild(getDiams(id_el,doc));
+
     return mark;
 }
 
@@ -185,6 +205,7 @@ QDomElement Export::getWire(int id_pr, QDomDocument *doc)
 
     mark.appendChild(getWireTu(id_pr,doc));
     mark.appendChild(getWireChem(id_pr,doc));
+    mark.appendChild(getWireDiams(id_pr,doc));
 
     return mark;
 }
@@ -226,6 +247,9 @@ QDomElement Export::getSert(int id_sert, QDomDocument *doc)
     }
     QDomElement sert = doc->createElement(QString::fromUtf8("Документ"));
     sert.setAttribute("id",id_sert);
+
+    QDomElement link=newElement(QString::fromUtf8("Ссылка_для_загрузки"),docMap.value(id_sert),doc);
+    sert.appendChild(link);
 
     QDomElement type=newElement(QString::fromUtf8("Тип_документа"),typeDoc,doc);
     type.setAttribute("id",id_typeDoc);
@@ -506,6 +530,54 @@ QDomElement Export::getMech(int id_el, QDomDocument *doc)
     return mech;
 }
 
+QDomElement Export::getDiams(int id_el, QDomDocument *doc)
+{
+    QDomElement diams = doc->createElement(QString::fromUtf8("Ассортимент"));
+    QSqlQuery queryDiam;
+    queryDiam.prepare("select * from( "
+                      "(select d.diam as diam from amp as a "
+                      "inner join diam as d on a.id_diam=d.id "
+                      "where a.id_el = :id1) "
+                      "union "
+                      "(select d.diam as diam from cena as c "
+                      "inner join diam as d on c.id_diam=d.id "
+                      "where c.dat=(select max(dat) from cena) and c.id_el=:id2) "
+                      ") as de order by de.diam");
+    queryDiam.bindValue(":id1",id_el);
+    queryDiam.bindValue(":id2",id_el);
+    if (queryDiam.exec()){
+        while (queryDiam.next()){
+            diams.appendChild(newElement(QString::fromUtf8("Диаметр"),fromDouble(queryDiam.value(0),1),doc));
+        }
+    } else {
+        qDebug()<<queryDiam.lastError().text();
+    }
+    return diams;
+}
+
+QDomElement Export::getWireDiams(int id_pr, QDomDocument *doc)
+{
+    QDomElement diams = doc->createElement(QString::fromUtf8("Ассортимент"));
+    QSqlQuery queryDiam;
+    queryDiam.prepare("select k.short, d.diam from wire_cena as c "
+                      "inner join diam as d on c.id_diam=d.id "
+                      "inner join wire_pack_kind as k on c.id_pack=k.id "
+                      "where c.dat=(select max(dat) from wire_cena) and c.id_provol=:id "
+                      "order by k.short, d.diam");
+    queryDiam.bindValue(":id",id_pr);
+    if (queryDiam.exec()){
+        while (queryDiam.next()){
+            QDomElement pos = doc->createElement(QString::fromUtf8("Позиция"));
+            pos.appendChild(newElement(QString::fromUtf8("Тип_носителя"),queryDiam.value(0).toString(),doc));
+            pos.appendChild(newElement(QString::fromUtf8("Диаметр"),fromDouble(queryDiam.value(1),1),doc));
+            diams.appendChild(pos);
+        }
+    } else {
+        qDebug()<<queryDiam.lastError().text();
+    }
+    return diams;
+}
+
 QString Export::testStr(const QString &s)
 {
     return s!="-" ? s : QString();
@@ -519,4 +591,61 @@ QString Export::fromDouble(const QVariant &v, int d)
 QString Export::fromDate(const QDate &d)
 {
     return d.isNull() ? QString() : d.toString("dd.MM.yyyy");
+}
+
+void Export::ftpConnect()
+{
+    ftpClient->connectToHost(ftphost);
+}
+
+void Export::updateList()
+{
+    if (ftpClient->state()==QFtp::LoggedIn){
+        ftpClient->list();
+    } else {
+        ftpConnect();
+    }
+}
+
+void Export::ftpCommandFinished(int /*commandId*/, bool error)
+{
+    if (error) {
+        QMessageBox::critical(NULL, tr("FTP"),ftpClient->errorString());
+    } else {
+        if (ftpClient->currentCommand() == QFtp::ConnectToHost) {
+            //qDebug()<<"connect ok";
+            ftpClient->login(ftpuser,ftppassword);
+        } else if (ftpClient->currentCommand() == QFtp::Login){
+            ftpClient->cd(ftppath);
+        } else if (ftpClient->currentCommand() == QFtp::List) {
+            //qDebug()<<"list finished";
+            //qDebug()<<docMap;
+            createXml();
+        } else if (ftpClient->currentCommand()==QFtp::Cd){
+            ftpClient->list();
+        } else if (ftpClient->currentCommand()==QFtp::Remove){
+            ftpClient->list();
+        }
+    }
+}
+
+void Export::ftpCommandStart(int commandId)
+{
+    if (ftpClient->currentCommand()==QFtp::List){
+        docMap.clear();
+        //qDebug()<<"Start list";
+    }
+}
+
+void Export::addToList(const QUrlInfo &urlInfo)
+{
+    if (urlInfo.isFile()){
+        QString name=urlInfo.name();
+        name.truncate(name.length()-4);
+        bool ok;
+        int id=name.toInt(&ok);
+        if (ok){
+            docMap.insert(id,"ftp://"+ftpuser+":"+ftppassword+"@"+ftphost+ftppath+"/"+urlInfo.name());
+        }
+    }
 }

@@ -43,32 +43,46 @@ QVariant ModelDoc::data(const QModelIndex &index, int role) const
 
 bool ModelDoc::ftpGet(int id, int type)
 {
-    bool ok=docMap.contains(id);
-    if (ok && ftpClient->state()==QFtp::LoggedIn){
-        getFile = new QFile(docMap.value(id));
-        if (!getFile->open(QIODevice::WriteOnly)) {
-            delete getFile;
-            return false;
-        }
-        getState=type;
-        ftpClient->get(docMap.value(id),getFile);
+    bool ok=(ftpClient->state()==QFtp::LoggedIn);
+    if (!ok){
+        ftpConnect();
     }
+    int interval= ok ? 0 : 500;
+    QTimer::singleShot(interval, [this, id, type]() {
+        if (ftpClient->state()==QFtp::LoggedIn && docMap.contains(id)){
+            getFile = new QFile(docMap.value(id));
+            if (!getFile->open(QIODevice::WriteOnly)){
+                delete getFile;
+                return false;
+            }
+            getState=type;
+            ftpClient->get(docMap.value(id),getFile);
+        }
+    } );
     return ok;
 }
 
 bool ModelDoc::ftpPut(int id)
 {
-    if (ftpClient->state()==QFtp::LoggedIn){
-        QSettings settings("szsm", QApplication::applicationName());
-        QDir dir(settings.value("savePath",QDir::homePath()).toString());
-        QString filename=QFileDialog::getOpenFileName(NULL, QString::fromUtf8("Открыть файл"),dir.path(),tr("pdf (*.pdf)"));
-        putFile = new QFile(filename);
-        if (putFile->open(QIODevice::ReadOnly)){
-            QFileInfo info(*putFile);
-            settings.setValue("savePath",info.path());
-            ftpClient->put(putFile,QString::number(id)+".pdf");
-        }
+    bool ok=(ftpClient->state()==QFtp::LoggedIn);
+    if (!ok){
+        ftpConnect();
     }
+    int interval= ok ? 0 : 500;
+    QTimer::singleShot(interval, [this, id]() {
+        if (ftpClient->state()==QFtp::LoggedIn){
+            QSettings settings("szsm", QApplication::applicationName());
+            QDir dir(settings.value("savePath",QDir::homePath()).toString());
+            QString filename=QFileDialog::getOpenFileName(NULL, QString::fromUtf8("Открыть файл"),dir.path(),tr("pdf (*.pdf)"));
+            putFile = new QFile(filename);
+            if (putFile->open(QIODevice::ReadOnly)){
+                QFileInfo info(*putFile);
+                settings.setValue("savePath",info.path());
+                ftpClient->put(putFile,QString::number(id)+".pdf");
+            }
+        }
+    } );
+    return ok;
 }
 
 bool ModelDoc::ftpExist(int id)
@@ -78,14 +92,21 @@ bool ModelDoc::ftpExist(int id)
 
 bool ModelDoc::ftpDel(int id)
 {
-    bool ok=docMap.contains(id);
-    if (ok && ftpClient->state()==QFtp::LoggedIn){
-        int n=QMessageBox::question(NULL,QString::fromUtf8("Подтвердите удаление"),
-                                    QString::fromUtf8("Подтветждаете удаление ")+getDocNumrer(id)+QString::fromUtf8("?"),QMessageBox::Yes| QMessageBox::No);
-        if (n==QMessageBox::Yes) {
-            ftpClient->remove(docMap.value(id));
-        }
+    bool ok=(ftpClient->state()==QFtp::LoggedIn);
+    if (!ok){
+        ftpConnect();
     }
+    int interval= ok ? 0 : 500;
+    QTimer::singleShot(interval, [this, id]() {
+        if (ftpClient->state()==QFtp::LoggedIn && docMap.contains(id)){
+            int n=QMessageBox::question(NULL,QString::fromUtf8("Подтвердите удаление"),
+                                        QString::fromUtf8("Подтветждаете удаление ")+getDocNumrer(id)+QString::fromUtf8("?"),QMessageBox::Yes| QMessageBox::No);
+            if (n==QMessageBox::Yes) {
+                ftpClient->remove(docMap.value(id));
+            }
+        }
+    } );
+    return ok;
 }
 
 QString ModelDoc::getDocNumrer(int id)

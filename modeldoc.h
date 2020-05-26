@@ -13,6 +13,7 @@
 #include <QFileDialog>
 #include <QSettings>
 #include <QApplication>
+#include <QTimer>
 
 class ModelDoc : public DbTableModel
 {
