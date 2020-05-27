@@ -69,6 +69,7 @@ FormDoc::FormDoc(QWidget *parent) :
     mapper->addEmptyLock(ui->tableViewVid);
     mapper->addEmptyLock(ui->tableViewEl);
     mapper->addEmptyLock(ui->tableViewElDim);
+    mapper->addEmptyLock(ui->pushButtonUpload);
     ui->horizontalLayoutMap->insertWidget(0,mapper);
 
     connect(mapper,SIGNAL(currentIndexChanged(int)),this,SLOT(refreshData(int)));
