@@ -4,6 +4,7 @@
 ModelDoc::ModelDoc(QObject *parent) : DbTableModel("zvd_sert",parent)
 {
     ftpClient = new QFtp(this);
+    updateFtpInfo();
     getState=0;
     connect(ftpClient,SIGNAL(commandStarted(int)),this,SLOT(ftpCommandStart(int)));
     connect(ftpClient, SIGNAL(commandFinished(int,bool)),this, SLOT(ftpCommandFinished(int,bool)));
@@ -47,7 +48,7 @@ bool ModelDoc::ftpGet(int id, int type)
     if (!ok){
         ftpConnect();
     }
-    int interval= ok ? 0 : 500;
+    int interval= ok ? 0 : delay;
     QTimer::singleShot(interval, [this, id, type]() {
         if (ftpClient->state()==QFtp::LoggedIn && docMap.contains(id)){
             getFile = new QFile(docMap.value(id));
@@ -68,7 +69,7 @@ bool ModelDoc::ftpPut(int id)
     if (!ok){
         ftpConnect();
     }
-    int interval= ok ? 0 : 500;
+    int interval= ok ? 0 : delay;
     QTimer::singleShot(interval, [this, id]() {
         if (ftpClient->state()==QFtp::LoggedIn){
             QSettings settings("szsm", QApplication::applicationName());
@@ -96,7 +97,7 @@ bool ModelDoc::ftpDel(int id)
     if (!ok){
         ftpConnect();
     }
-    int interval= ok ? 0 : 500;
+    int interval= ok ? 0 : delay;
     QTimer::singleShot(interval, [this, id]() {
         if (ftpClient->state()==QFtp::LoggedIn && docMap.contains(id)){
             int n=QMessageBox::question(NULL,QString::fromUtf8("Подтвердите удаление"),
@@ -135,9 +136,26 @@ void ModelDoc::refresh(bool activeOnly)
     select();
 }
 
+void ModelDoc::updateFtpInfo()
+{
+    QSqlQuery query;
+    query.prepare("select host_int, user_rw, pass_rw, path_sert, conn_delay from ftp_info where id = 1");
+    if (query.exec()){
+        while (query.next()){
+            ftphost=query.value(0).toString();
+            ftpuser=query.value(1).toString();
+            ftppassword=query.value(2).toString();
+            ftppath=query.value(3).toString();
+            delay=query.value(4).toInt();
+        }
+    } else {
+        QMessageBox::critical(NULL, QString::fromUtf8("Ошибка"),query.lastError().text());
+    }
+}
+
 void ModelDoc::ftpConnect()
 {
-    ftpClient->connectToHost("192.168.1.10");
+    ftpClient->connectToHost(ftphost);
 }
 
 void ModelDoc::updateList()
@@ -188,9 +206,9 @@ void ModelDoc::ftpCommandFinished(int /*commandId*/, bool error)
         QMessageBox::critical(NULL, tr("FTP"),ftpClient->errorString());
     } else {
         if (ftpClient->currentCommand() == QFtp::ConnectToHost) {
-            ftpClient->login(QString("sert"),QString("sert"));
+            ftpClient->login(QString(ftpuser),QString(ftppassword));
         } else if (ftpClient->currentCommand() == QFtp::Login){
-            ftpClient->cd("/pub/sert");
+            ftpClient->cd(ftppath);
         } else if (ftpClient->currentCommand() == QFtp::List) {
             emit dataChanged(this->index(0,0),this->index(rowCount()-1,columnCount()-1));
             emit sigList();

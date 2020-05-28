@@ -29,6 +29,7 @@ public:
 
 public slots:
     void refresh(bool activeOnly);
+    void updateFtpInfo();
 
 private:
     QFtp *ftpClient;
@@ -37,6 +38,11 @@ private:
     int getState;
     QFile *getFile;
     QFile *putFile;
+    QString ftphost;
+    QString ftpuser;
+    QString ftppassword;
+    QString ftppath;
+    int delay=0;
 
 private slots:
     void ftpConnect();

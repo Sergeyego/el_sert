@@ -13,6 +13,8 @@
 #include <QFileDialog>
 #include <QDebug>
 #include "qftp/qftp.h"
+#include <QProgressDialog>
+#include <QApplication>
 
 class Export: public QObject
 {
@@ -48,6 +50,7 @@ private:
     QString ftpuser;
     QString ftppassword;
     QString ftppath;
+    QProgressDialog *progress;
 
 private slots:
     void ftpConnect();
@@ -55,6 +58,7 @@ private slots:
     void ftpCommandFinished(int commandId, bool error);
     void ftpCommandStart(int commandId);
     void addToList(const QUrlInfo &urlInfo);
+    void updateFtpInfo();
 
 signals:
     void finished();

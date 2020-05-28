@@ -1,20 +1,23 @@
 #include "export.h"
 
 Export::Export(QObject *parent) : QObject(parent)
-{
-    ftphost="85.113.210.58";
-    ftpuser="ftp";
-    ftppassword="ftp";
-    ftppath="/pub/sert";
+{    
+    updateFtpInfo();
     ftpClient = new QFtp(this);
     connect(ftpClient,SIGNAL(commandStarted(int)),this,SLOT(ftpCommandStart(int)));
     connect(ftpClient, SIGNAL(commandFinished(int,bool)),this, SLOT(ftpCommandFinished(int,bool)));
     connect(ftpClient, SIGNAL(listInfo(QUrlInfo)),this, SLOT(addToList(QUrlInfo)));
+    progress = new QProgressDialog();
+    progress->setWindowTitle(QString::fromUtf8("Формирование выгрузки"));
+    progress->setAutoClose(false);
+    progress->setCancelButton(NULL);
+    progress->setMinimumDuration(0);
+    progress->setMinimum(0);
 }
 
 Export::~Export()
 {
-    qDebug()<<"delete!";
+    delete progress;
 }
 
 void Export::createXml()
@@ -30,8 +33,14 @@ void Export::createXml()
     QSqlQuery query;
     query.prepare("select e.id from elrtr as e where e.katalog=true order by e.marka");
     if (query.exec()){
+        int n=1;
+        progress->setLabelText(QString::fromUtf8("Формирование каталога электродов"));
+        progress->setMaximum(query.size());
         while (query.next()){
             kat.appendChild(getMark(query.value(0).toInt(),&doc));
+            QApplication::processEvents();
+            progress->setValue(n);
+            n++;
         }
     } else {
         QMessageBox::critical(NULL,tr("Ошибка"),query.lastError().text(),QMessageBox::Ok);
@@ -42,8 +51,14 @@ void Export::createXml()
     QSqlQuery queryWire;
     queryWire.prepare("select p.id from provol as p where p.katalog=true order by p.nam");
     if (queryWire.exec()){
+        int n=1;
+        progress->setLabelText(QString::fromUtf8("Формирование каталога проволоки"));
+        progress->setMaximum(queryWire.size());
         while (queryWire.next()){
             katWire.appendChild(getWire(queryWire.value(0).toInt(),&doc));
+            QApplication::processEvents();
+            progress->setValue(n);
+            n++;
         }
     } else {
         QMessageBox::critical(NULL,tr("Ошибка"),queryWire.lastError().text(),QMessageBox::Ok);
@@ -57,13 +72,21 @@ void Export::createXml()
                       "order by dat_doc");
     querySert.bindValue(":date",QDate::currentDate());
     if (querySert.exec()){
+        int n=1;
+        progress->setLabelText(QString::fromUtf8("Формирование свидетельств"));
+        progress->setMaximum(querySert.size());
         while (querySert.next()){
             sert.appendChild(getSert(querySert.value(0).toInt(),&doc));
+            QApplication::processEvents();
+            progress->setValue(n);
+            n++;
         }
     } else {
         QMessageBox::critical(NULL,tr("Ошибка"),querySert.lastError().text(),QMessageBox::Ok);
     }
     root.appendChild(sert);
+
+    progress->close();
 
     QString filename = QFileDialog::getSaveFileName(nullptr,QString::fromUtf8("Сохранить документ"),
                                                             QDate::currentDate().toString("yyyy-MM-dd")+".xml",
@@ -619,7 +642,6 @@ void Export::ftpCommandFinished(int /*commandId*/, bool error)
             ftpClient->cd(ftppath);
         } else if (ftpClient->currentCommand() == QFtp::List) {
             //qDebug()<<"list finished";
-            //qDebug()<<docMap;
             createXml();
         } else if (ftpClient->currentCommand()==QFtp::Cd){
             ftpClient->list();
@@ -647,5 +669,21 @@ void Export::addToList(const QUrlInfo &urlInfo)
         if (ok){
             docMap.insert(id,"ftp://"+ftpuser+":"+ftppassword+"@"+ftphost+ftppath+"/"+urlInfo.name());
         }
+    }
+}
+
+void Export::updateFtpInfo()
+{
+    QSqlQuery query;
+    query.prepare("select host_ext, user_ro, pass_ro, path_sert from ftp_info where id = 1");
+    if (query.exec()){
+        while (query.next()){
+            ftphost=query.value(0).toString();
+            ftpuser=query.value(1).toString();
+            ftppassword=query.value(2).toString();
+            ftppath=query.value(3).toString();
+        }
+    } else {
+        QMessageBox::critical(NULL, QString::fromUtf8("Ошибка"),query.lastError().text());
     }
 }
