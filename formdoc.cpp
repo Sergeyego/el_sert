@@ -96,13 +96,13 @@ FormDoc::~FormDoc()
 
 void FormDoc::loadsettings()
 {
-    QSettings settings("szsm", "el_sert");
+    QSettings settings("szsm", QApplication::applicationName());
     ui->splitter->restoreState(settings.value("doc_splitter").toByteArray());
 }
 
 void FormDoc::savesettings()
 {
-    QSettings settings("szsm", "el_sert");
+    QSettings settings("szsm", QApplication::applicationName());
     settings.setValue("doc_splitter", ui->splitter->saveState());
 }
 

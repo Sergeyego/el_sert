@@ -145,13 +145,13 @@ int FormPart::currentIdPart()
 
 void FormPart::loadsettings()
 {
-    QSettings settings("szsm", "el_sert");
+    QSettings settings("szsm", QApplication::applicationName());
     this->ui->splitterVert->restoreState(settings.value("part_splitter_width").toByteArray());
 }
 
 void FormPart::savesettings()
 {
-    QSettings settings("szsm", "el_sert");
+    QSettings settings("szsm", QApplication::applicationName());
     settings.setValue("part_splitter_width",ui->splitterVert->saveState());
 }
 

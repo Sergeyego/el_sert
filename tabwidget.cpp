@@ -24,7 +24,7 @@ void TabWidget::addTabAction(QWidget *tab, QAction *action, bool en)
 
 void TabWidget::loadSettings()
 {
-    QSettings settings("szsm", "el_sert");
+    QSettings settings("szsm", QApplication::applicationName());
     QAction *a;
     QMap<QAction*,QWidget*>::const_iterator i = map.constBegin();
     while (i != map.constEnd()) {
@@ -43,7 +43,7 @@ void TabWidget::loadSettings()
 
 void TabWidget::saveSettings()
 {
-    QSettings settings("szsm", "el_sert");
+    QSettings settings("szsm", QApplication::applicationName());
     QMap<QAction*,QWidget*>::const_iterator i = map.constBegin();
     while (i != map.constEnd()) {
         settings.setValue("tab_"+i.key()->objectName(),i.key()->isChecked());

@@ -57,13 +57,13 @@ FormShip::~FormShip()
 
 void FormShip::loadSettings()
 {
-    QSettings settings("szsm", "el_sert");
+    QSettings settings("szsm", QApplication::applicationName());
     this->ui->splitterVert->restoreState(settings.value("main_splitter_width").toByteArray());
 }
 
 void FormShip::saveSettings()
 {
-    QSettings settings("szsm", "el_sert");
+    QSettings settings("szsm", QApplication::applicationName());
     settings.setValue("main_splitter_width",ui->splitterVert->saveState());
 }
 

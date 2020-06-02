@@ -52,12 +52,12 @@ MainWindow::~MainWindow()
 
 void MainWindow::loadSettings()
 {
-    QSettings settings("szsm", "el_sert");
+    QSettings settings("szsm", QApplication::applicationName());
     this->restoreGeometry(settings.value("main_geometry").toByteArray());
 }
 
 void MainWindow::saveSettings()
 {
-    QSettings settings("szsm", "el_sert");
+    QSettings settings("szsm", QApplication::applicationName());
     settings.setValue("main_geometry", this->saveGeometry());
 }

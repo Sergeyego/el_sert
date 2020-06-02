@@ -95,6 +95,4 @@ RC_FILE = ico.rc
 DISTFILES += \
     images/logo2.png \
     images/otk.png \
-    ico.rc \
-    office.sh \
-    office.bat
+    ico.rc

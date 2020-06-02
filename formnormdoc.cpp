@@ -61,13 +61,13 @@ FormNormDoc::~FormNormDoc()
 
 void FormNormDoc::loadSettings()
 {
-    QSettings settings("szsm", "el_sert");
+    QSettings settings("szsm", QApplication::applicationName());
     this->ui->splitterTu->restoreState(settings.value("tu_splitter_width").toByteArray());
 }
 
 void FormNormDoc::saveSettings()
 {
-    QSettings settings("szsm", "el_sert");
+    QSettings settings("szsm", QApplication::applicationName());
     settings.setValue("tu_splitter_width",ui->splitterTu->saveState());
 }
 

@@ -152,13 +152,13 @@ FormMark::~FormMark()
 
 void FormMark::loadsettings()
 {
-    QSettings settings("szsm", "el_sert");
+    QSettings settings("szsm", QApplication::applicationName());
     ui->splitter->restoreState(settings.value("mark_splitter").toByteArray());
 }
 
 void FormMark::savesettings()
 {
-    QSettings settings("szsm", "el_sert");
+    QSettings settings("szsm", QApplication::applicationName());
     settings.setValue("mark_splitter", ui->splitter->saveState());
 }
 

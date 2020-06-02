@@ -5,6 +5,7 @@
 #include <QMap>
 #include <QDebug>
 #include <QSettings>
+#include <QApplication>
 
 class TabWidget : public QTabWidget
 {
