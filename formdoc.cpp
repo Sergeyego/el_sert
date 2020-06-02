@@ -43,7 +43,7 @@ FormDoc::FormDoc(QWidget *parent) :
     ui->tableVieewGrade->setColumnHidden(0,true);
     ui->tableVieewGrade->setColumnWidth(1,250);
 
-    modelDoc = /*Rels::instance()->modelDocSert*/new ModelDoc(this);
+    modelDoc = new ModelDoc(this);
     modelDoc->refresh(ui->checkBoxActive->isChecked());
 
     ui->tableViewDoc->setModel(modelDoc);
@@ -177,9 +177,5 @@ void FormDoc::updState()
 
 void FormDoc::delSert()
 {
-    if (!modelDoc->ftpDel(currentId())){
-        QTimer::singleShot(500, [this]() {
-            modelDoc->ftpDel(currentId());
-        } );
-    }
+    modelDoc->ftpDel(currentId());
 }
