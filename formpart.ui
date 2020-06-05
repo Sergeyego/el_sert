@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1054</width>
-    <height>776</height>
+    <width>1052</width>
+    <height>774</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -267,11 +267,7 @@
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_5">
             <item>
-             <widget class="DbViewer" name="tableViewSrcMech">
-              <property name="selectionMode">
-               <enum>QAbstractItemView::NoSelection</enum>
-              </property>
-             </widget>
+             <widget class="DbViewer" name="tableViewSrcMech"/>
             </item>
             <item>
              <layout class="QVBoxLayout" name="verticalLayout_7">
