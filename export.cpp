@@ -206,7 +206,7 @@ QDomElement Export::getMark(int id_el, QDomDocument *doc)
 
 QDomElement Export::getWire(int id_pr, QDomDocument *doc)
 {
-    QDomElement mark = doc->createElement(QString::fromUtf8("Марка_проволоки"));
+    QDomElement mark = doc->createElement(QString::fromUtf8("Базовая_марка"));
     mark.setAttribute("id",id_pr);
 
     QString nam, descr;
@@ -224,11 +224,8 @@ QDomElement Export::getWire(int id_pr, QDomDocument *doc)
     }
 
     mark.appendChild(newElement(QString::fromUtf8("Название"),nam,doc));
-    mark.appendChild(newElement(QString::fromUtf8("Описание"),descr,doc));
-
-    mark.appendChild(getWireTu(id_pr,doc));
     mark.appendChild(getWireChem(id_pr,doc));
-    mark.appendChild(getWireDiams(id_pr,doc));
+    mark.appendChild(getWireChild(id_pr,doc));
 
     return mark;
 }
@@ -273,6 +270,17 @@ QDomElement Export::getSert(int id_sert, QDomDocument *doc)
 
     QDomElement link=newElement(QString::fromUtf8("Ссылка_для_загрузки"),docMap.value(id_sert),doc);
     sert.appendChild(link);
+
+    QString jpg;
+    if (docMap.contains(id_sert)){
+        QString val=docMap.value(id_sert);
+        if (ftpFiles.contains(val+"-1.jpg")){
+            jpg=val+"-1.jpg";
+        }
+    }
+
+    QDomElement jlink=newElement(QString::fromUtf8("Ссылка_jpg"),jpg,doc);
+    sert.appendChild(jlink);
 
     QDomElement type=newElement(QString::fromUtf8("Тип_документа"),typeDoc,doc);
     type.setAttribute("id",id_typeDoc);
@@ -529,6 +537,31 @@ QDomElement Export::getWireChem(int id_pr, QDomDocument *doc)
     return chem;
 }
 
+QDomElement Export::getWireChild(int id_pr, QDomDocument *doc)
+{
+    QDomElement child = doc->createElement(QString::fromUtf8("Выпускаемая_продукция"));
+    QSqlQuery queryChild;
+    queryChild.prepare("select p.id, p.nam, p.description from provol as p where (p.id_base = :id1 or p.id=:id2) and p.is_w=1 and "
+                       "(select count(*) from wire_cena as c where c.dat=(select max(dat) from wire_cena) and c.id_provol=p.id)>0 order by p.nam");
+    queryChild.bindValue(":id1",id_pr);
+    queryChild.bindValue(":id2",id_pr);
+    if (queryChild.exec()){
+        while (queryChild.next()){
+            int id=queryChild.value(0).toInt();
+            QDomElement ch = doc->createElement(QString::fromUtf8("Марка_проволоки"));
+            ch.setAttribute("id",id);
+            ch.appendChild(newElement(QString::fromUtf8("Название"),queryChild.value(1).toString(),doc));
+            ch.appendChild(getWireTu(id,doc));
+            ch.appendChild(newElement(QString::fromUtf8("Описание"),queryChild.value(2).toString(),doc));
+            ch.appendChild(getWireDiams(id,doc));
+            child.appendChild(ch);
+        }
+    } else {
+        qDebug()<<queryChild.lastError().text();
+    }
+    return child;
+}
+
 QDomElement Export::getMech(int id_el, QDomDocument *doc)
 {
     QDomElement mech = doc->createElement(QString::fromUtf8("Механические_свойства_металла_шва_и_наплавленного_металла"));
@@ -591,6 +624,20 @@ QDomElement Export::getWireDiams(int id_pr, QDomDocument *doc)
     if (queryDiam.exec()){
         while (queryDiam.next()){
             QDomElement pos = doc->createElement(QString::fromUtf8("Позиция"));
+
+            QString nnam;
+            int idnnam;
+            if (queryDiam.value(1).toDouble()<1.61){
+                nnam=QString::fromUtf8("Проволока для сварки в среде защитных газов");
+                idnnam=1;
+            } else {
+                nnam=QString::fromUtf8("Проволока для сварки под флюсом");
+                idnnam=2;
+            }
+            QDomElement nazn=newElement(QString::fromUtf8("Назначение"),nnam,doc);
+            nazn.setAttribute("id",idnnam);
+            pos.appendChild(nazn);
+
             pos.appendChild(newElement(QString::fromUtf8("Тип_носителя"),queryDiam.value(0).toString(),doc));
             pos.appendChild(newElement(QString::fromUtf8("Диаметр"),fromDouble(queryDiam.value(1),1),doc));
             diams.appendChild(pos);
@@ -655,6 +702,7 @@ void Export::ftpCommandStart(int commandId)
 {
     if (ftpClient->currentCommand()==QFtp::List){
         docMap.clear();
+        ftpFiles.clear();
         //qDebug()<<"Start list";
     }
 }
@@ -662,12 +710,14 @@ void Export::ftpCommandStart(int commandId)
 void Export::addToList(const QUrlInfo &urlInfo)
 {
     if (urlInfo.isFile()){
+        QString ftpUrl="ftp://"+ftpuser+":"+ftppassword+"@"+ftphost+ftppath+"/"+urlInfo.name();
+        ftpFiles.append(ftpUrl);
         QString name=urlInfo.name();
         name.truncate(name.length()-4);
         bool ok;
         int id=name.toInt(&ok);
         if (ok){
-            docMap.insert(id,"ftp://"+ftpuser+":"+ftppassword+"@"+ftphost+ftppath+"/"+urlInfo.name());
+            docMap.insert(id,ftpUrl);
         }
     }
 }

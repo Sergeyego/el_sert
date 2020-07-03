@@ -38,6 +38,7 @@ private:
     QDomElement getPlav(int id_el,  QDomDocument *doc);
     QDomElement getChem(int id_pr,  QDomDocument *doc);
     QDomElement getWireChem(int id_pr,  QDomDocument *doc);
+    QDomElement getWireChild(int id_pr,  QDomDocument *doc);
     QDomElement getMech(int id_el,  QDomDocument *doc);
     QDomElement getDiams(int id_el,  QDomDocument *doc);
     QDomElement getWireDiams(int id_pr,  QDomDocument *doc);
@@ -46,6 +47,7 @@ private:
     QString fromDate(const QDate &d);
     QFtp *ftpClient;
     QMap <int, QString> docMap;
+    QStringList ftpFiles;
     QString ftphost;
     QString ftpuser;
     QString ftppassword;
