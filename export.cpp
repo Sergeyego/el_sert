@@ -568,7 +568,7 @@ QDomElement Export::getMech(int id_el, QDomDocument *doc)
     QSqlQuery queryMech;
     queryMech.prepare("select t.nam_html, t.sig_html, m.min, m.max from mech_tu as m "
                       "inner join mech_tbl as t on t.id=m.id_mech "
-                      "where id_el=17");
+                      "where id_el= :id order by t.nam_html");
     queryMech.bindValue(":id",id_el);
     if (queryMech.exec()){
         while (queryMech.next()){
