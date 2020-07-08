@@ -49,7 +49,9 @@ void Export::createXml()
 
     QDomElement katWire = doc.createElement(QString::fromUtf8("Каталог_проволоки"));
     QSqlQuery queryWire;
-    queryWire.prepare("select p.id from provol as p where p.katalog=true order by p.nam");
+    queryWire.prepare("select distinct c.id_provol, p.nam from wire_cena as c "
+                      "inner join provol as p on p.id = c.id_provol "
+                      "where c.dat=(select max(dat) from wire_cena) order by p.nam");
     if (queryWire.exec()){
         int n=1;
         progress->setLabelText(QString::fromUtf8("Формирование каталога проволоки"));
@@ -85,6 +87,32 @@ void Export::createXml()
         QMessageBox::critical(NULL,tr("Ошибка"),querySert.lastError().text(),QMessageBox::Ok);
     }
     root.appendChild(sert);
+
+    QDomElement spool = doc.createElement(QString::fromUtf8("Носители_проволоки"));
+    QSqlQuery querySpool;
+    querySpool.prepare("select distinct c.id_diam, d.diam from wire_cena as c "
+                       "inner join diam as d on c.id_diam=d.id "
+                       "inner join wire_pack_kind as k on c.id_pack=k.id "
+                       "where c.dat=(select max(dat) from wire_cena) "
+                       "order by d.diam");
+    if (querySpool.exec()){
+        int n=1;
+        progress->setLabelText(QString::fromUtf8("Формирование носителей проволоки"));
+        progress->setMaximum(querySpool.size());
+        while (querySpool.next()){
+            QDomElement diam=doc.createElement(QString::fromUtf8("Носители_для_диаметра"));
+            diam.appendChild(newElement(QString::fromUtf8("Диаметр"),fromDouble(querySpool.value(1).toDouble()),&doc));
+            diam.appendChild(getSpool(querySpool.value(0).toInt(),&doc));
+            spool.appendChild(diam);
+            QApplication::processEvents();
+            progress->setValue(n);
+            n++;
+        }
+    } else {
+        QMessageBox::critical(NULL,tr("Ошибка"),querySpool.lastError().text(),QMessageBox::Ok);
+    }
+
+    root.appendChild(spool);
 
     progress->close();
 
@@ -206,26 +234,46 @@ QDomElement Export::getMark(int id_el, QDomDocument *doc)
 
 QDomElement Export::getWire(int id_pr, QDomDocument *doc)
 {
-    QDomElement mark = doc->createElement(QString::fromUtf8("Базовая_марка"));
+    QDomElement mark = doc->createElement(QString::fromUtf8("Марка_проволоки"));
     mark.setAttribute("id",id_pr);
 
-    QString nam, descr;
+    int id_type, id_base;
+
+    QString nam, descr, tnam, bnam;
 
     QSqlQuery query;
-    query.prepare("select p.nam, p.description from provol as p where p.id = :id ");
+    query.prepare("select p.nam, p.description, p.id_type, t.nam, COALESCE(p.id_base, p.id), COALESCE(pp.nam, p.nam) from provol as p "
+                  "inner join provol_type as t on t.id = p.id_type "
+                  "left join provol as pp on pp.id=p.id_base "
+                  "where p.id = :id ");
     query.bindValue(":id",id_pr);
     if (query.exec()){
         while (query.next()){
             nam=query.value(0).toString();
             descr=query.value(1).toString();
+            id_type=query.value(2).toInt();
+            tnam=query.value(3).toString();
+            id_base=query.value(4).toInt();
+            bnam=query.value(5).toString();
         }
     } else {
         qDebug()<<query.lastError().text();
     }
 
     mark.appendChild(newElement(QString::fromUtf8("Название"),nam,doc));
-    mark.appendChild(getWireChem(id_pr,doc));
-    mark.appendChild(getWireChild(id_pr,doc));
+
+    QDomElement type=newElement(QString::fromUtf8("Тип_проволоки"),tnam,doc);
+    type.setAttribute("id",id_type);
+
+    QDomElement base=newElement(QString::fromUtf8("Базовая_марка"),bnam,doc);
+    base.setAttribute("id",id_base);
+
+    mark.appendChild(type);
+    mark.appendChild(base);
+    mark.appendChild(getWireTu(id_pr,doc));
+    mark.appendChild(newElement(QString::fromUtf8("Описание"),descr,doc));
+    mark.appendChild(getWireChem(id_base,doc));
+    mark.appendChild(getWireDiams(id_pr,doc));
 
     return mark;
 }
@@ -537,31 +585,6 @@ QDomElement Export::getWireChem(int id_pr, QDomDocument *doc)
     return chem;
 }
 
-QDomElement Export::getWireChild(int id_pr, QDomDocument *doc)
-{
-    QDomElement child = doc->createElement(QString::fromUtf8("Выпускаемая_продукция"));
-    QSqlQuery queryChild;
-    queryChild.prepare("select p.id, p.nam, p.description from provol as p where (p.id_base = :id1 or p.id=:id2) and p.is_w=1 and "
-                       "(select count(*) from wire_cena as c where c.dat=(select max(dat) from wire_cena) and c.id_provol=p.id)>0 order by p.nam");
-    queryChild.bindValue(":id1",id_pr);
-    queryChild.bindValue(":id2",id_pr);
-    if (queryChild.exec()){
-        while (queryChild.next()){
-            int id=queryChild.value(0).toInt();
-            QDomElement ch = doc->createElement(QString::fromUtf8("Марка_проволоки"));
-            ch.setAttribute("id",id);
-            ch.appendChild(newElement(QString::fromUtf8("Название"),queryChild.value(1).toString(),doc));
-            ch.appendChild(getWireTu(id,doc));
-            ch.appendChild(newElement(QString::fromUtf8("Описание"),queryChild.value(2).toString(),doc));
-            ch.appendChild(getWireDiams(id,doc));
-            child.appendChild(ch);
-        }
-    } else {
-        qDebug()<<queryChild.lastError().text();
-    }
-    return child;
-}
-
 QDomElement Export::getMech(int id_el, QDomDocument *doc)
 {
     QDomElement mech = doc->createElement(QString::fromUtf8("Механические_свойства_металла_шва_и_наплавленного_металла"));
@@ -615,15 +638,15 @@ QDomElement Export::getWireDiams(int id_pr, QDomDocument *doc)
 {
     QDomElement diams = doc->createElement(QString::fromUtf8("Ассортимент"));
     QSqlQuery queryDiam;
-    queryDiam.prepare("select k.short, d.diam from wire_cena as c "
+    queryDiam.prepare("select distinct d.diam from wire_cena as c "
                       "inner join diam as d on c.id_diam=d.id "
                       "inner join wire_pack_kind as k on c.id_pack=k.id "
                       "where c.dat=(select max(dat) from wire_cena) and c.id_provol=:id "
-                      "order by k.short, d.diam");
+                      "order by d.diam");
     queryDiam.bindValue(":id",id_pr);
     if (queryDiam.exec()){
         while (queryDiam.next()){
-            QDomElement pos = doc->createElement(QString::fromUtf8("Позиция"));
+            /*QDomElement pos = doc->createElement(QString::fromUtf8("Позиция"));
 
             QString nnam;
             int idnnam;
@@ -640,12 +663,32 @@ QDomElement Export::getWireDiams(int id_pr, QDomDocument *doc)
 
             pos.appendChild(newElement(QString::fromUtf8("Тип_носителя"),queryDiam.value(0).toString(),doc));
             pos.appendChild(newElement(QString::fromUtf8("Диаметр"),fromDouble(queryDiam.value(1),1),doc));
-            diams.appendChild(pos);
+            diams.appendChild(pos);*/
+            diams.appendChild(newElement(QString::fromUtf8("Диаметр"),fromDouble(queryDiam.value(0),1),doc));
         }
     } else {
         qDebug()<<queryDiam.lastError().text();
     }
     return diams;
+}
+
+QDomElement Export::getSpool(int id_diam, QDomDocument *doc)
+{
+    QDomElement spool = doc->createElement(QString::fromUtf8("Носители"));
+    QSqlQuery querySpool;
+    querySpool.prepare("select distinct k.short from wire_cena as c "
+                       "inner join wire_pack_kind as k on c.id_pack=k.id "
+                       "where c.dat=(select max(dat) from wire_cena) and c.id_diam = :id "
+                       "order by k.short");
+    querySpool.bindValue(":id",id_diam);
+    if (querySpool.exec()){
+        while (querySpool.next()){
+            spool.appendChild(newElement(QString::fromUtf8("Тип_носителя"),querySpool.value(0).toString(),doc));
+        }
+    } else {
+        qDebug()<<querySpool.lastError().text();
+    }
+    return spool;
 }
 
 QString Export::testStr(const QString &s)

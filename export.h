@@ -38,10 +38,10 @@ private:
     QDomElement getPlav(int id_el,  QDomDocument *doc);
     QDomElement getChem(int id_pr,  QDomDocument *doc);
     QDomElement getWireChem(int id_pr,  QDomDocument *doc);
-    QDomElement getWireChild(int id_pr,  QDomDocument *doc);
     QDomElement getMech(int id_el,  QDomDocument *doc);
     QDomElement getDiams(int id_el,  QDomDocument *doc);
     QDomElement getWireDiams(int id_pr,  QDomDocument *doc);
+    QDomElement getSpool(int id_diam,  QDomDocument *doc);
     QString testStr(const QString &s);
     QString fromDouble(const QVariant &v, int d=1);
     QString fromDate(const QDate &d);
