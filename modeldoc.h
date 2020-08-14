@@ -23,9 +23,10 @@ public:
     QVariant data(const QModelIndex &index, int role) const;
     bool ftpGet(int id, int type);
     bool ftpPut(int id);
-    bool ftpExist(int id);
+    bool ftpExist(int id) const;
     bool ftpDel(int id);
     QString getDocNumrer(int id);
+    bool isActive(int ind) const;
 
 public slots:
     void refresh(bool activeOnly);

@@ -33,7 +33,7 @@ QVariant ModelDoc::data(const QModelIndex &index, int role) const
 {
     if (role==Qt::BackgroundRole){
         int id = data(this->index(index.row(),0),Qt::EditRole).toInt();
-        if (docMap.contains(id)){
+        if (ftpExist(id) && ModelDoc::isActive(index.row())){
             return QVariant(QColor(170,255,170));
         } else {
             return QVariant(QColor(255,170,170));
@@ -86,7 +86,7 @@ bool ModelDoc::ftpPut(int id)
     return ok;
 }
 
-bool ModelDoc::ftpExist(int id)
+bool ModelDoc::ftpExist(int id) const
 {
     return docMap.contains(id);
 }
@@ -124,6 +124,14 @@ QString ModelDoc::getDocNumrer(int id)
         QMessageBox::critical(NULL, QString::fromUtf8("Ошибка"),query.lastError().text());
     }
     return docNum;
+}
+
+bool ModelDoc::isActive(int ind) const
+{
+    QDate beg=data(index(ind,4),Qt::EditRole).toDate();
+    QDate end=data(index(ind,5),Qt::EditRole).toDate();
+    QDate current=QDate::currentDate();
+    return (current>=beg && current<=end);
 }
 
 void ModelDoc::refresh(bool activeOnly)

@@ -210,9 +210,14 @@ void FormMark::gelLbl()
 
 void FormMark::exportXml()
 {
-    Export *e = new Export;
-    connect(e,SIGNAL(finished()),e,SLOT(deleteLater()));
-    e->start();
+    PdfToImg *conv = new PdfToImg;
+    connect(conv,&PdfToImg::finished,[this,conv]() {
+        conv->deleteLater();
+        Export *e = new Export;
+        connect(e,SIGNAL(finished()),e,SLOT(deleteLater()));
+        e->start();
+    });
+    conv->start();
 }
 
 CustomDelegate::CustomDelegate(QObject *parent) : DbDelegate(parent)

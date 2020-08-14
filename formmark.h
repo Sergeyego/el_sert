@@ -7,6 +7,7 @@
 #include "rels.h"
 #include "lblcreator.h"
 #include "export.h"
+#include "pdftoimg.h"
 
 namespace Ui {
 class FormMark;

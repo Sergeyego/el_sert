@@ -40,7 +40,8 @@ SOURCES += main.cpp\
     qr/qrencode.cpp \
     qftp/qftp.cpp \
     qftp/qurlinfo.cpp \
-    modeldoc.cpp
+    modeldoc.cpp \
+    pdftoimg.cpp
 
 HEADERS  += formpart.h \
     pgdialog.h \
@@ -71,7 +72,8 @@ HEADERS  += formpart.h \
     qr/qrencode.h \
     qftp/qftp.h \
     qftp/qurlinfo.h \
-    modeldoc.h
+    modeldoc.h \
+    pdftoimg.h
 
 FORMS    += formpart.ui \
     pgdialog.ui \
@@ -91,6 +93,8 @@ RESOURCES += \
     res.qrc
 
 RC_FILE = ico.rc
+
+LIBS += -lpoppler-qt5
 
 DISTFILES += \
     images/logo2.png \
