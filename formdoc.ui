@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1123</width>
-    <height>740</height>
+    <width>1025</width>
+    <height>738</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -64,7 +64,7 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="layoutWidget">
+     <widget class="QWidget" name="">
       <layout class="QVBoxLayout" name="verticalLayout_5">
        <item>
         <layout class="QGridLayout" name="gridLayout">
@@ -254,8 +254,26 @@
         </layout>
        </item>
        <item>
-        <layout class="QGridLayout" name="gridLayout_2">
-         <item row="0" column="1">
+        <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <item>
+          <widget class="QGroupBox" name="groupBox_3">
+           <property name="minimumSize">
+            <size>
+             <width>400</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="title">
+            <string>Марка и диаметр</string>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_2">
+            <item>
+             <widget class="DbViewer" name="tableViewElDim"/>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
           <widget class="QGroupBox" name="groupBox_2">
            <property name="title">
             <string>Марка</string>
@@ -267,38 +285,54 @@
            </layout>
           </widget>
          </item>
-         <item row="1" column="1" rowspan="2">
-          <widget class="QGroupBox" name="groupBox_4">
-           <property name="title">
-            <string>Справочник категорий</string>
-           </property>
-           <layout class="QVBoxLayout" name="verticalLayout_4">
-            <item>
-             <widget class="DbViewer" name="tableVieewGrade"/>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item row="0" column="0">
-          <widget class="QGroupBox" name="groupBox_3">
-           <property name="title">
-            <string>Марка и диаметр</string>
-           </property>
-           <layout class="QVBoxLayout" name="verticalLayout_2">
-            <item>
-             <widget class="DbViewer" name="tableViewElDim"/>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item row="1" column="0" rowspan="2">
+         <item>
           <widget class="QGroupBox" name="groupBox">
+           <property name="maximumSize">
+            <size>
+             <width>200</width>
+             <height>16777215</height>
+            </size>
+           </property>
            <property name="title">
             <string>Вид электродов</string>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout">
             <item>
              <widget class="DbViewer" name="tableViewVid"/>
+            </item>
+           </layout>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_3">
+         <item>
+          <widget class="QGroupBox" name="groupBoxWire">
+           <property name="title">
+            <string>Проволока</string>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_8">
+            <item>
+             <widget class="DbViewer" name="tableViewWire"/>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="groupBox_4">
+           <property name="maximumSize">
+            <size>
+             <width>320</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="title">
+            <string>Справочник категорий</string>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_4">
+            <item>
+             <widget class="DbViewer" name="tableVieewGrade"/>
             </item>
            </layout>
           </widget>

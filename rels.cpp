@@ -98,6 +98,7 @@ Rels::Rels(QObject *parent) : QObject(parent)
     relDiam = new DbRelation(QString("select id, sdim, is_el from diam order by sdim"),0,1,this);
     relPosPix = new DbRelation(QString("select id, data from pics"),0,1,this);
     relPlav = new DbRelation(QString("select id, nam from el_plav_nams"),0,1,this);
+    relWireDiam = new DbRelation(QString("select id, sdim from diam order by sdim"),0,1,this);
 
     relDiam->proxyModel()->setFilterKeyColumn(2);
     relDiam->proxyModel()->setFilterFixedString("1");
@@ -132,6 +133,7 @@ void Rels::refresh()
     relPosPix->refreshModel();
     relDocType->refreshModel();
     relPlav->refreshModel();
+    relWireDiam->refreshModel();
 
     emit sigRefresh();
 }

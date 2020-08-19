@@ -44,6 +44,7 @@ public:
     DbRelation *relPosPix;
     DbRelation *relDocType;
     DbRelation *relPlav;
+    DbRelation *relWireDiam;
 
 protected:
     explicit Rels(QObject *parent = nullptr);

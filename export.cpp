@@ -49,9 +49,7 @@ void Export::createXml()
 
     QDomElement katWire = doc.createElement(QString::fromUtf8("Каталог_проволоки"));
     QSqlQuery queryWire;
-    queryWire.prepare("select distinct c.id_provol, p.nam from wire_cena as c "
-                      "inner join provol as p on p.id = c.id_provol "
-                      "where c.dat=(select max(dat) from wire_cena) order by p.nam");
+    queryWire.prepare("select p.id from provol as p where p.katalog=true order by p.nam");
     if (queryWire.exec()){
         int n=1;
         progress->setLabelText(QString::fromUtf8("Формирование каталога проволоки"));
@@ -638,32 +636,19 @@ QDomElement Export::getWireDiams(int id_pr, QDomDocument *doc)
 {
     QDomElement diams = doc->createElement(QString::fromUtf8("Ассортимент"));
     QSqlQuery queryDiam;
-    queryDiam.prepare("select distinct d.diam from wire_cena as c "
+    queryDiam.prepare("select * from( "
+                      "select dm.diam as diam from wire_diams as wd "
+                      "inner join diam as dm on wd.id_diam=dm.id "
+                      "where wd.id_wire = :id1 "
+                      "union "
+                      "select distinct d.diam as diam from wire_cena as c "
                       "inner join diam as d on c.id_diam=d.id "
-                      "inner join wire_pack_kind as k on c.id_pack=k.id "
-                      "where c.dat=(select max(dat) from wire_cena) and c.id_provol=:id "
-                      "order by d.diam");
-    queryDiam.bindValue(":id",id_pr);
+                      "where c.dat=(select max(dat) from wire_cena) and c.id_provol = :id2 "
+                      ") as dg order by dg.diam");
+    queryDiam.bindValue(":id1",id_pr);
+    queryDiam.bindValue(":id2",id_pr);
     if (queryDiam.exec()){
         while (queryDiam.next()){
-            /*QDomElement pos = doc->createElement(QString::fromUtf8("Позиция"));
-
-            QString nnam;
-            int idnnam;
-            if (queryDiam.value(1).toDouble()<1.61){
-                nnam=QString::fromUtf8("Проволока для сварки в среде защитных газов");
-                idnnam=1;
-            } else {
-                nnam=QString::fromUtf8("Проволока для сварки под флюсом");
-                idnnam=2;
-            }
-            QDomElement nazn=newElement(QString::fromUtf8("Назначение"),nnam,doc);
-            nazn.setAttribute("id",idnnam);
-            pos.appendChild(nazn);
-
-            pos.appendChild(newElement(QString::fromUtf8("Тип_носителя"),queryDiam.value(0).toString(),doc));
-            pos.appendChild(newElement(QString::fromUtf8("Диаметр"),fromDouble(queryDiam.value(1),1),doc));
-            diams.appendChild(pos);*/
             diams.appendChild(newElement(QString::fromUtf8("Диаметр"),fromDouble(queryDiam.value(0),1),doc));
         }
     } else {

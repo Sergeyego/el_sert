@@ -43,6 +43,20 @@ FormDoc::FormDoc(QWidget *parent) :
     ui->tableVieewGrade->setColumnHidden(0,true);
     ui->tableVieewGrade->setColumnWidth(1,250);
 
+    modelWire = new DbTableModel("zvd_wire_diam_sert");
+    modelWire->addColumn("id","id");
+    modelWire->addColumn("id_sert","id_sert");
+    modelWire->addColumn("id_provol",QString::fromUtf8("Проволока"),NULL,Rels::instance()->relProvol);
+    modelWire->addColumn("id_diam",QString::fromUtf8("Диаметр"),NULL,Rels::instance()->relWireDiam);
+    modelWire->setSuffix("inner join provol as p on p.id=zvd_wire_diam_sert.id_provol "
+                         "inner join diam as d on d.id=zvd_wire_diam_sert.id_diam");
+    modelWire->setSort("p.nam, d.diam");
+    ui->tableViewWire->setModel(modelWire);
+    ui->tableViewWire->setColumnHidden(0,true);
+    ui->tableViewWire->setColumnHidden(1,true);
+    ui->tableViewWire->setColumnWidth(2,150);
+    ui->tableViewWire->setColumnWidth(3,70);
+
     modelDoc = new ModelDoc(this);
     modelDoc->refresh(ui->checkBoxActive->isChecked());
 
@@ -70,6 +84,7 @@ FormDoc::FormDoc(QWidget *parent) :
     mapper->addEmptyLock(ui->tableViewEl);
     mapper->addEmptyLock(ui->tableViewElDim);
     mapper->addEmptyLock(ui->pushButtonUpload);
+    mapper->addEmptyLock(ui->tableViewWire);
     ui->horizontalLayoutMap->insertWidget(0,mapper);
 
     connect(mapper,SIGNAL(currentIndexChanged(int)),this,SLOT(refreshData(int)));
@@ -140,6 +155,10 @@ void FormDoc::refreshData(int index)
     modelElDim->setDefaultValue(0,id);
     modelElDim->setFilter("zvd_eldim.id_sert = "+QString::number(id));
     modelElDim->select();
+
+    modelWire->setDefaultValue(1,id);
+    modelWire->setFilter("zvd_wire_diam_sert.id_sert = "+QString::number(id));
+    modelWire->select();
 
     updState();
 }
