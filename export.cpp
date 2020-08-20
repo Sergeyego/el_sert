@@ -403,8 +403,14 @@ QDomElement Export::getSertWire(int id_sert, QDomDocument *doc)
     markWireQuery.prepare("select distinct z.id_provol, p.nam, p.id_base, pb.nam from zvd_wire_diam_sert as z "
                           "inner join provol as p on p.id=z.id_provol "
                           "left join provol as pb on p.id_base=pb.id "
-                          "where z.id_sert= :id ");
-    markWireQuery.bindValue(":id",id_sert);
+                          "where z.id_sert= :id1 "
+                          "union "
+                          "select z.id_provol, p.nam, p.id_base, pb.nam from zvd_wire_sert as z "
+                          "inner join provol as p on p.id=z.id_provol "
+                          "left join provol as pb on p.id_base=pb.id "
+                          "where z.id_sert= :id2");
+    markWireQuery.bindValue(":id1",id_sert);
+    markWireQuery.bindValue(":id2",id_sert);
     if (markWireQuery.exec()){
         while (markWireQuery.next()){
             QDomElement mr=doc->createElement(QString::fromUtf8("Марка_проволоки"));

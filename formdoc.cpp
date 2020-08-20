@@ -9,14 +9,6 @@ FormDoc::FormDoc(QWidget *parent) :
 
     loadsettings();
 
-    modelElTypes = new DbTableModel("zvd_types",this);
-    modelElTypes->addColumn("id_sert","id_sert");
-    modelElTypes->addColumn("id_tip",QString::fromUtf8("Тип"),NULL,Rels::instance()->relElTypes);
-    modelElTypes->setSort("zvd_types.id_tip");
-    ui->tableViewVid->setModel(modelElTypes);
-    ui->tableViewVid->setColumnHidden(0,true);
-    ui->tableViewVid->setColumnWidth(1,120);
-
     modelEl = new DbTableModel("zvd_els",this);
     modelEl->addColumn("id_sert","id_sert");
     modelEl->addColumn("id_el",QString::fromUtf8("Марка"),NULL,Rels::instance()->relElMark);
@@ -43,19 +35,28 @@ FormDoc::FormDoc(QWidget *parent) :
     ui->tableVieewGrade->setColumnHidden(0,true);
     ui->tableVieewGrade->setColumnWidth(1,250);
 
-    modelWire = new DbTableModel("zvd_wire_diam_sert");
-    modelWire->addColumn("id","id");
+    modelWireDiam = new DbTableModel("zvd_wire_diam_sert");
+    modelWireDiam->addColumn("id","id");
+    modelWireDiam->addColumn("id_sert","id_sert");
+    modelWireDiam->addColumn("id_provol",QString::fromUtf8("Проволока"),NULL,Rels::instance()->relProvol);
+    modelWireDiam->addColumn("id_diam",QString::fromUtf8("Диаметр"),NULL,Rels::instance()->relWireDiam);
+    modelWireDiam->setSuffix("inner join provol as p on p.id=zvd_wire_diam_sert.id_provol "
+                         "inner join diam as d on d.id=zvd_wire_diam_sert.id_diam");
+    modelWireDiam->setSort("p.nam, d.diam");
+    ui->tableViewWireDiam->setModel(modelWireDiam);
+    ui->tableViewWireDiam->setColumnHidden(0,true);
+    ui->tableViewWireDiam->setColumnHidden(1,true);
+    ui->tableViewWireDiam->setColumnWidth(2,150);
+    ui->tableViewWireDiam->setColumnWidth(3,70);
+
+    modelWire = new DbTableModel("zvd_wire_sert");
     modelWire->addColumn("id_sert","id_sert");
     modelWire->addColumn("id_provol",QString::fromUtf8("Проволока"),NULL,Rels::instance()->relProvol);
-    modelWire->addColumn("id_diam",QString::fromUtf8("Диаметр"),NULL,Rels::instance()->relWireDiam);
-    modelWire->setSuffix("inner join provol as p on p.id=zvd_wire_diam_sert.id_provol "
-                         "inner join diam as d on d.id=zvd_wire_diam_sert.id_diam");
-    modelWire->setSort("p.nam, d.diam");
+    modelWire->setSuffix("inner join provol as p on p.id=zvd_wire_sert.id_provol");
+    modelWire->setSort("p.nam");
     ui->tableViewWire->setModel(modelWire);
     ui->tableViewWire->setColumnHidden(0,true);
-    ui->tableViewWire->setColumnHidden(1,true);
-    ui->tableViewWire->setColumnWidth(2,150);
-    ui->tableViewWire->setColumnWidth(3,70);
+    ui->tableViewWire->setColumnWidth(1,150);
 
     modelDoc = new ModelDoc(this);
     modelDoc->refresh(ui->checkBoxActive->isChecked());
@@ -80,7 +81,7 @@ FormDoc::FormDoc(QWidget *parent) :
     mapper->addMapping(ui->comboBoxVed,10);
     mapper->addMapping(ui->comboBoxVid,11);
 
-    mapper->addEmptyLock(ui->tableViewVid);
+    mapper->addEmptyLock(ui->tableViewWireDiam);
     mapper->addEmptyLock(ui->tableViewEl);
     mapper->addEmptyLock(ui->tableViewElDim);
     mapper->addEmptyLock(ui->pushButtonUpload);
@@ -144,10 +145,6 @@ void FormDoc::refreshData(int index)
 {
     int id=ui->tableViewDoc->model()->data(ui->tableViewDoc->model()->index(index,0),Qt::EditRole).toInt();
 
-    modelElTypes->setDefaultValue(0,id);
-    modelElTypes->setFilter("zvd_types.id_sert = "+QString::number(id));
-    modelElTypes->select();
-
     modelEl->setDefaultValue(0,id);
     modelEl->setFilter("zvd_els.id_sert = "+QString::number(id));
     modelEl->select();
@@ -156,8 +153,12 @@ void FormDoc::refreshData(int index)
     modelElDim->setFilter("zvd_eldim.id_sert = "+QString::number(id));
     modelElDim->select();
 
-    modelWire->setDefaultValue(1,id);
-    modelWire->setFilter("zvd_wire_diam_sert.id_sert = "+QString::number(id));
+    modelWireDiam->setDefaultValue(1,id);
+    modelWireDiam->setFilter("zvd_wire_diam_sert.id_sert = "+QString::number(id));
+    modelWireDiam->select();
+
+    modelWire->setDefaultValue(0,id);
+    modelWire->setFilter("zvd_wire_sert.id_sert = "+QString::number(id));
     modelWire->select();
 
     updState();

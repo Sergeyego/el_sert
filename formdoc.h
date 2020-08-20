@@ -22,9 +22,9 @@ public:
 private:
     Ui::FormDoc *ui;
     ModelDoc *modelDoc;
-    DbTableModel *modelElTypes;
     DbTableModel *modelEl;
     DbTableModel *modelElDim;
+    DbTableModel *modelWireDiam;
     DbTableModel *modelWire;
     DbMapper *mapper;
     void loadsettings();
