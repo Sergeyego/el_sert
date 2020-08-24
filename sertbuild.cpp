@@ -42,9 +42,11 @@ void SertBuild::build(int id, bool is_ship)
 
     this->clear();
 
-    QFont cursiveFont("Cursive",10,QFont::Normal);
-    QFont titleFont("Droid Serif",13,QFont::Normal);
-    QFont normalFont("Droid Sans",10,QFont::Normal);
+    QFont titleFont("Droid Serif",13);
+    QFont normalFont("Droid Sans",10);
+
+    QFont cursiveFont(normalFont);
+    cursiveFont.setItalic(true);
 
     QTextBlockFormat formatRirht;
     formatRirht.setAlignment(Qt::AlignRight|Qt::AlignVCenter);

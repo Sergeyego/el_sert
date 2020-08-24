@@ -3,6 +3,7 @@
 
 #include <QTextDocument>
 #include <QtGui>
+#include <QFont>
 #include <QSqlQuery>
 #include <QSqlError>
 #include <QSqlQueryModel>
