@@ -11,7 +11,6 @@ CheckForm::CheckForm(QWidget *parent) :
 
 CheckForm::~CheckForm()
 {
-    //qDebug()<<"del";
     delete ui;
 }
 
