@@ -45,6 +45,7 @@ public:
     DbRelation *relDocType;
     DbRelation *relPlav;
     DbRelation *relWireDiam;
+    DbRelation *relChemDev;
 
 protected:
     explicit Rels(QObject *parent = nullptr);

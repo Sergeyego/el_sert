@@ -104,10 +104,11 @@ ModelChemSrc::ModelChemSrc(QObject *parent) : ModelChem("parti_chem",parent)
     addColumn("id_part","id_part");
     addColumn("id_chem",tr("Элем."),NULL,Rels::instance()->relChem);
     addColumn("kvo",tr("Сод., %"),new QDoubleValidator(0,1000000000,3,this));
+    addColumn("id_dev",tr("Прибор"),NULL,Rels::instance()->relChemDev);
     addColumn("dt_cre",tr("Дата"));
     setSort(tablename+".id_chem, "+tablename+".dt_cre");
     flt=tableName+".id_part";
-    setColumnFlags(4,Qt::ItemIsSelectable | Qt::ItemIsEnabled);
+    setColumnFlags(5,Qt::ItemIsSelectable | Qt::ItemIsEnabled);
     colIdPart=1;
     colIdChem=2;
     colVal=3;

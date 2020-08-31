@@ -30,7 +30,8 @@ FormPart::FormPart(QWidget *parent) :
     ui->tableViewSrcChem->setColumnHidden(1,true);
     ui->tableViewSrcChem->setColumnWidth(2,80);
     ui->tableViewSrcChem->setColumnWidth(3,70);
-    ui->tableViewSrcChem->setColumnWidth(4,110);
+    ui->tableViewSrcChem->setColumnWidth(4,70);
+    ui->tableViewSrcChem->setColumnWidth(5,110);
 
     modelSertChem = new ModelChemSert(this);
     ui->tableViewSertChem->setModel(modelSertChem);
@@ -64,16 +65,6 @@ FormPart::FormPart(QWidget *parent) :
     ui->tableViewPart->setModel(modelPart);
     ui->tableViewPart->verticalHeader()->hide();
 
-    refresh();
-
-    ui->tableViewPart->setColumnHidden(0,true);
-    ui->tableViewPart->setColumnHidden(6,true);
-    ui->tableViewPart->setColumnWidth(1,55);
-    ui->tableViewPart->setColumnWidth(2,70);
-    ui->tableViewPart->setColumnWidth(3,150);
-    ui->tableViewPart->setColumnWidth(4,90);
-    ui->tableViewPart->setColumnWidth(5,125);
-
     connect(ui->cmdSavePrim,SIGNAL(clicked()),this,SLOT(savePrim()));
     connect(ui->cmdUpd,SIGNAL(clicked()),this,SLOT(refresh()));
     connect(ui->tableViewPart->selectionModel(),SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),this,SLOT(refreshPartSert(QModelIndex)));
@@ -89,6 +80,10 @@ FormPart::FormPart(QWidget *parent) :
     connect(ui->cmdCopyZnam,SIGNAL(clicked()),this,SLOT(copyZnam()));
     connect(ui->tableViewAdd,SIGNAL(doubleClicked(QModelIndex)),this,SLOT(showShipSert(QModelIndex)));
     connect(ui->cmdLbl,SIGNAL(clicked(bool)),this,SLOT(genLbl()));
+    connect(ui->textEditPrim,SIGNAL(textChanged()),this,SLOT(enPrimSave()));
+    connect(ui->lineEditZnam,SIGNAL(textChanged(QString)),this,SLOT(enZnamSave()));
+
+    refresh();
 }
 
 FormPart::~FormPart()
@@ -115,6 +110,8 @@ void FormPart::loadPrim(int id_part)
             ui->lineEditZnam->setText(query.value(1).toString());
             ui->lineEditSrcZnam->setText(query.value(2).toString());
         }
+        ui->cmdSavePrim->setEnabled(false);
+        ui->cmdSaveZnam->setEnabled(false);
     } else {
         QMessageBox::critical(NULL,"Error",query.lastError().text(),QMessageBox::Cancel);
     }
@@ -164,6 +161,8 @@ void FormPart::savePrim()
     query.bindValue(":id",id);
     if (!query.exec()){
         QMessageBox::critical(NULL,"Error",query.lastError().text(),QMessageBox::Cancel);
+    } else {
+        ui->cmdSavePrim->setEnabled(false);
     }
 }
 
@@ -176,6 +175,8 @@ void FormPart::saveZnam()
     query.bindValue(":id",id);
     if (!query.exec()){
         QMessageBox::critical(NULL,"Error",query.lastError().text(),QMessageBox::Cancel);
+    } else {
+        ui->cmdSaveZnam->setEnabled(false);
     }
 }
 
@@ -293,10 +294,31 @@ void FormPart::genLbl()
     c.createLbl(id,ui->checkBoxAmp->isChecked());
 }
 
+void FormPart::enPrimSave()
+{
+    ui->cmdSavePrim->setEnabled(true);
+}
+
+void FormPart::enZnamSave()
+{
+    ui->cmdSaveZnam->setEnabled(true);
+}
+
 void FormPart::refresh()
 {
     int id_el= ui->checkBoxOnly->isChecked()? ui->comboBoxMar->model()->data(ui->comboBoxMar->model()->index(ui->comboBoxMar->currentIndex(),0),Qt::EditRole).toInt() : -1;
     modelPart->refresh(ui->dateEditBeg->date(),ui->dateEditEnd->date(),id_el);
+    ui->tableViewPart->setColumnHidden(0,true);
+    ui->tableViewPart->setColumnHidden(6,true);
+    ui->tableViewPart->setColumnWidth(1,55);
+    ui->tableViewPart->setColumnWidth(2,70);
+    ui->tableViewPart->setColumnWidth(3,150);
+    ui->tableViewPart->setColumnWidth(4,90);
+    ui->tableViewPart->setColumnWidth(5,125);
+    if (ui->tableViewPart->model()->rowCount()){
+        ui->tableViewPart->selectRow(ui->tableViewPart->model()->rowCount()-1);
+        ui->tableViewPart->scrollToBottom();
+    }
 }
 
 void FormPart::refreshPartSert(QModelIndex index)

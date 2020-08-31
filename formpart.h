@@ -58,6 +58,8 @@ private slots:
     void showShipSert(QModelIndex index);
     void showCheckForm();
     void genLbl();
+    void enPrimSave();
+    void enZnamSave();
 };
 
 #endif // FORMPART_H

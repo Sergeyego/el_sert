@@ -11,6 +11,7 @@
 #include <QMessageBox>
 #include <QTextDocumentFragment>
 #include <QTextLength>
+#include <QDebug>
 #include "rels.h"
 #include "qr/qrencode.h"
 

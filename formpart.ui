@@ -194,7 +194,14 @@
             </widget>
            </item>
            <item>
-            <widget class="QTextEdit" name="textEditPrim"/>
+            <widget class="QTextEdit" name="textEditPrim">
+             <property name="maximumSize">
+              <size>
+               <width>150</width>
+               <height>16777215</height>
+              </size>
+             </property>
+            </widget>
            </item>
            <item>
             <widget class="QPushButton" name="cmdSavePrim">
@@ -249,7 +256,14 @@
                </widget>
               </item>
               <item>
-               <widget class="DbViewer" name="tableViewSertChem"/>
+               <widget class="DbViewer" name="tableViewSertChem">
+                <property name="maximumSize">
+                 <size>
+                  <width>200</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+               </widget>
               </item>
              </layout>
             </item>
