@@ -99,7 +99,7 @@ Rels::Rels(QObject *parent) : QObject(parent)
     relPosPix = new DbRelation(QString("select id, data from pics"),0,1,this);
     relPlav = new DbRelation(QString("select id, nam from el_plav_nams"),0,1,this);
     relWireDiam = new DbRelation(QString("select id, sdim from diam order by sdim"),0,1,this);
-    relChemDev = new DbRelation(QString("select id, short from chem_dev order by nam"),0,1,this);
+    relChemDev = new DbRelation(QString("select id, short from chem_dev order by short"),0,1,this);
 
     relDiam->proxyModel()->setFilterKeyColumn(2);
     relDiam->proxyModel()->setFilterFixedString("1");
