@@ -39,24 +39,28 @@ FormDoc::FormDoc(QWidget *parent) :
     modelWireDiam->addColumn("id","id");
     modelWireDiam->addColumn("id_sert","id_sert");
     modelWireDiam->addColumn("id_provol",QString::fromUtf8("Проволока"),NULL,Rels::instance()->relProvol);
-    modelWireDiam->addColumn("id_diam",QString::fromUtf8("Диаметр"),NULL,Rels::instance()->relWireDiam);
+    modelWireDiam->addColumn("id_diam",QString::fromUtf8("Диам."),NULL,Rels::instance()->relWireDiam);
+    modelWireDiam->addColumn("id_grade",QString::fromUtf8("Категория"),NULL,Rels::instance()->relGrade);
     modelWireDiam->setSuffix("inner join provol as p on p.id=zvd_wire_diam_sert.id_provol "
                          "inner join diam as d on d.id=zvd_wire_diam_sert.id_diam");
     modelWireDiam->setSort("p.nam, d.diam");
     ui->tableViewWireDiam->setModel(modelWireDiam);
     ui->tableViewWireDiam->setColumnHidden(0,true);
     ui->tableViewWireDiam->setColumnHidden(1,true);
-    ui->tableViewWireDiam->setColumnWidth(2,150);
-    ui->tableViewWireDiam->setColumnWidth(3,70);
+    ui->tableViewWireDiam->setColumnWidth(2,120);
+    ui->tableViewWireDiam->setColumnWidth(3,60);
+    ui->tableViewWireDiam->setColumnWidth(4,100);
 
     modelWire = new DbTableModel("zvd_wire_sert");
     modelWire->addColumn("id_sert","id_sert");
     modelWire->addColumn("id_provol",QString::fromUtf8("Проволока"),NULL,Rels::instance()->relProvol);
+    modelWire->addColumn("id_grade",QString::fromUtf8("Категория"),NULL,Rels::instance()->relGrade);
     modelWire->setSuffix("inner join provol as p on p.id=zvd_wire_sert.id_provol");
     modelWire->setSort("p.nam");
     ui->tableViewWire->setModel(modelWire);
     ui->tableViewWire->setColumnHidden(0,true);
     ui->tableViewWire->setColumnWidth(1,150);
+    ui->tableViewWire->setColumnWidth(2,100);
 
     modelDoc = new ModelDoc(this);
     modelDoc->refresh(ui->checkBoxActive->isChecked());
