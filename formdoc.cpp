@@ -67,9 +67,12 @@ FormDoc::FormDoc(QWidget *parent) :
 
     ui->tableViewDoc->setModel(modelDoc);
     ui->tableViewDoc->setColumnHidden(0,true);
-    ui->tableViewDoc->setColumnWidth(1,200);
+    ui->tableViewDoc->setColumnWidth(1,190);
+    ui->tableViewDoc->setColumnWidth(10,150);
     for (int i=2; i<modelDoc->rowCount(); i++){
-        ui->tableViewDoc->setColumnHidden(i,true);
+        if (i!=10){
+            ui->tableViewDoc->setColumnHidden(i,true);
+        }
     }
 
     mapper = new DbMapper(ui->tableViewDoc,this);
