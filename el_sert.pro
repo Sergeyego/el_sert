@@ -24,7 +24,6 @@ SOURCES += main.cpp\
     db/dbtablemodel.cpp \
     db/dbviewer.cpp \
     mainwindow.cpp \
-    tabwidget.cpp \
     formship.cpp \
     formnormdoc.cpp \
     formved.cpp \
@@ -55,7 +54,6 @@ HEADERS  += formpart.h \
     db/dbmapper.h \
     db/dbtablemodel.h \
     mainwindow.h \
-    tabwidget.h \
     formship.h \
     formnormdoc.h \
     formved.h \

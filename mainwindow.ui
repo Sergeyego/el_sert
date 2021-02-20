@@ -14,7 +14,24 @@
    <string>Сертификаты качества</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QVBoxLayout" name="verticalLayout"/>
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <widget class="QTabWidget" name="tabWidget">
+      <property name="currentIndex">
+       <number>-1</number>
+      </property>
+      <property name="documentMode">
+       <bool>false</bool>
+      </property>
+      <property name="tabsClosable">
+       <bool>true</bool>
+      </property>
+      <property name="movable">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+   </layout>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -22,7 +39,7 @@
      <x>0</x>
      <y>0</y>
      <width>1016</width>
-     <height>24</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu">
@@ -66,62 +83,62 @@
    <addaction name="menu_5"/>
   </widget>
   <action name="actionPart">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
    <property name="checked">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <property name="text">
     <string>Партии</string>
    </property>
+   <property name="shortcut">
+    <string>F1</string>
+   </property>
   </action>
   <action name="actionSert">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
    <property name="text">
     <string>Сертификаты</string>
    </property>
+   <property name="shortcut">
+    <string>F5</string>
+   </property>
   </action>
   <action name="actionNormDoc">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
    <property name="text">
     <string>Нормативная документация</string>
    </property>
+   <property name="shortcut">
+    <string>F3</string>
+   </property>
   </action>
   <action name="actionVed">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
    <property name="text">
     <string>Ведомства и виды документов</string>
    </property>
+   <property name="shortcut">
+    <string>F6</string>
+   </property>
   </action>
   <action name="actionDoc">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
    <property name="text">
     <string>Свидетельства и документы</string>
    </property>
+   <property name="shortcut">
+    <string>F2</string>
+   </property>
   </action>
   <action name="actionMark">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
    <property name="text">
     <string>Марки электродов</string>
    </property>
+   <property name="shortcut">
+    <string>F4</string>
+   </property>
   </action>
   <action name="actionType">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
    <property name="text">
     <string>Справочник типов</string>
+   </property>
+   <property name="shortcut">
+    <string>F7</string>
    </property>
   </action>
   <action name="actionUpd">
@@ -130,9 +147,6 @@
    </property>
   </action>
   <action name="actionPos">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
    <property name="text">
     <string>Положения при сварке</string>
    </property>

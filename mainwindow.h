@@ -3,7 +3,6 @@
 
 #include <QMainWindow>
 #include "formpart.h"
-#include "tabwidget.h"
 #include "formship.h"
 #include "formnormdoc.h"
 #include "formved.h"
@@ -23,20 +22,28 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(bool readOnly=false, QWidget *parent = 0);
     ~MainWindow();
+    bool exist(QObject *a);
+    void actAction(QAction *a, void (MainWindow::*sl)());
+    void addSubWindow(QWidget *w, QObject *a);
+    bool setActiveSubWindow(QString t);
+    QMap <QString,QAction*> actions;
+
+private slots:
+    void closeTab(int index);
+
+    void part();
+    void ship();
+    void normDoc();
+    void ved();
+    void doc();
+    void mark();
+    void types();
+    void pos();
 
 private:
     Ui::MainWindow *ui;
     void loadSettings();
     void saveSettings();
-    FormPart *formPart;
-    FormShip *formShip;
-    FormNormDoc *formNormDoc;
-    FormVed *formVed;
-    FormDoc *formDoc;
-    FormMark *formMark;
-    FormTypes *formTypes;
-    FormPos *formPos;
-    TabWidget *tabWidget;    
 };
 
 #endif // MAINWINDOW_H
