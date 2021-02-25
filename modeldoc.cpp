@@ -48,16 +48,17 @@ bool ModelDoc::ftpGet(int id, int type)
     if (!ok){
         ftpConnect();
     }
+
     int interval= ok ? 0 : delay;
     QTimer::singleShot(interval, [this, id, type]() {
         if (ftpClient->state()==QFtp::LoggedIn && docMap.contains(id)){
             getFile = new QFile(docMap.value(id));
-            if (!getFile->open(QIODevice::WriteOnly)){
+            if (!getFile->open(QIODevice::ReadWrite)){
                 delete getFile;
-                return false;
+            } else {
+                getState=type;
+                ftpClient->get(docMap.value(id),getFile);
             }
-            getState=type;
-            ftpClient->get(docMap.value(id),getFile);
         }
     } );
     return ok;
