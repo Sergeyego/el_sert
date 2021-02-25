@@ -46,6 +46,7 @@ Editor::Editor(QTextDocument *doc, QWidget *parent) :
         connect(ui->radioButtonRus,SIGNAL(clicked(bool)),s,SLOT(setLRus(bool)));
         connect(ui->radioButtonEn,SIGNAL(clicked(bool)),s,SLOT(setLEn(bool)));
         connect(ui->radioButtonMix,SIGNAL(clicked(bool)),s,SLOT(setLMix(bool)));
+        connect(s,SIGNAL(sigRefresh()),this,SLOT(chDoc()));
     }
 
     connect(ui->textEdit->document(), SIGNAL(undoAvailable(bool)), actionUndo, SLOT(setEnabled(bool)));
@@ -60,6 +61,7 @@ Editor::Editor(QTextDocument *doc, QWidget *parent) :
     connect(ui->radioButtonRus,SIGNAL(clicked(bool)),this,SLOT(setObr()));
     connect(ui->radioButtonEn,SIGNAL(clicked(bool)),this,SLOT(setObr()));
     connect(ui->radioButtonMix,SIGNAL(clicked(bool)),this,SLOT(setObr()));
+    connect(ui->pushButtonSertDef,SIGNAL(clicked(bool)),this,SLOT(setDefaultDoc()));
 }
 
 QTextDocument *Editor::document()
@@ -415,6 +417,44 @@ void Editor::setObr()
     }
 }
 
+void Editor::chDoc()
+{
+    SertBuild *s=qobject_cast<SertBuild *>(this->document());
+    if (s){
+        foreach (QCheckBox *b, boxes) {
+            b->deleteLater();
+        }
+        boxes.clear();
+        foreach (sertData d, *s->sData()->sert()) {
+            QCheckBox *box = new QCheckBox(d.ved_short.rus+": "+d.nom_doc);
+            connect(box,SIGNAL(clicked(bool)),this,SLOT(setEnDoc(bool)));
+            box->setChecked(d.en);
+            box->setProperty("id",d.id_doc);
+            boxes.push_back(box);
+            ui->verticalLayoutBox->addWidget(box);
+        }
+    }
+}
+
+void Editor::setEnDoc(bool en)
+{
+    QCheckBox *box=qobject_cast<QCheckBox *>(sender());
+    if (box){
+        SertBuild *s=qobject_cast<SertBuild *>(this->document());
+        if (s){
+            s->setDocEn(box->property("id").toInt(),en);
+        }
+    }
+}
+
+void Editor::setDefaultDoc()
+{
+    SertBuild *s=qobject_cast<SertBuild *>(this->document());
+    if (s){
+        s->setDefaultDoc();
+    }
+}
+
 void Editor::filePrint()
 {
     QPrintDialog printDialog(printer, this);
@@ -614,3 +654,4 @@ void TextEdit::addTable()
         }
     }
 }
+

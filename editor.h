@@ -72,6 +72,7 @@ private:
     QComboBox *comboStyle;
     QFontComboBox *comboFont;
     QComboBox *comboSize;
+    QVector <QCheckBox*> boxes;
 
     void setupTextActions();
     void mergeFormatOnWordOrSelection(const QTextCharFormat &format);
@@ -100,6 +101,9 @@ private slots:
     void textFamily(const QString &f);
     void textSize(const QString &p);
     void setObr();
+    void chDoc();
+    void setEnDoc(bool en);
+    void setDefaultDoc();
 
 };
 

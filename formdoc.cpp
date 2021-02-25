@@ -87,6 +87,7 @@ FormDoc::FormDoc(QWidget *parent) :
     mapper->addMapping(ui->lineEditGtu,9);
     mapper->addMapping(ui->comboBoxVed,10);
     mapper->addMapping(ui->comboBoxVid,11);
+    mapper->addMapping(ui->checkBoxEn,12);
 
     mapper->addEmptyLock(ui->tableViewWireDiam);
     mapper->addEmptyLock(ui->tableViewEl);

@@ -22,6 +22,9 @@ ModelDoc::ModelDoc(QObject *parent) : DbTableModel("zvd_sert",parent)
     addColumn("gr_tech_ust",QString::fromUtf8("ГТУ"));
     addColumn("id_ved",QString::fromUtf8("Ведомство"),NULL,Rels::instance()->relVed);
     addColumn("id_doc",QString::fromUtf8("Тип документа"),NULL,Rels::instance()->relVidDoc);
+    addColumn("en",QString::fromUtf8("Включен по умолчанию"));
+
+    setDefaultValue(12,true);
 
     setSort("zvd_sert.nom_doc, zvd_sert.dat_doc");
 

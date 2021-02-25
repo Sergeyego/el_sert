@@ -68,53 +68,20 @@
       <layout class="QVBoxLayout" name="verticalLayout_5">
        <item>
         <layout class="QGridLayout" name="gridLayout">
-         <item row="3" column="1">
-          <widget class="DateEdit" name="dateEditDoc"/>
-         </item>
-         <item row="8" column="1">
-          <widget class="QLineEdit" name="lineEditGtu"/>
-         </item>
-         <item row="2" column="0">
-          <widget class="QLabel" name="label_6">
+         <item row="6" column="2">
+          <widget class="QPushButton" name="pushButtonView">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="text">
-            <string>Ведомство</string>
+            <string>Просмотр</string>
            </property>
           </widget>
          </item>
-         <item row="0" column="3">
-          <widget class="DateEdit" name="dateEditBeg"/>
-         </item>
-         <item row="2" column="1">
-          <widget class="QComboBox" name="comboBoxVed">
+         <item row="4" column="1">
+          <widget class="QComboBox" name="comboBoxVid">
            <property name="editable">
             <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="2">
-          <widget class="QLabel" name="label_3">
-           <property name="text">
-            <string>Дата начала дейст.</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="3">
-          <widget class="DateEdit" name="dateEditEnd"/>
-         </item>
-         <item row="1" column="2">
-          <widget class="QLabel" name="label_5">
-           <property name="text">
-            <string>Дата оконч. дейст.</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="3" rowspan="7">
-          <widget class="QPlainTextEdit" name="textEditDoc"/>
-         </item>
-         <item row="2" column="2">
-          <widget class="QLabel" name="label_10">
-           <property name="text">
-            <string>Текст документа</string>
            </property>
           </widget>
          </item>
@@ -149,49 +116,54 @@
            </property>
           </widget>
          </item>
-         <item row="4" column="2">
-          <widget class="QPushButton" name="pushButtonUpload">
+         <item row="2" column="3" rowspan="5">
+          <widget class="QPlainTextEdit" name="textEditDoc"/>
+         </item>
+         <item row="7" column="2">
+          <widget class="QPushButton" name="pushButtonDel">
            <property name="text">
-            <string>Загрузить</string>
+            <string>Удалить</string>
            </property>
           </widget>
          </item>
-         <item row="5" column="2">
-          <widget class="QPushButton" name="pushButtonSaveAs">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
+         <item row="1" column="3">
+          <widget class="DateEdit" name="dateEditEnd"/>
+         </item>
+         <item row="0" column="2">
+          <widget class="QLabel" name="label_3">
            <property name="text">
-            <string>Сохранить как</string>
+            <string>Дата начала дейст.</string>
            </property>
           </widget>
          </item>
-         <item row="6" column="2">
-          <widget class="QPushButton" name="pushButtonView">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="text">
-            <string>Просмотр</string>
-           </property>
-          </widget>
+         <item row="7" column="1">
+          <widget class="QLineEdit" name="lineEditGtu"/>
          </item>
-         <item row="8" column="0">
-          <widget class="QLabel" name="label_11">
-           <property name="text">
-            <string>Группы тех. устр.</string>
-           </property>
-          </widget>
+         <item row="3" column="1">
+          <widget class="DateEdit" name="dateEditDoc"/>
          </item>
-         <item row="0" column="0">
-          <widget class="QLabel" name="label">
+         <item row="3" column="0">
+          <widget class="QLabel" name="label_4">
            <property name="text">
-            <string>Номер документа</string>
+            <string>Дата принятия</string>
            </property>
           </widget>
          </item>
          <item row="0" column="1">
           <widget class="QLineEdit" name="lineEditDoc"/>
+         </item>
+         <item row="7" column="3">
+          <widget class="QCheckBox" name="checkBoxEn">
+           <property name="text">
+            <string>Включен по умолчанию</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QLineEdit" name="lineEditNam"/>
+         </item>
+         <item row="6" column="1">
+          <widget class="QLineEdit" name="lineEditNumNak"/>
          </item>
          <item row="1" column="0">
           <widget class="QLabel" name="label_2">
@@ -200,30 +172,31 @@
            </property>
           </widget>
          </item>
-         <item row="4" column="1">
-          <widget class="QComboBox" name="comboBoxVid">
-           <property name="editable">
-            <bool>true</bool>
+         <item row="7" column="0">
+          <widget class="QLabel" name="label_11">
+           <property name="text">
+            <string>Группы тех. устр.</string>
            </property>
           </widget>
          </item>
-         <item row="5" column="1">
-          <widget class="QLineEdit" name="lineEditNumBl"/>
+         <item row="2" column="2">
+          <widget class="QLabel" name="label_10">
+           <property name="text">
+            <string>Текст документа</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="2">
+          <widget class="QLabel" name="label_5">
+           <property name="text">
+            <string>Дата оконч. дейст.</string>
+           </property>
+          </widget>
          </item>
          <item row="5" column="0">
           <widget class="QLabel" name="label_8">
            <property name="text">
             <string>Номер бланка</string>
-           </property>
-          </widget>
-         </item>
-         <item row="6" column="1">
-          <widget class="QLineEdit" name="lineEditNumNak"/>
-         </item>
-         <item row="3" column="0">
-          <widget class="QLabel" name="label_4">
-           <property name="text">
-            <string>Дата принятия</string>
            </property>
           </widget>
          </item>
@@ -234,8 +207,15 @@
            </property>
           </widget>
          </item>
-         <item row="1" column="1">
-          <widget class="QLineEdit" name="lineEditNam"/>
+         <item row="5" column="1">
+          <widget class="QLineEdit" name="lineEditNumBl"/>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="label">
+           <property name="text">
+            <string>Номер документа</string>
+           </property>
+          </widget>
          </item>
          <item row="4" column="0">
           <widget class="QLabel" name="label_7">
@@ -244,10 +224,37 @@
            </property>
           </widget>
          </item>
-         <item row="7" column="2">
-          <widget class="QPushButton" name="pushButtonDel">
+         <item row="2" column="1">
+          <widget class="QComboBox" name="comboBoxVed">
+           <property name="editable">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="label_6">
            <property name="text">
-            <string>Удалить</string>
+            <string>Ведомство</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="2">
+          <widget class="QPushButton" name="pushButtonUpload">
+           <property name="text">
+            <string>Загрузить</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="3">
+          <widget class="DateEdit" name="dateEditBeg"/>
+         </item>
+         <item row="5" column="2">
+          <widget class="QPushButton" name="pushButtonSaveAs">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="text">
+            <string>Сохранить как</string>
            </property>
           </widget>
          </item>
@@ -373,12 +380,6 @@
   <tabstop>tableViewDoc</tabstop>
   <tabstop>lineEditDoc</tabstop>
   <tabstop>lineEditNam</tabstop>
-  <tabstop>comboBoxVed</tabstop>
-  <tabstop>dateEditDoc</tabstop>
-  <tabstop>comboBoxVid</tabstop>
-  <tabstop>lineEditNumBl</tabstop>
-  <tabstop>lineEditNumNak</tabstop>
-  <tabstop>lineEditGtu</tabstop>
   <tabstop>dateEditBeg</tabstop>
   <tabstop>dateEditEnd</tabstop>
   <tabstop>textEditDoc</tabstop>

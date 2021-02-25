@@ -68,6 +68,8 @@ struct sertData {
     int id_doc_t;
     sLang ved_short;
     QString grade_nam;
+    int id_doc;
+    bool en;
 };
 
 typedef QVector<chemData> cvData;
@@ -88,6 +90,8 @@ public:
     const QImage* qrCode();
     QString tu();
     sLang mechCategory(int id);
+    void setDocEn(int id_doc, bool en);
+    void setDefaultDoc();
 
 private:
     void refreshTu();
@@ -103,9 +107,13 @@ private:
     mvData mData;
     svData sData;
     QImage qr_code;
+    QMap <int, bool> mapSert;
 
 public slots:
     void refreshMechCategory();
+
+signals:
+    void sigRefresh();
 };
 
 class SertBuild : public QTextDocument
@@ -118,8 +126,16 @@ public:
     QString getYearPart();
     QString getNomSert();
     bool getPrn();
+    DataSert* sData();
 public slots:
     void build(int id, bool is_ship);
+    void rebuild();
+    void setPrn(bool p);
+    void setLRus(bool b);
+    void setLEn(bool b);
+    void setLMix(bool b);
+    void setDocEn(int id_doc, bool en);
+    void setDefaultDoc();
 private:
     QTextCursor* cursor;
     DataSert *data;
@@ -134,12 +150,7 @@ private:
     void insertDate(QTextCursor &c, const QDate &date, bool newpar=true);
     
 signals:
-    
-public slots:
-    void setPrn(bool p);
-    void setLRus(bool b);
-    void setLEn(bool b);
-    void setLMix(bool b);
+    void sigRefresh();
 };
 
 

@@ -7,6 +7,7 @@ SertBuild::SertBuild(QObject *parent) :
     prn=false;
     l_rus=true;
     l_en=false;
+    connect(data,SIGNAL(sigRefresh()),this,SIGNAL(sigRefresh()));
 }
 
 QString SertBuild::getNomPart()
@@ -34,12 +35,21 @@ bool SertBuild::getPrn()
     return prn;
 }
 
+DataSert *SertBuild::sData()
+{
+    return data;
+}
+
 void SertBuild::build(int id, bool is_ship)
 {
     data->refresh(id, is_ship);
     current_id=id;
     current_is_ship=is_ship;
+    rebuild();
+}
 
+void SertBuild::rebuild()
+{
     this->clear();
 
     QFont titleFont("Droid Serif",13);
@@ -96,11 +106,15 @@ void SertBuild::build(int id, bool is_ship)
 
     QVector<int> id_ved;
     QHash<QString,QString> odobr;
+    svData enSert;
+
     foreach (sertData s, *data->sert()){
-        if (!id_ved.contains(s.id_ved)){
-            id_ved.push_back(s.id_ved);
-        }
-        if (s.id_doc_t==3){
+        if (s.en){
+            enSert.push_back(s);
+            if (!id_ved.contains(s.id_ved)){
+                id_ved.push_back(s.id_ved);
+            }
+            if (s.id_doc_t==3){
                 QString str("Одобрено ");
                 QString str_en("Approved by ");
                 str+=s.ved_short.rus;
@@ -113,12 +127,13 @@ void SertBuild::build(int id, bool is_ship)
                 }
                 str+=QString(".");
                 str_en+=QString(".");
-            if (odobr.contains(sh) && (str!=sh)){
-                odobr.remove(sh);
-            }
-            QStringList lst=odobr.keys();
-            if (lst.indexOf(QRegExp("^"+str+".*"))==-1) {
-                odobr.insert(str,str_en);
+                if (odobr.contains(sh) && (str!=sh)){
+                    odobr.remove(sh);
+                }
+                QStringList lst=odobr.keys();
+                if (lst.indexOf(QRegExp("^"+str+".*"))==-1) {
+                    odobr.insert(str,str_en);
+                }
             }
         }
     }
@@ -140,7 +155,7 @@ void SertBuild::build(int id, bool is_ship)
     insertText(cursor,tr("СЕРТИФИКАТ КАЧЕСТВА"),tr("QUALITY CERTIFICATE"));
 
     cursor.insertText(tr(" №")+data->head()->nomPart+"-"+QString::number(data->head()->yearPart),textTitleFormat);
-    if (is_ship){
+    if (current_is_ship){
         cursor.insertText("/"+data->head()->nomSert,textTitleFormat);
     }
     cursor.insertBlock(formatLeft);
@@ -178,7 +193,7 @@ void SertBuild::build(int id, bool is_ship)
 
     QTextTable *mainTable = cursor.insertTable(1, 5, tableMainFormat);
 
-    cursor=mainTable->cellAt(0,0).firstCursorPosition();  
+    cursor=mainTable->cellAt(0,0).firstCursorPosition();
     cursor.setBlockFormat(formatCenter);
     cursor.setBlockCharFormat(textBoldFormat);
     insertText(cursor,tr("Условное обозначение электрода"),tr("Electrode symbol"),true);
@@ -201,7 +216,7 @@ void SertBuild::build(int id, bool is_ship)
     cursor=mainTable->cellAt(0,4).firstCursorPosition();
     cursor.setBlockFormat(formatCenter);
     cursor.setBlockCharFormat(textBoldFormat);
-    if (is_ship){
+    if (current_is_ship){
         insertText(cursor,tr("Объем \nотгрузки, кг"),tr("Shipment volume, kg"),true);
     } else {
         insertText(cursor,tr("Объем \nвыпуска, кг"),tr("Volume of release, kg"),true);
@@ -316,12 +331,12 @@ void SertBuild::build(int id, bool is_ship)
     cursor.movePosition(QTextCursor::End);
     cursor.insertBlock();
 
-    if (data->sert()->size()){
+    if (enSert.size()){
         cursor.setBlockFormat(formatCenter);
         cursor.setCharFormat(textTitleFormat);
         insertText(cursor,tr("Аттестация и сертификация"),tr("Certification"),false,true);
         cursor.insertBlock();
-        QTextTable *sertTable = cursor.insertTable(data->sert()->size()+1,4,tableFormat);
+        QTextTable *sertTable = cursor.insertTable(enSert.size()+1,4,tableFormat);
         cursor=sertTable->cellAt(0,0).firstCursorPosition();
         cursor.setBlockFormat(formatCenter);
         cursor.setCharFormat(textBoldFormat);
@@ -339,7 +354,7 @@ void SertBuild::build(int id, bool is_ship)
         cursor.setCharFormat(textBoldFormat);
         insertText(cursor,tr("Дата выдачи"),tr("Date of issue"),true);
         int i=0;
-        foreach (sertData s, *data->sert()){
+        foreach (sertData s, /**data->sert()*/enSert){
 
             cursor=sertTable->cellAt(i+1,0).firstCursorPosition();
             cursor.setBlockFormat(formatCenter);
@@ -385,7 +400,7 @@ void SertBuild::build(int id, bool is_ship)
         cursor.insertBlock();
     }*/
 
-    if (is_ship){
+    if (current_is_ship){
         cursor.setCharFormat(textBoldFormat);
         insertText(cursor,tr("Грузополучатель"),tr("Consignee"));
         cursor.insertText(":\n",textBoldFormat);
@@ -408,7 +423,7 @@ void SertBuild::build(int id, bool is_ship)
     cursor.setBlockFormat(formatCenter);
     cursor.setCharFormat(textBoldFormat);
     QDate date;
-    date=(is_ship)? data->head()->dateVidSert : QDate::currentDate();
+    date=(current_is_ship)? data->head()->dateVidSert : QDate::currentDate();
     insertText(cursor,tr("Дата выдачи сертификата"),tr("Date of issue of the certificate"),false);
     cursor.insertText(tr(": "),textBoldFormat);
     cursor.setCharFormat(textNormalFormat);
@@ -539,7 +554,7 @@ void SertBuild::insertDate(QTextCursor &c, const QDate &date, bool newpar)
 void SertBuild::setPrn(bool p)
 {
     prn=p;
-    this->build(current_id,current_is_ship);
+    this->rebuild();
 }
 
 void SertBuild::setLRus(bool b)
@@ -547,7 +562,7 @@ void SertBuild::setLRus(bool b)
     if (b){
         l_rus=true;
         l_en=false;
-        this->build(current_id,current_is_ship);
+        this->rebuild();
     }
 }
 
@@ -556,7 +571,7 @@ void SertBuild::setLEn(bool b)
     if (b){
         l_rus=false;
         l_en=true;
-        this->build(current_id,current_is_ship);
+        this->rebuild();
     }
 }
 
@@ -565,8 +580,20 @@ void SertBuild::setLMix(bool b)
     if (b){
         l_rus=true;
         l_en=true;
-        this->build(current_id,current_is_ship);
+        this->rebuild();
     }
+}
+
+void SertBuild::setDocEn(int id_doc, bool en)
+{
+    data->setDocEn(id_doc,en);
+    this->rebuild();
+}
+
+void SertBuild::setDefaultDoc()
+{
+    data->setDefaultDoc();
+    this->build(current_id,current_is_ship);
 }
 
 DataSert::DataSert(QObject *parent) : QObject(parent)
@@ -638,6 +665,7 @@ void DataSert::refresh(int id, bool is_ship)
         refreshMech();
         refreshSert();
         refreshQR(id,is_ship);
+        emit sigRefresh();
     } else {
         QMessageBox::critical(NULL,tr("Error"),query.lastError().text(),QMessageBox::Ok);
     }
@@ -729,7 +757,7 @@ void DataSert::refreshMech()
 void DataSert::refreshSert()
 {
     QSqlQuery query;
-    query.prepare("select z.id_ved, z.doc_nam, z.ved_nam, z.nom_doc, z.dat_doc, z.gr_tech_ust, z.id_doc_t, z.ved_short, z.grade_nam, z.ved_short_en, z.doc_nam_en, z.ved_nam_en "
+    query.prepare("select z.id_ved, z.doc_nam, z.ved_nam, z.nom_doc, z.dat_doc, z.gr_tech_ust, z.id_doc_t, z.ved_short, z.grade_nam, z.ved_short_en, z.doc_nam_en, z.ved_nam_en, z.id_doc, z.en "
                   "from zvd_get_sert((select dat_part from parti where id = :id_part1 ), "
                   "(select id_el from parti where id = :id_part2 ), "
                   "(select d.id from diam as d where d.diam = (select diam from parti where id = :id_part3 )) ) as z");
@@ -752,6 +780,8 @@ void DataSert::refreshSert()
             s.ved_short.eng=query.value(9).toString();
             s.doc_nam.eng=query.value(10).toString();
             s.ved_nam.eng=query.value(11).toString();
+            s.id_doc=query.value(12).toInt();
+            s.en=mapSert.value(s.id_doc,query.value(13).toBool());
             sData.push_back(s);
         }
     } else {
@@ -857,6 +887,21 @@ QString DataSert::tu()
 sLang DataSert::mechCategory(int id)
 {
     return mechCat.value(id);
+}
+
+void DataSert::setDocEn(int id_doc, bool en)
+{
+    for (int i=0; i<sData.size(); i++){
+        if (sData[i].id_doc==id_doc){
+            sData[i].en=en;
+        }
+    }
+    mapSert[id_doc]=en;
+}
+
+void DataSert::setDefaultDoc()
+{
+    mapSert.clear();
 }
 
 void DataSert::refreshMechCategory()
