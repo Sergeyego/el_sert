@@ -112,7 +112,7 @@ void Export::createXml()
 
     root.appendChild(spool);
 
-    progress->close();
+    progress->close();    
 
     QString filename = QFileDialog::getSaveFileName(nullptr,QString::fromUtf8("Сохранить документ"),
                                                             QDate::currentDate().toString("yyyy-MM-dd")+".xml",
@@ -124,7 +124,11 @@ void Export::createXml()
         doc.save(stream,1);
         file.close();
     }
-    emit finished();
+
+    QTextStream dataStream(&xmldata);
+    doc.save(dataStream,1);
+    ftpClient->put(xmldata,QString("sync.xml"));
+    //emit finished();
 }
 
 void Export::start()
@@ -358,12 +362,12 @@ QDomElement Export::getSertMark(int id_sert, QDomDocument *doc)
     QSqlQuery markQuery;
     markQuery.prepare("select e.id_el, COALESCE(m.marka_sert,m.marka) from zvd_els as e "
                       "inner join elrtr as m on m.id=e.id_el "
-                      "where e.id_sert= :id1 "
+                      "where e.id_sert= :id1 and m.katalog=true "
                       "union "
                       "select d.id_el, COALESCE(el.marka_sert,el.marka) from zvd_eldim as ed "
                       "inner join dry_els as d on d.ide=ed.id_eldr "
                       "inner join elrtr as el on el.id=d.id_el "
-                      "where ed.id_sert= :id2 ");
+                      "where ed.id_sert= :id2 and el.katalog=true");
     markQuery.bindValue(":id1",id_sert);
     markQuery.bindValue(":id2",id_sert);
     if (markQuery.exec()){
@@ -403,12 +407,12 @@ QDomElement Export::getSertWire(int id_sert, QDomDocument *doc)
     markWireQuery.prepare("select distinct z.id_provol, p.nam, p.id_base, pb.nam from zvd_wire_diam_sert as z "
                           "inner join provol as p on p.id=z.id_provol "
                           "left join provol as pb on p.id_base=pb.id "
-                          "where z.id_sert= :id1 "
+                          "where z.id_sert= :id1 and p.katalog=true "
                           "union "
                           "select z.id_provol, p.nam, p.id_base, pb.nam from zvd_wire_sert as z "
                           "inner join provol as p on p.id=z.id_provol "
                           "left join provol as pb on p.id_base=pb.id "
-                          "where z.id_sert= :id2");
+                          "where z.id_sert= :id2 and p.katalog=true");
     markWireQuery.bindValue(":id1",id_sert);
     markWireQuery.bindValue(":id2",id_sert);
     if (markWireQuery.exec()){
@@ -718,7 +722,7 @@ void Export::ftpCommandFinished(int /*commandId*/, bool error)
     } else {
         if (ftpClient->currentCommand() == QFtp::ConnectToHost) {
             //qDebug()<<"connect ok";
-            ftpClient->login(ftpuser,ftppassword);
+            ftpClient->login(ftpuserrw,ftppasswordrw);
         } else if (ftpClient->currentCommand() == QFtp::Login){
             ftpClient->cd(ftppath);
         } else if (ftpClient->currentCommand() == QFtp::List) {
@@ -729,6 +733,9 @@ void Export::ftpCommandFinished(int /*commandId*/, bool error)
         } else if (ftpClient->currentCommand()==QFtp::Remove){
             ftpClient->list();
         }
+    }
+    if (ftpClient->currentCommand()==QFtp::Put){
+        emit finished();
     }
 }
 
@@ -759,13 +766,15 @@ void Export::addToList(const QUrlInfo &urlInfo)
 void Export::updateFtpInfo()
 {
     QSqlQuery query;
-    query.prepare("select host_ext, user_ro, pass_ro, path_sert from ftp_info where id = 1");
+    query.prepare("select host_ext, user_ro, pass_ro, path_sert, user_rw, pass_rw from ftp_info where id = 1");
     if (query.exec()){
         while (query.next()){
             ftphost=query.value(0).toString();
             ftpuser=query.value(1).toString();
             ftppassword=query.value(2).toString();
             ftppath=query.value(3).toString();
+            ftpuserrw=query.value(4).toString();
+            ftppasswordrw=query.value(5).toString();
         }
     } else {
         QMessageBox::critical(NULL, QString::fromUtf8("Ошибка"),query.lastError().text());

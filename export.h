@@ -51,8 +51,11 @@ private:
     QString ftphost;
     QString ftpuser;
     QString ftppassword;
+    QString ftpuserrw;
+    QString ftppasswordrw;
     QString ftppath;
     QProgressDialog *progress;
+    QByteArray xmldata;
 
 private slots:
     void ftpConnect();
