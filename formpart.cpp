@@ -81,6 +81,7 @@ FormPart::FormPart(QWidget *parent) :
     connect(ui->tableViewAdd,SIGNAL(doubleClicked(QModelIndex)),this,SLOT(showShipSert(QModelIndex)));
     connect(ui->cmdLbl,SIGNAL(clicked(bool)),this,SLOT(genLbl()));
     connect(ui->textEditPrim,SIGNAL(textChanged()),this,SLOT(enPrimSave()));
+    connect(ui->textEditPrimProd,SIGNAL(textChanged()),this,SLOT(enPrimSave()));
     connect(ui->lineEditZnam,SIGNAL(textChanged(QString)),this,SLOT(enZnamSave()));
 
     refresh();
@@ -99,16 +100,17 @@ void FormPart::loadPrim(int id_part)
     ui->lineEditZnam->clear();
     ui->lineEditSrcZnam->clear();
     QSqlQuery query;
-    query.prepare("select p.prim, p.ibco, d.nam from parti as p "
+    query.prepare("select p.prim, p.ibco, d.nam, p.prim_prod from parti as p "
                   "inner join elrtr as e on p.id_el=e.id "
                   "inner join denominator as d on e.id_denominator=d.id "
                   "where p.id=:id");
     query.bindValue(":id",id_part);
     if (query.exec()){
         while (query.next()){
-            ui->textEditPrim->setText(query.value(0).toString());
+            ui->textEditPrim->setPlainText(query.value(0).toString());
             ui->lineEditZnam->setText(query.value(1).toString());
             ui->lineEditSrcZnam->setText(query.value(2).toString());
+            ui->textEditPrimProd->setPlainText(query.value(3).toString());
         }
         ui->cmdSavePrim->setEnabled(false);
         ui->cmdSaveZnam->setEnabled(false);
@@ -156,8 +158,9 @@ void FormPart::savePrim()
 {
     int id=currentIdPart();
     QSqlQuery query;
-    query.prepare("update parti set prim=:prim where id=:id");
+    query.prepare("update parti set prim=:prim, prim_prod=:primprod where id=:id");
     query.bindValue(":prim",ui->textEditPrim->toPlainText());
+    query.bindValue(":primprod",ui->textEditPrimProd->toPlainText());
     query.bindValue(":id",id);
     if (!query.exec()){
         QMessageBox::critical(NULL,"Error",query.lastError().text(),QMessageBox::Cancel);

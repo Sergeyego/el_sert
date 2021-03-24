@@ -189,16 +189,33 @@
            <item>
             <widget class="QLabel" name="label_4">
              <property name="text">
-              <string>Примечание</string>
+              <string>Примечание:</string>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QTextEdit" name="textEditPrim">
+            <widget class="QPlainTextEdit" name="textEditPrim">
              <property name="maximumSize">
               <size>
-               <width>150</width>
-               <height>16777215</height>
+               <width>170</width>
+               <height>170</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_5">
+             <property name="text">
+              <string>Примечание сбыт:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPlainTextEdit" name="textEditPrimProd">
+             <property name="maximumSize">
+              <size>
+               <width>170</width>
+               <height>170</height>
               </size>
              </property>
             </widget>
@@ -206,7 +223,7 @@
            <item>
             <widget class="QPushButton" name="cmdSavePrim">
              <property name="text">
-              <string>Сохр. примечание</string>
+              <string>Сохр. примечания</string>
              </property>
             </widget>
            </item>
