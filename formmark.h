@@ -8,6 +8,7 @@
 #include "lblcreator.h"
 #include "export.h"
 #include "pdftoimg.h"
+#include "models.h"
 
 namespace Ui {
 class FormMark;
@@ -29,6 +30,7 @@ private:
     DbTableModel *modelChemTu;
     DbTableModel *modelMechTu;
     DbTableModel *modelPlav;
+    ModelEan *modelEan;
 
     void loadsettings();
     void savesettings();

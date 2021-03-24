@@ -100,6 +100,8 @@ Rels::Rels(QObject *parent) : QObject(parent)
     relPlav = new DbRelation(QString("select id, nam from el_plav_nams"),0,1,this);
     relWireDiam = new DbRelation(QString("select id, sdim from diam order by sdim"),0,1,this);
     relChemDev = new DbRelation(QString("select id, short from chem_dev order by short"),0,1,this);
+    relPack = new DbRelation(QString("select id, pack_ed || ', '|| pack_group from el_pack order by pack_ed"),0,1,this);
+    relEan = new DbRelation(QString("select ean from eans order by ean"),0,0,this);
 
     relDiam->proxyModel()->setFilterKeyColumn(2);
     relDiam->proxyModel()->setFilterFixedString("1");
@@ -136,6 +138,8 @@ void Rels::refresh()
     relPlav->refreshModel();
     relWireDiam->refreshModel();
     relChemDev->refreshModel();
+    relPack->refreshModel();
+    relEan->refreshModel();
 
     emit sigRefresh();
 }

@@ -18,6 +18,19 @@ FormMark::FormMark(QWidget *parent) :
         ui->comboBoxDiam->setCurrentIndex(ind);
     }
 
+    modelEan = new ModelEan(this);
+    ui->tableViewPack->setModel(modelEan);
+    ui->tableViewPack->setColumnHidden(0,true);
+    ui->tableViewPack->setColumnWidth(1,70);
+    ui->tableViewPack->setColumnWidth(2,260);
+    ui->tableViewPack->setColumnWidth(3,125);
+    ui->tableViewPack->setColumnWidth(4,125);
+
+    DbDelegate *delegate=qobject_cast<DbDelegate *>(ui->tableViewPack->itemDelegate());
+    if (delegate){
+        connect(delegate,SIGNAL(createEdt(QModelIndex)),modelEan,SLOT(updRels(QModelIndex)));
+    }
+
     modelAmp = new DbTableModel("amp",this);
     modelAmp->addColumn("id","id");
     modelAmp->addColumn("id_el","id_el");
@@ -31,10 +44,10 @@ FormMark::FormMark(QWidget *parent) :
     ui->tableViewAmp->setModel(modelAmp);
     ui->tableViewAmp->setColumnHidden(0,true);
     ui->tableViewAmp->setColumnHidden(1,true);
-    ui->tableViewAmp->setColumnWidth(2,150);
-    ui->tableViewAmp->setColumnWidth(3,150);
-    ui->tableViewAmp->setColumnWidth(4,150);
-    ui->tableViewAmp->setColumnWidth(5,150);
+    ui->tableViewAmp->setColumnWidth(2,100);
+    ui->tableViewAmp->setColumnWidth(3,100);
+    ui->tableViewAmp->setColumnWidth(4,100);
+    ui->tableViewAmp->setColumnWidth(5,100);
 
     modelChemTu = new DbTableModel("chem_tu",this);
     modelChemTu->addColumn("id_el","id_el");
@@ -59,8 +72,8 @@ FormMark::FormMark(QWidget *parent) :
     ui->tableViewMech->setModel(modelMechTu);
     ui->tableViewMech->setColumnHidden(0,true);
     ui->tableViewMech->setColumnWidth(1,150);
-    ui->tableViewMech->setColumnWidth(2,100);
-    ui->tableViewMech->setColumnWidth(3,100);
+    ui->tableViewMech->setColumnWidth(2,90);
+    ui->tableViewMech->setColumnWidth(3,90);
 
     modelPlav = new DbTableModel("el_plav",this);
     modelPlav->addColumn("id_el","id_el");
@@ -166,6 +179,8 @@ void FormMark::refreshCont(int index)
 {
     QModelIndex ind=ui->tableViewMark->model()->index(index,0);
     int id_el=ui->tableViewMark->model()->data(ind,Qt::EditRole).toInt();
+
+    modelEan->refresh(id_el);
 
     modelAmp->setDefaultValue(1,id_el);
     modelAmp->setFilter("amp.id_el = "+QString::number(id_el));

@@ -40,7 +40,8 @@ SOURCES += main.cpp\
     qftp/qftp.cpp \
     qftp/qurlinfo.cpp \
     modeldoc.cpp \
-    pdftoimg.cpp
+    pdftoimg.cpp \
+    models.cpp
 
 HEADERS  += formpart.h \
     pgdialog.h \
@@ -71,7 +72,8 @@ HEADERS  += formpart.h \
     qftp/qftp.h \
     qftp/qurlinfo.h \
     modeldoc.h \
-    pdftoimg.h
+    pdftoimg.h \
+    models.h
 
 FORMS    += formpart.ui \
     pgdialog.ui \

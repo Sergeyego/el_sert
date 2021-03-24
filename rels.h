@@ -46,6 +46,8 @@ public:
     DbRelation *relPlav;
     DbRelation *relWireDiam;
     DbRelation *relChemDev;
+    DbRelation *relPack;
+    DbRelation *relEan;
 
 protected:
     explicit Rels(QObject *parent = nullptr);
