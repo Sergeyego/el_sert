@@ -39,6 +39,7 @@ private slots:
     void refreshCont(int index);
     void updImg();
     void gelLbl();
+    void gelLblSmall();
     void exportXml();
 };
 

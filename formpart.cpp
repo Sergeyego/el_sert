@@ -80,6 +80,7 @@ FormPart::FormPart(QWidget *parent) :
     connect(ui->cmdCopyZnam,SIGNAL(clicked()),this,SLOT(copyZnam()));
     connect(ui->tableViewAdd,SIGNAL(doubleClicked(QModelIndex)),this,SLOT(showShipSert(QModelIndex)));
     connect(ui->cmdLbl,SIGNAL(clicked(bool)),this,SLOT(genLbl()));
+    connect(ui->cmdLblSmall,SIGNAL(clicked(bool)),this,SLOT(genLblSmall()));
     connect(ui->textEditPrim,SIGNAL(textChanged()),this,SLOT(enPrimSave()));
     connect(ui->textEditPrimProd,SIGNAL(textChanged()),this,SLOT(enPrimSave()));
     connect(ui->lineEditZnam,SIGNAL(textChanged(QString)),this,SLOT(enZnamSave()));
@@ -295,6 +296,13 @@ void FormPart::genLbl()
     int id=currentIdPart();
     LblCreator c;
     c.createLbl(id,ui->checkBoxAmp->isChecked());
+}
+
+void FormPart::genLblSmall()
+{
+    int id=currentIdPart();
+    LblCreator c;
+    c.createLblGlabels(id);
 }
 
 void FormPart::enPrimSave()

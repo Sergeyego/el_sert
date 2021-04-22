@@ -41,7 +41,8 @@ SOURCES += main.cpp\
     qftp/qurlinfo.cpp \
     modeldoc.cpp \
     pdftoimg.cpp \
-    models.cpp
+    models.cpp \
+    glabels/glabelslbl.cpp
 
 HEADERS  += formpart.h \
     pgdialog.h \
@@ -73,7 +74,8 @@ HEADERS  += formpart.h \
     qftp/qurlinfo.h \
     modeldoc.h \
     pdftoimg.h \
-    models.h
+    models.h \
+    glabels/glabelslbl.h
 
 FORMS    += formpart.ui \
     pgdialog.ui \
@@ -99,4 +101,5 @@ LIBS += -lpoppler-qt5
 DISTFILES += \
     images/logo2.png \
     images/otk.png \
-    ico.rc
+    ico.rc \
+    templates/glabels_szsm.xml

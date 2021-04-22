@@ -448,6 +448,13 @@
           </widget>
          </item>
          <item>
+          <widget class="QPushButton" name="cmdLblSmall">
+           <property name="text">
+            <string>Сокр. этикетка</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QPushButton" name="cmdExt">
            <property name="text">
             <string>Выгрузить</string>

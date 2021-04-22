@@ -1,0 +1,23 @@
+<Glabels-templates>
+  <Template brand="SZSM-01" part="1" size="A4" description="lable">
+      <Meta category="user-defined"/>
+      <Label-rectangle id="0" width="66.7mm" height="46.0001mm" round="0mm" x_waste="0mm" y_waste="0mm">
+	<Markup-margin size="3.2mm"/>
+	<Layout nx="3" ny="6" x0="4.99999mm" y0="10mm" dx="66.7mm" dy="46.0001mm"/>
+      </Label-rectangle>
+  </Template>
+  <Template brand="SZSM-02" part="1" size="A4" description="">
+    <Meta category="user-defined"/>
+    <Label-rectangle id="0" width="60mm" height="135mm" round="0mm" x_waste="0mm" y_waste="0mm">
+      <Markup-margin size="3.2mm"/>
+      <Layout nx="3" ny="2" x0="11mm" y0="11mm" dx="64mm" dy="139mm"/>
+    </Label-rectangle>
+  </Template>
+  <Template brand="SZSM-03" part="1" size="A4" description="">
+    <Meta category="user-defined"/>
+    <Label-rectangle id="0" width="63mm" height="143mm" round="0mm" x_waste="0mm" y_waste="0mm">
+      <Markup-margin size="1.5mm"/>
+      <Layout nx="3" ny="2" x0="11mm" y0="6mm" dx="63mm" dy="143mm"/>
+    </Label-rectangle>
+  </Template>
+</Glabels-templates>

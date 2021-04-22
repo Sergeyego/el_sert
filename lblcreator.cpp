@@ -18,27 +18,8 @@ LblCreator::LblCreator(QObject *parent) : QObject(parent)
 
 bool LblCreator::createLbl(int id_part, bool shortAmp)
 {
-    QSqlQuery queryPart;
-    int id_el;
-    int id_diam;
-    QDate datePart;
-    QString ibco;
-    queryPart.prepare("select p.id_el, (select d.id from diam as d where p.diam=d.diam), p.dat_part, p.ibco "
-                      "from parti as p where p.id= :id");
-    queryPart.bindValue(":id",id_part);
-    bool ok=queryPart.exec();
-    if (ok){
-        while (queryPart.next()){
-            id_el=queryPart.value(0).toInt();
-            id_diam=queryPart.value(1).toInt();
-            datePart=queryPart.value(2).toDate();
-            ibco=queryPart.value(3).toString();
-        }
-        ok=createLbl(id_el,id_diam,ibco,datePart,shortAmp, false);
-    } else {
-        QMessageBox::critical(NULL,tr("Error"),queryPart.lastError().text(),QMessageBox::Ok);
-    }
-    return ok;
+    dataPart data=getDataPart(id_part);
+    return createLbl(data.id_el,data.id_diam,data.ibco,data.datePart,shortAmp, false);
 }
 
 bool LblCreator::createLbl(int id_el, int id_diam, QString ibco, QDate date, bool shortAmp, bool order)
@@ -101,118 +82,12 @@ bool LblCreator::createLbl(int id_el, int id_diam, QString ibco, QDate date, boo
 
     rtfWriter.start_doc();
 
-    QString tulist;
-    QString marka;
-    QString diam;
-    QString isotype;
-    QString awstype;
-    QString gosttype;
-    QString bukv;
-    QString znam;
-    QString descr;
-    QString vl;
-    QString pr;
-    int id_pix=-1;
-
-    QSqlQuery tuQuery;
-    tuQuery.prepare("select nam from zvd_get_tu( :date, :id_el, :id_diam)");
-    tuQuery.bindValue(":date",date);
-    tuQuery.bindValue(":id_el",id_el);
-    tuQuery.bindValue(":id_diam",id_diam);
-
-    if (tuQuery.exec()){
-        while (tuQuery.next()){
-            if (!tulist.isEmpty()){
-                tulist+="\n";
-            }
-            tulist+=tuQuery.value(0).toString();
-        }
-    } else {
-        QMessageBox::critical(NULL,tr("Error"),tuQuery.lastError().text(),QMessageBox::Ok);
-    }
-
-
-    QString srtStr;
-    QMultiMap <int, QString> srt;
-
-    QSqlQuery vedQuery;
-    vedQuery.prepare("select z.id_doc_t, z.ved_short, z.grade_nam "
-                     "from zvd_get_sert(:date, :id_el, :id_diam) as z order by z.id_doc_t, z.ved_short");
-    vedQuery.bindValue(":date",date);
-    vedQuery.bindValue(":id_el",id_el);
-    vedQuery.bindValue(":id_diam",id_diam);
-    if (vedQuery.exec()){
-        while (vedQuery.next()){
-            int id_doc_t=vedQuery.value(0).toInt();
-            QString ved=vedQuery.value(1).toString();
-            QString grade=vedQuery.value(2).toString();
-
-            QString s=ved;
-            if (!grade.isEmpty()){
-                s+=QString::fromUtf8(" категория ")+grade;
-            }
-
-            if (srt.contains(id_doc_t, ved) && (ved!=s)){
-                srt.remove(id_doc_t,ved);
-            }
-
-            QStringList list(srt.values(id_doc_t));
-
-            if (list.indexOf(QRegExp(QString("^"+s+".*")))==-1){
-                srt.insert(id_doc_t,s);
-            }
-        }
-    } else {
-        QMessageBox::critical(NULL,tr("Error"),vedQuery.lastError().text(),QMessageBox::Ok);
-    }
-
-    QList<int> keys = srt.uniqueKeys();
-
-    for (int i=0; i<keys.size(); ++i){
-        if (!srtStr.isEmpty()){
-            srtStr+="\n";
-        }
-        srtStr+=Rels::instance()->relDocType->data(QString::number(keys.at(i))).toString()+":";
-        QList<QString> v = srt.values(keys.at(i));
-        qSort(v.begin(),v.end());
-        for (QString st:v){
-            if (!srtStr.isEmpty()){
-                srtStr+="\n";
-            }
-            srtStr+=st;
-        }
-    }
-
-    QSqlQuery query;
-    query.prepare("select coalesce(e.marka_sert, e.marka), (select di.diam from diam as di where di.id = :id_diam), g.nam, pu.nam, d.nam, i.nam, a.nam, e.vl, e.pr, e.id_pic, e.descr "
-                  "from elrtr as e "
-                  "inner join gost_types as g on e.id_gost_type=g.id "
-                  "inner join purpose as pu on e.id_purpose=pu.id "
-                  "inner join denominator as d on e.id_denominator=d.id "
-                  "inner join iso_types as i on e.id_iso_type=i.id "
-                  "inner join aws_types as a on e.id_aws_type=a.id "
-                  "where e.id = :id");
-    query.bindValue(":id_diam",id_diam);
-    query.bindValue(":id",id_el);
-    if (!query.exec()){
-        QMessageBox::critical(NULL,tr("Ошибка"),query.lastError().text(),QMessageBox::Ok);
-    }
-    while (query.next()){
-        marka=query.value(0).toString();
-        diam=QLocale().toString(query.value(1).toDouble());
-        gosttype=query.value(2).toString();
-        bukv=query.value(3).toString();
-        znam=query.value(4).toString();
-        isotype=query.value(5).toString();
-        awstype=query.value(6).toString();
-        vl=query.value(7).toString();
-        pr=query.value(8).toString();
-        id_pix=query.value(9).toInt();
-        descr=query.value(10).toString();
-    }
+    QString tulist=getTuList(id_el,id_diam,date);
+    dataLbl data=getData(id_el,id_diam);
+    QString srtStr=getSrtStr(id_el,id_diam,date);
 
     if (!ibco.isEmpty()){
-        znam=ibco;
+        data.znam=ibco;
     }
     ph->tableText=false;
     ph->paragraphAligment=4;
@@ -232,7 +107,7 @@ bool LblCreator::createLbl(int id_el, int id_diam, QString ibco, QDate date, boo
     ph->paragraphAligment=3;
     ph->CHARACTER.fontSize=fs3;
     ph->CHARACTER.boldCharacter=true;
-    rtfWriter.start_paragraph(marka,false);
+    rtfWriter.start_paragraph(data.marka,false);
     rtfWriter.end_tablecell();//1
 
     rtfWriter.start_tablecell(sz2,RtfWriter::MERGE);
@@ -248,11 +123,11 @@ bool LblCreator::createLbl(int id_el, int id_diam, QString ibco, QDate date, boo
     rtfWriter.end_tablecell();//4
 
     rtfWriter.start_tablecell(sz5);
-    if (!isotype.isEmpty()&&isotype!=QString("-")){
-        rtfWriter.start_paragraph(isotype,false);
+    if (!data.isotype.isEmpty()&&data.isotype!=QString("-")){
+        rtfWriter.start_paragraph(data.isotype,false);
     }
-    if (!awstype.isEmpty()&&awstype!=QString("-")){
-        rtfWriter.start_paragraph(awstype,(!isotype.isEmpty()&&isotype!=QString("-")));
+    if (!data.awstype.isEmpty()&&data.awstype!=QString("-")){
+        rtfWriter.start_paragraph(data.awstype,(!data.isotype.isEmpty()&&data.isotype!=QString("-")));
     }
     rtfWriter.end_tablecell();//5
 
@@ -261,19 +136,12 @@ bool LblCreator::createLbl(int id_el, int id_diam, QString ibco, QDate date, boo
     ph->CHARACTER.fontSize=fs2;
     ph->CHARACTER.boldCharacter=true;
     ph->CHARACTER.underlineCharacter=true;
-    QString ch;
-    if (!gosttype.isEmpty()&& gosttype!=QString("-")){
-        ch+=gosttype+QString("-");
-    }
 
-    ch+=marka+QString("-Ø")/*+diam*/;
-    if (!bukv.isEmpty()&&bukv!=QString("-")){
-        ch+=QString("-")+bukv;
-    }
+    QString ch=getCh(data);
     rtfWriter.start_paragraph(ch,false);
     ph->CHARACTER.underlineCharacter=false;
-    if (!znam.isEmpty()&& znam!=QString("-")){
-        rtfWriter.start_paragraph(znam,true);
+    if (!data.znam.isEmpty()&& data.znam!=QString("-")){
+        rtfWriter.start_paragraph(data.znam,true);
     }
 
     rtfWriter.end_tablecell();//6
@@ -282,7 +150,7 @@ bool LblCreator::createLbl(int id_el, int id_diam, QString ibco, QDate date, boo
     rtfWriter.start_tablerow();
     rtfWriter.start_tablecell(sz1);
     QImage img;
-    img.loadFromData(Rels::instance()->relPosPix->data(QString::number(id_pix)).toByteArray());
+    img.loadFromData(Rels::instance()->relPosPix->data(QString::number(data.id_pix)).toByteArray());
     rtfWriter.insert_image(img,szImg,szImg);
     rtfWriter.end_tablecell();//1
 
@@ -290,7 +158,7 @@ bool LblCreator::createLbl(int id_el, int id_diam, QString ibco, QDate date, boo
     ph->paragraphAligment=3;
     ph->CHARACTER.fontSize=fs1;
     ph->CHARACTER.boldCharacter=false;
-    rtfWriter.start_paragraph(descr,false);
+    rtfWriter.start_paragraph(data.descr,false);
     rtfWriter.end_tablecell();//2
 
     rtfWriter.start_tablecell(sz3,RtfWriter::MERGE);
@@ -379,6 +247,305 @@ bool LblCreator::createLbl(int id_el, int id_diam, QString ibco, QDate date, boo
     rtfWriter.end_tablecell();//6
     rtfWriter.end_tablerow();
 
+    QVector<dataAmp> amps=getAmp(id_el,id_diam,shortAmp);
+    foreach (dataAmp amp, amps) {
+        rtfWriter.start_tablerow();
+        rtfWriter.start_tablecell(sz1);
+        rtfWriter.start_paragraph(amp.diam,false);
+        rtfWriter.end_tablecell();//1
+
+        rtfWriter.start_tablecell(sz2);
+        rtfWriter.start_paragraph(amp.bottom,false);
+        rtfWriter.end_tablecell();//2
+
+        rtfWriter.start_tablecell(sz3);
+        rtfWriter.start_paragraph(amp.vert,false);
+        rtfWriter.end_tablecell();//3
+
+        rtfWriter.start_tablecell(sz4);
+        rtfWriter.start_paragraph(amp.top,false);
+        rtfWriter.end_tablecell();//4
+
+        rtfWriter.start_tablecell(sz5,RtfWriter::NO_MERGE,RtfWriter::MERGE);
+        rtfWriter.end_tablecell();//5
+
+        rtfWriter.start_tablecell(sz6,RtfWriter::NO_MERGE,RtfWriter::MERGE);
+        rtfWriter.end_tablecell();//6
+        rtfWriter.end_tablerow();
+    }
+
+    ph->paragraphAligment=3;
+
+    QString proc=getProc(data);
+
+    rtfWriter.start_tablerow();
+    rtfWriter.start_tablecell(sz6);
+    rtfWriter.start_paragraph(proc,false);
+    rtfWriter.end_tablecell();//1
+
+    rtfWriter.end_tablerow();
+
+    rtfWriter.start_tablerow();
+    rtfWriter.start_tablecell(sz6);
+    rtfWriter.start_paragraph(getIzg(),false);
+    rtfWriter.end_tablecell();//1
+
+    rtfWriter.end_tablerow();
+
+    if (order){
+        ph->tableText=false;
+        ph->paragraphAligment=4;
+        ph->CHARACTER.fontSize=fs1;
+        rtfWriter.start_paragraph("",true);
+        rtfWriter.start_paragraph(QString::fromUtf8("СОГЛАСОВАНО:"),false);
+        rtfWriter.start_paragraph("",true);
+        rtfWriter.start_paragraph(QString::fromUtf8("Начальник ОТК_________________________")+otk,true);
+        rtfWriter.start_paragraph("",true);
+        rtfWriter.start_paragraph(QString::fromUtf8("Директор по качеству__________________")+kach,true);
+    }
+
+    rtfWriter.end_doc();
+    QString fname=QString("lbl.rtf");
+    if (rtfWriter.saveDoc(fname)){
+        sysCommand(fname);
+    }
+
+    return true;
+}
+
+bool LblCreator::createLblGlabels(int id_el, int id_diam, QString ibco, QDate date)
+{
+    GlabelsLbl lbl;
+    bool ok=false;
+    if (lbl.createLbl(QString("SZSM-03"),true)){
+        dataLbl data=getData(id_el,id_diam);
+        if (!ibco.isEmpty()){
+            data.znam=ibco;
+        }
+
+        lbl.newRect(1.5,1.5,140,60);
+        lbl.newLine(1.5,11.5,140,0);
+        lbl.newLine(36.5,11.5,0,-10);
+        lbl.newLine(82.5,11.5,0,-10);
+        lbl.newLine(1.5,58,140,0);
+        lbl.newLine(1.5,54.5,140,0);
+        lbl.newLine(1.5,30,140,0);
+        lbl.newLine(82.5,54.5,0,-24.5);
+        lbl.newLine(1.5,51,81,0);
+        lbl.newLine(1.5,47.5,81,0);
+        lbl.newLine(1.5,44,81,0);
+        lbl.newLine(1.5,40.5,81,0);
+        lbl.newLine(20,54.5,0,-43);
+        lbl.newLine(20,37,62.5,0);
+        lbl.newLine(20,33.5,62.5,0);
+        lbl.newLine(40.5,37,0,17.5);
+        lbl.newLine(61,37,0,17.5);
+
+        QString ch=getCh(data);
+        lbl.newText(2.5,2.5,33,8,data.marka,11,true);
+        lbl.newText(82.5,2.5,59,4,ch,9,true,(Qt::AlignCenter | Qt::AlignVCenter ));
+        if (!data.znam.isEmpty()&& data.znam!=QString("-")){
+            if (ch.size()<19){
+                lbl.newLine(98.5,6.5,27,0);
+            } else {
+                lbl.newLine(88.5,6.5,47,0);
+            }
+            lbl.newText(83.5,6.5,57,4,data.znam,9,true,(Qt::AlignCenter | Qt::AlignVCenter ));
+        }
+
+        QString tuList=getTuList(id_el,id_diam,date);
+        int ftusize = (tuList.split("\n").size()>3) ? 6 : 7;
+        lbl.newText(37.5,2.5,44.5,8.5,tuList,ftusize,false);
+        int fdsize= (data.descr.size()<500) ? 7 : 6;
+        lbl.newText(20.5,12,120.5,17.5,data.descr,fdsize,false);
+        lbl.newImage(3,13,15,15,QDir::currentPath()+"/images/"+QString::number(data.id_pix)+".png");
+        lbl.newText(85,32,55,21,getSrtStr(id_el,id_diam,date),7,false);
+
+        lbl.newText(2.5,31,16,9,QString::fromUtf8("Диаметр\nмм"),7,false,(Qt::AlignCenter | Qt::AlignVCenter ));
+        lbl.newText(20,30,62.5,3.5,QString::fromUtf8("Рекомендуемое значение тока (А)"),7,false,(Qt::AlignCenter | Qt::AlignVCenter ));
+        lbl.newText(20,33.5,62.5,3.5,QString::fromUtf8("Положение шва"),7,false,(Qt::AlignCenter | Qt::AlignVCenter ));
+        lbl.newText(20,37,20.5,3.5,QString::fromUtf8("нижнее"),7,false,(Qt::AlignCenter | Qt::AlignVCenter ));
+        lbl.newText(40.5,37,20.5,3.5,QString::fromUtf8("вертикальное"),7,false,(Qt::AlignCenter | Qt::AlignVCenter ));
+        lbl.newText(61,37,21.5,3.5,QString::fromUtf8("потолочное"),7,false,(Qt::AlignCenter | Qt::AlignVCenter ));
+        QVector<dataAmp> amps=getAmp(id_el,id_diam,true);
+        for (int i=0; i<amps.size(); i++){
+            if (i>3){
+                break;
+            }
+            lbl.newText(2.5,40.5+(3.5*i),16,3.5,amps.at(i).diam,7,false,(Qt::AlignCenter | Qt::AlignVCenter ));
+            lbl.newText(20,40.5+(3.5*i),20.5,3.5,amps.at(i).bottom,7,false,(Qt::AlignCenter | Qt::AlignVCenter ));
+            lbl.newText(40.5,40.5+(3.5*i),20.5,3.5,amps.at(i).vert,7,false,(Qt::AlignCenter | Qt::AlignVCenter ));
+            lbl.newText(61,40.5+(3.5*i),21.5,3.5,amps.at(i).top,7,false,(Qt::AlignCenter | Qt::AlignVCenter ));
+        }
+
+        lbl.newText(2.5,54.5,138,3.5,getProc(data),6,false);
+        lbl.newText(2.5,58,138,3.5,getIzg(),5,false);
+        QString fname="small.glabels";
+        ok=lbl.saveFile(fname);
+        if (ok){
+            sysCommand(fname);
+        }
+    }
+    return ok;
+}
+
+bool LblCreator::createLblGlabels(int id_part)
+{
+    dataPart data=getDataPart(id_part);
+    return createLblGlabels(data.id_el,data.id_diam,data.ibco,data.datePart);
+}
+
+void LblCreator::sysCommand(QString fname)
+{
+    QFileInfo fileInfo(fname);
+    QDesktopServices::openUrl((QUrl(QUrl::fromLocalFile(fileInfo.absoluteFilePath()))));
+}
+
+QString LblCreator::getTuList(int id_el, int id_diam, QDate date)
+{
+    QSqlQuery tuQuery;
+    QString tulist;
+    tuQuery.prepare("select nam from zvd_get_tu( :date, :id_el, :id_diam)");
+    tuQuery.bindValue(":date",date);
+    tuQuery.bindValue(":id_el",id_el);
+    tuQuery.bindValue(":id_diam",id_diam);
+
+    if (tuQuery.exec()){
+        while (tuQuery.next()){
+            if (!tulist.isEmpty()){
+                tulist+="\n";
+            }
+            tulist+=tuQuery.value(0).toString();
+        }
+    } else {
+        QMessageBox::critical(NULL,tr("Error"),tuQuery.lastError().text(),QMessageBox::Ok);
+    }
+    return tulist;
+}
+
+QString LblCreator::getSrtStr(int id_el, int id_diam, QDate date)
+{
+    QString srtStr;
+    QMultiMap <int, QString> srt;
+
+    QSqlQuery vedQuery;
+    vedQuery.prepare("select z.id_doc_t, z.ved_short, z.grade_nam "
+                     "from zvd_get_sert(:date, :id_el, :id_diam) as z order by z.id_doc_t, z.ved_short");
+    vedQuery.bindValue(":date",date);
+    vedQuery.bindValue(":id_el",id_el);
+    vedQuery.bindValue(":id_diam",id_diam);
+    if (vedQuery.exec()){
+        while (vedQuery.next()){
+            int id_doc_t=vedQuery.value(0).toInt();
+            QString ved=vedQuery.value(1).toString();
+            QString grade=vedQuery.value(2).toString();
+
+            QString s=ved;
+            if (!grade.isEmpty()){
+                s+=QString::fromUtf8(" категория ")+grade;
+            }
+
+            if (srt.contains(id_doc_t, ved) && (ved!=s)){
+                srt.remove(id_doc_t,ved);
+            }
+
+            QStringList list(srt.values(id_doc_t));
+
+            if (list.indexOf(QRegExp(QString("^"+s+".*")))==-1){
+                srt.insert(id_doc_t,s);
+            }
+        }
+    } else {
+        QMessageBox::critical(NULL,tr("Error"),vedQuery.lastError().text(),QMessageBox::Ok);
+    }
+
+    QList<int> keys = srt.uniqueKeys();
+
+    for (int i=0; i<keys.size(); ++i){
+        if (!srtStr.isEmpty()){
+            srtStr+="\n";
+        }
+        srtStr+=Rels::instance()->relDocType->data(QString::number(keys.at(i))).toString()+":";
+        QList<QString> v = srt.values(keys.at(i));
+        qSort(v.begin(),v.end());
+        for (QString st:v){
+            if (!srtStr.isEmpty()){
+                srtStr+="\n";
+            }
+            srtStr+=st;
+        }
+    }
+    return srtStr;
+}
+
+dataLbl LblCreator::getData(int id_el, int id_diam)
+{
+    dataLbl data;
+    QSqlQuery query;
+    query.prepare("select coalesce(e.marka_sert, e.marka), (select di.diam from diam as di where di.id = :id_diam), g.nam, pu.nam, d.nam, i.nam, a.nam, e.vl, e.pr, e.id_pic, e.descr "
+                  "from elrtr as e "
+                  "inner join gost_types as g on e.id_gost_type=g.id "
+                  "inner join purpose as pu on e.id_purpose=pu.id "
+                  "inner join denominator as d on e.id_denominator=d.id "
+                  "inner join iso_types as i on e.id_iso_type=i.id "
+                  "inner join aws_types as a on e.id_aws_type=a.id "
+                  "where e.id = :id");
+    query.bindValue(":id_diam",id_diam);
+    query.bindValue(":id",id_el);
+    if (!query.exec()){
+        QMessageBox::critical(NULL,tr("Ошибка"),query.lastError().text(),QMessageBox::Ok);
+    }
+    while (query.next()){
+        data.marka=query.value(0).toString();
+        data.diam=QLocale().toString(query.value(1).toDouble());
+        data.gosttype=query.value(2).toString();
+        data.bukv=query.value(3).toString();
+        data.znam=query.value(4).toString();
+        data.isotype=query.value(5).toString();
+        data.awstype=query.value(6).toString();
+        data.vl=query.value(7).toString();
+        data.pr=query.value(8).toString();
+        data.id_pix=query.value(9).toInt();
+        data.descr=query.value(10).toString();
+    }
+    return data;
+}
+
+QString LblCreator::getCh(dataLbl &data)
+{
+    QString ch;
+    if (!data.gosttype.isEmpty()&& data.gosttype!=QString("-")){
+        ch+=data.gosttype+QString("-");
+    }
+
+    ch+=data.marka+QString("-Ø");
+    if (!data.bukv.isEmpty()&&data.bukv!=QString("-")){
+        ch+=QString("-")+data.bukv;
+    }
+    return ch;
+}
+
+QString LblCreator::getProc(dataLbl &data)
+{
+    QString proc=QString::fromUtf8("Допустимое содержание влаги в покрытии перед использованием - %1\%.").arg(data.vl);
+    if (!data.pr.isEmpty()){
+        QString temp=data.pr.left(3);
+        QString dop=data.pr.mid(3,2);
+        QString ch=data.pr.mid(5,1);
+        QString ok=data.pr.mid(6,2);
+        proc+=QString::fromUtf8(" Режим повторной прокалки ")+temp+QString::fromUtf8("±")+dop+QString::fromUtf8("°C ")+ch+QString::fromUtf8(" час")+ok+".";
+    }
+    return proc;
+}
+
+QString LblCreator::getIzg()
+{
+    return QString::fromUtf8("Изготовитель ")+orgNam+", "+adres;
+}
+
+QVector<dataAmp> LblCreator::getAmp(int id_el, int id_diam, bool shortAmp)
+{
+    QVector<dataAmp> amps;
     QSqlQuery queryAmp;
     if (!shortAmp){
         queryAmp.prepare("select d.diam, a.bot, a.vert, a.ceil from amp as a "
@@ -409,82 +576,36 @@ bool LblCreator::createLbl(int id_el, int id_diam, QString ibco, QDate date, boo
 
     if (queryAmp.exec()){
         while (queryAmp.next()){
-            rtfWriter.start_tablerow();
-            rtfWriter.start_tablecell(sz1);
-            rtfWriter.start_paragraph(QLocale().toString(queryAmp.value(0).toDouble(),'f',1),false);
-            rtfWriter.end_tablecell();//1
-
-            rtfWriter.start_tablecell(sz2);
-            rtfWriter.start_paragraph(queryAmp.value(1).toString(),false);
-            rtfWriter.end_tablecell();//2
-
-            rtfWriter.start_tablecell(sz3);
-            rtfWriter.start_paragraph(queryAmp.value(2).toString(),false);
-            rtfWriter.end_tablecell();//3
-
-            rtfWriter.start_tablecell(sz4);
-            rtfWriter.start_paragraph(queryAmp.value(3).toString(),false);
-            rtfWriter.end_tablecell();//4
-
-            rtfWriter.start_tablecell(sz5,RtfWriter::NO_MERGE,RtfWriter::MERGE);
-            rtfWriter.end_tablecell();//5
-
-            rtfWriter.start_tablecell(sz6,RtfWriter::NO_MERGE,RtfWriter::MERGE);
-            rtfWriter.end_tablecell();//6
-            rtfWriter.end_tablerow();
+            dataAmp data;
+            data.diam=QLocale().toString(queryAmp.value(0).toDouble(),'f',1);
+            data.bottom=queryAmp.value(1).toString();
+            data.vert=queryAmp.value(2).toString();
+            data.top=queryAmp.value(3).toString();
+            amps.push_back(data);
         }
     } else {
         QMessageBox::critical(NULL,tr("Ошибка"),queryAmp.lastError().text(),QMessageBox::Ok);
     }
-
-    ph->paragraphAligment=3;
-
-    QString proc;
-    if (!pr.isEmpty()){
-        QString temp=pr.left(3);
-        QString dop=pr.mid(3,2);
-        QString ch=pr.mid(5,1);
-        QString ok=pr.mid(6,2);
-        proc=QString::fromUtf8(" Режим повторной прокалки ")+temp+QString::fromUtf8("±")+dop+QString::fromUtf8("°C ")+ch+QString::fromUtf8(" час")+ok+".";
-    }
-
-    rtfWriter.start_tablerow();
-    rtfWriter.start_tablecell(sz6);
-    rtfWriter.start_paragraph(QString::fromUtf8("Допустимое содержание влаги в покрытии перед использованием - %1\%.").arg(vl)+proc,false);
-    rtfWriter.end_tablecell();//1
-
-    rtfWriter.end_tablerow();
-
-    rtfWriter.start_tablerow();
-    rtfWriter.start_tablecell(sz6);
-    rtfWriter.start_paragraph(QString::fromUtf8("Изготовитель ")+orgNam+", "+adres,false);
-    rtfWriter.end_tablecell();//1
-
-    rtfWriter.end_tablerow();
-
-    if (order){
-        ph->tableText=false;
-        ph->paragraphAligment=4;
-        ph->CHARACTER.fontSize=fs1;
-        rtfWriter.start_paragraph("",true);
-        rtfWriter.start_paragraph(QString::fromUtf8("СОГЛАСОВАНО:"),false);
-        rtfWriter.start_paragraph("",true);
-        rtfWriter.start_paragraph(QString::fromUtf8("Начальник ОТК_________________________")+otk,true);
-        rtfWriter.start_paragraph("",true);
-        rtfWriter.start_paragraph(QString::fromUtf8("Директор по качеству__________________")+kach,true);
-    }
-
-    rtfWriter.end_doc();
-    QString fname=QString("lbl.rtf");
-    if (rtfWriter.saveDoc(fname)){
-        sysCommand(fname);
-    }
-
-    return true;
+    return amps;
 }
 
-void LblCreator::sysCommand(QString fname)
+dataPart LblCreator::getDataPart(int id_part)
 {
-    QFileInfo fileInfo(fname);
-    QDesktopServices::openUrl((QUrl(QUrl::fromLocalFile(fileInfo.absoluteFilePath()))));
+    dataPart data;
+    QSqlQuery queryPart;
+    queryPart.prepare("select p.id_el, (select d.id from diam as d where p.diam=d.diam), p.dat_part, p.ibco "
+                      "from parti as p where p.id= :id");
+    queryPart.bindValue(":id",id_part);
+    bool ok=queryPart.exec();
+    if (ok){
+        while (queryPart.next()){
+            data.id_el=queryPart.value(0).toInt();
+            data.id_diam=queryPart.value(1).toInt();
+            data.datePart=queryPart.value(2).toDate();
+            data.ibco=queryPart.value(3).toString();
+        }
+    } else {
+        QMessageBox::critical(NULL,tr("Error"),queryPart.lastError().text(),QMessageBox::Ok);
+    }
+    return data;
 }

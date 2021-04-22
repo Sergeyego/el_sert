@@ -13,7 +13,7 @@ FormMark::FormMark(QWidget *parent) :
 
     ui->comboBoxDiam->setModel(Rels::instance()->relDiam->proxyModel());
     ui->comboBoxDiam->setModelColumn(1);
-    int ind=ui->comboBoxDiam->findText("4.0 ");
+    int ind=ui->comboBoxDiam->findText("3.0 ");
     if (ind>=0){
         ui->comboBoxDiam->setCurrentIndex(ind);
     }
@@ -149,6 +149,7 @@ FormMark::FormMark(QWidget *parent) :
     connect(mapper,SIGNAL(currentIndexChanged(int)),this,SLOT(refreshCont(int)));
     connect(modelMark,SIGNAL(sigUpd()),Rels::instance()->relElMark,SLOT(refreshModel()));
     connect(ui->cmdLbl,SIGNAL(clicked(bool)),this,SLOT(gelLbl()));
+    connect(ui->cmdLblSmall,SIGNAL(clicked(bool)),this,SLOT(gelLblSmall()));
     connect(ui->cmdExt,SIGNAL(clicked(bool)),this,SLOT(exportXml()));
 
     if (ui->tableViewMark->model()->rowCount()){
@@ -221,6 +222,16 @@ void FormMark::gelLbl()
     int id_diam=ui->comboBoxDiam->model()->data(ind_diam,Qt::EditRole).toInt();
     LblCreator c;
     c.createLbl(id_el,id_diam,QString(),ui->dateEdit->date(),ui->checkBoxAmp->isChecked(),ui->checkBoxOrder->isChecked());
+}
+
+void FormMark::gelLblSmall()
+{
+    QModelIndex ind=ui->tableViewMark->model()->index(mapper->currentIndex(),0);
+    int id_el=ui->tableViewMark->model()->data(ind,Qt::EditRole).toInt();
+    QModelIndex ind_diam=ui->comboBoxDiam->model()->index(ui->comboBoxDiam->currentIndex(),0);
+    int id_diam=ui->comboBoxDiam->model()->data(ind_diam,Qt::EditRole).toInt();
+    LblCreator c;
+    c.createLblGlabels(id_el,id_diam,QString(),ui->dateEdit->date());
 }
 
 void FormMark::exportXml()
