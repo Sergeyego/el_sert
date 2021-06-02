@@ -41,6 +41,7 @@ private slots:
     void gelLbl();
     void gelLblSmall();
     void exportXml();
+    void createXml();
 };
 
 class CustomDelegate : public DbDelegate

@@ -236,14 +236,24 @@ void FormMark::gelLblSmall()
 
 void FormMark::exportXml()
 {
-    PdfToImg *conv = new PdfToImg;
-    connect(conv,&PdfToImg::finished,[this,conv]() {
-        conv->deleteLater();
-        Export *e = new Export;
-        connect(e,SIGNAL(finished()),e,SLOT(deleteLater()));
-        e->start();
-    });
-    conv->start();
+    int n=QMessageBox::question(this,QString::fromUtf8("Созать preview"),QString::fromUtf8("Обновить preview сертификатов?"),QMessageBox::Yes,QMessageBox::No);
+    if (n==QMessageBox::Yes){
+        PdfToImg *conv = new PdfToImg;
+        connect(conv,&PdfToImg::finished,[this,conv]() {
+            conv->deleteLater();
+            createXml();
+        });
+        conv->start();
+    } else {
+        createXml();
+    }
+}
+
+void FormMark::createXml()
+{
+    Export *e = new Export;
+    connect(e,SIGNAL(finished()),e,SLOT(deleteLater()));
+    e->start();
 }
 
 CustomDelegate::CustomDelegate(QObject *parent) : DbDelegate(parent)
