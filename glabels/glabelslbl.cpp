@@ -74,7 +74,7 @@ void GlabelsLbl::newBarcode(double x, double y, double w, double h, QString code
     obj.appendChild(l);
 }
 
-void GlabelsLbl::newText(double x, double y, double w, double h, QString text, int size, bool bold, Qt::Alignment al)
+void GlabelsLbl::newText(double x, double y, double w, double h, QString text, int size, bool bold, Qt::Alignment al, double spacing)
 {
     QString hAl=QString("Left");
     QString vAl=QString("Center");
@@ -108,7 +108,7 @@ void GlabelsLbl::newText(double x, double y, double w, double h, QString text, i
     span.setAttribute("font_size",size);
     span.setAttribute("font_weight",bold ? "Bold" : "Regular");
     span.setAttribute("font_italic","False");
-    span.setAttribute("line_spacing",1);
+    span.setAttribute("line_spacing",spacing);
     span.appendChild(doc.createTextNode(text));
     l.appendChild(span);
     obj.appendChild(l);

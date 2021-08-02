@@ -20,4 +20,10 @@
       <Layout nx="3" ny="2" x0="11mm" y0="6mm" dx="63mm" dy="143mm"/>
     </Label-rectangle>
   </Template>
+  <Template brand="SZSM-04" part="1" size="A4" description="">
+    <Label-rectangle id="0" width="46mm" height="135mm" round="0mm" x_waste="0mm" y_waste="0mm">
+      <Markup-margin size="1mm"/>
+      <Layout nx="4" ny="2" x0="10mm" y0="10mm" dx="48mm" dy="137mm"/>
+    </Label-rectangle>
+  </Template>
 </Glabels-templates>

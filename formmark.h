@@ -34,12 +34,15 @@ private:
 
     void loadsettings();
     void savesettings();
+    int id_el();
+    int id_diam();
 
 private slots:
     void refreshCont(int index);
     void updImg();
     void gelLbl();
     void gelLblSmall();
+    void gelLblSmall2();
     void exportXml();
     void createXml();
 };

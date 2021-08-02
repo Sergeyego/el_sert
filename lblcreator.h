@@ -49,6 +49,7 @@ public:
     bool createLbl(int id_el, int id_diam, QString ibco=QString(), QDate date=QDate::currentDate(), bool shortAmp=true, bool order=false);
     bool createLblGlabels(int id_el, int id_diam, QString ibco=QString(), QDate date=QDate::currentDate());
     bool createLblGlabels(int id_part);
+    bool createLblGlabels2(int id_el, int id_diam, QString ibco=QString(), QDate date=QDate::currentDate());
 
 private:
     QString orgNam;
@@ -62,7 +63,7 @@ private:
     QString getCh(dataLbl &data);
     QString getProc(dataLbl &data);
     QString getIzg();
-    QVector<dataAmp> getAmp(int id_el, int id_diam, bool shortAmp=false);
+    QVector<dataAmp> getAmp(int id_el, int id_diam, bool shortAmp=false, bool single=false);
     dataPart getDataPart(int id_part);
 signals:
 

@@ -143,13 +143,14 @@ FormMark::FormMark(QWidget *parent) :
     mapper->addEmptyLock(ui->tableViewChem);
     mapper->addEmptyLock(ui->tableViewMech);
     mapper->addEmptyLock(ui->tableViewPlav);
-    mapper->addEmptyLock(ui->cmdLbl);
+    mapper->addEmptyLock(ui->groupBox);
     mapper->addEmptyLock(ui->cmdExt);
 
     connect(mapper,SIGNAL(currentIndexChanged(int)),this,SLOT(refreshCont(int)));
     connect(modelMark,SIGNAL(sigUpd()),Rels::instance()->relElMark,SLOT(refreshModel()));
     connect(ui->cmdLbl,SIGNAL(clicked(bool)),this,SLOT(gelLbl()));
     connect(ui->cmdLblSmall,SIGNAL(clicked(bool)),this,SLOT(gelLblSmall()));
+    connect(ui->cmdLblSmall2,SIGNAL(clicked(bool)),this,SLOT(gelLblSmall2()));
     connect(ui->cmdExt,SIGNAL(clicked(bool)),this,SLOT(exportXml()));
 
     if (ui->tableViewMark->model()->rowCount()){
@@ -174,6 +175,18 @@ void FormMark::savesettings()
 {
     QSettings settings("szsm", QApplication::applicationName());
     settings.setValue("mark_splitter", ui->splitter->saveState());
+}
+
+int FormMark::id_el()
+{
+    QModelIndex ind=ui->tableViewMark->model()->index(mapper->currentIndex(),0);
+    return ui->tableViewMark->model()->data(ind,Qt::EditRole).toInt();
+}
+
+int FormMark::id_diam()
+{
+    QModelIndex ind_diam=ui->comboBoxDiam->model()->index(ui->comboBoxDiam->currentIndex(),0);
+    return ui->comboBoxDiam->model()->data(ind_diam,Qt::EditRole).toInt();
 }
 
 void FormMark::refreshCont(int index)
@@ -216,22 +229,20 @@ void FormMark::updImg()
 
 void FormMark::gelLbl()
 {
-    QModelIndex ind=ui->tableViewMark->model()->index(mapper->currentIndex(),0);
-    int id_el=ui->tableViewMark->model()->data(ind,Qt::EditRole).toInt();
-    QModelIndex ind_diam=ui->comboBoxDiam->model()->index(ui->comboBoxDiam->currentIndex(),0);
-    int id_diam=ui->comboBoxDiam->model()->data(ind_diam,Qt::EditRole).toInt();
     LblCreator c;
-    c.createLbl(id_el,id_diam,QString(),ui->dateEdit->date(),ui->checkBoxAmp->isChecked(),ui->checkBoxOrder->isChecked());
+    c.createLbl(id_el(),id_diam(),QString(),ui->dateEdit->date(),ui->checkBoxAmp->isChecked(),ui->checkBoxOrder->isChecked());
 }
 
 void FormMark::gelLblSmall()
 {
-    QModelIndex ind=ui->tableViewMark->model()->index(mapper->currentIndex(),0);
-    int id_el=ui->tableViewMark->model()->data(ind,Qt::EditRole).toInt();
-    QModelIndex ind_diam=ui->comboBoxDiam->model()->index(ui->comboBoxDiam->currentIndex(),0);
-    int id_diam=ui->comboBoxDiam->model()->data(ind_diam,Qt::EditRole).toInt();
     LblCreator c;
-    c.createLblGlabels(id_el,id_diam,QString(),ui->dateEdit->date());
+    c.createLblGlabels(id_el(),id_diam(),QString(),ui->dateEdit->date());
+}
+
+void FormMark::gelLblSmall2()
+{
+    LblCreator c;
+    c.createLblGlabels2(id_el(),id_diam(),QString(),ui->dateEdit->date());
 }
 
 void FormMark::exportXml()

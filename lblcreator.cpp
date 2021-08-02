@@ -395,6 +395,82 @@ bool LblCreator::createLblGlabels(int id_part)
     return createLblGlabels(data.id_el,data.id_diam,data.ibco,data.datePart);
 }
 
+bool LblCreator::createLblGlabels2(int id_el, int id_diam, QString ibco, QDate date)
+{
+    GlabelsLbl lbl;
+    bool ok=false;
+    if (lbl.createLbl(QString("SZSM-04"),true)){
+        dataLbl data=getData(id_el,id_diam);
+        if (!ibco.isEmpty()){
+            data.znam=ibco;
+        }
+        lbl.newRect(1,1,133,44);
+
+        lbl.newLine(1,12,133,0);
+        lbl.newLine(33,12,0,-11);
+        lbl.newLine(67,12,0,-11);
+        lbl.newLine(1,42,133,0);
+        lbl.newLine(1,39,133,0);
+        lbl.newLine(11,12,0,27);
+        lbl.newLine(87,12,0,27);
+        lbl.newLine(47,27,0,12);
+        lbl.newLine(1,27,86,0);
+        lbl.newLine(1,36,46,0);
+        lbl.newLine(11,30,36,0);
+        lbl.newLine(11,33,36,0);
+        lbl.newLine(23,39,0,-6);
+        lbl.newLine(35,39,0,-6);
+
+        QString ch=getCh(data);
+        lbl.newText(2,2,30,9,data.marka,11,true);
+        lbl.newText(68,2,65,4,ch,9,true,(Qt::AlignCenter | Qt::AlignVCenter ));
+        if (!data.znam.isEmpty()&& data.znam!=QString("-")){
+            if (ch.size()<19){
+                lbl.newLine(87,6.5,27,0);
+            } else {
+                lbl.newLine(77,6.5,47,0);
+            }
+            lbl.newText(68,7,65,4,data.znam,9,true,(Qt::AlignCenter | Qt::AlignVCenter ));
+        }
+
+        QString tuList=getTuList(id_el,id_diam,date);
+        lbl.newText(34,2,32,9,tuList,6,false);
+        int fdsize= (data.descr.size()<400) ? 7 : 6;
+        lbl.newText(12,13,74,13,data.descr,fdsize,false,(Qt::AlignLeft| Qt::AlignVCenter),0.7);
+
+        lbl.newImage(2,13,8,8,QDir::currentPath()+"/images/"+QString::number(data.id_pix)+".png");
+        lbl.newText(48,28,38,10,getSrtStr(id_el,id_diam,date),5,false,(Qt::AlignLeft| Qt::AlignVCenter),0.7);
+
+        lbl.newText(2,28,8,7,QString::fromUtf8("Диаметр\nмм"),6,false,(Qt::AlignCenter | Qt::AlignVCenter ));
+        lbl.newText(11,27,36,3,QString::fromUtf8("Рекомендуемое значение тока (А)"),6,false,(Qt::AlignCenter | Qt::AlignVCenter ));
+        lbl.newText(11,30,36,3,QString::fromUtf8("Положение шва"),6,false,(Qt::AlignCenter | Qt::AlignVCenter ));
+        lbl.newText(11,33,12,3,QString::fromUtf8("нижнее"),5,false,(Qt::AlignCenter | Qt::AlignVCenter ));
+        lbl.newText(23,33,12,3,QString::fromUtf8("вертикальное"),5,false,(Qt::AlignCenter | Qt::AlignVCenter ));
+        lbl.newText(35,33,12,3,QString::fromUtf8("потолочное"),5,false,(Qt::AlignCenter | Qt::AlignVCenter ));
+
+        QVector<dataAmp> amps=getAmp(id_el,id_diam,true,true);
+        for (int i=0; i<amps.size(); i++){
+            if (i>0){
+                break;
+            }
+            lbl.newText(1,36+(3*i),10,3,amps.at(i).diam,6,false,(Qt::AlignCenter | Qt::AlignVCenter ));
+            lbl.newText(11,36+(3*i),12,3,amps.at(i).bottom,6,false,(Qt::AlignCenter | Qt::AlignVCenter ));
+            lbl.newText(23,36+(3*i),12,3,amps.at(i).vert,6,false,(Qt::AlignCenter | Qt::AlignVCenter ));
+            lbl.newText(35,36+(3*i),12,3,amps.at(i).top,6,false,(Qt::AlignCenter | Qt::AlignVCenter ));
+        }
+
+        lbl.newText(1,39,133,3,getProc(data),6,false);
+        lbl.newText(1,42,133,3,getIzg(),5,false);
+
+        QString fname="small2.glabels";
+        ok=lbl.saveFile(fname);
+        if (ok){
+            sysCommand(fname);
+        }
+    }
+    return ok;
+}
+
 void LblCreator::sysCommand(QString fname)
 {
     QFileInfo fileInfo(fname);
@@ -543,35 +619,43 @@ QString LblCreator::getIzg()
     return QString::fromUtf8("Изготовитель ")+orgNam+", "+adres;
 }
 
-QVector<dataAmp> LblCreator::getAmp(int id_el, int id_diam, bool shortAmp)
+QVector<dataAmp> LblCreator::getAmp(int id_el, int id_diam, bool shortAmp, bool single)
 {
     QVector<dataAmp> amps;
     QSqlQuery queryAmp;
-    if (!shortAmp){
+    if (!single){
+        if (!shortAmp){
+            queryAmp.prepare("select d.diam, a.bot, a.vert, a.ceil from amp as a "
+                             "inner join diam as d on a.id_diam=d.id "
+                             "where a.id_el = :id order by d.diam");
+            queryAmp.bindValue(":id",id_el);
+        } else {
+            queryAmp.prepare("(select distinct d.diam, a.bot, a.vert, a.ceil "
+                             "from amp as a "
+                             "inner join diam as d on a.id_diam = d.id "
+                             "where a.id_el = :id_el1 and a.id_diam = :id_diam1 order by d.diam) "
+                             "union "
+                             "(select distinct d.diam, a.bot, a.vert, a.ceil "
+                             "from amp as a "
+                             "inner join diam as d on a.id_diam = d.id "
+                             "where a.id_el = :id_el2 and d.diam < (select diam from diam where id = :id_diam2 ) order by d.diam DESC LIMIT 2) "
+                             "union "
+                             "(select distinct d.diam, a.bot, a.vert, a.ceil "
+                             "from amp as a "
+                             "inner join diam as d on a.id_diam = d.id "
+                             "where a.id_el = :id_el3 and d.diam > (select diam from diam where id = :id_diam3 ) order by d.diam LIMIT 2) "
+                             "order by diam LIMIT 4");
+            for (int i=0; i<3; i++){
+                queryAmp.bindValue(":id_el"+QString::number(i+1),id_el);
+                queryAmp.bindValue(":id_diam"+QString::number(i+1),id_diam);
+            }
+        }
+    } else {
         queryAmp.prepare("select d.diam, a.bot, a.vert, a.ceil from amp as a "
                          "inner join diam as d on a.id_diam=d.id "
-                         "where a.id_el = :id order by d.diam");
-        queryAmp.bindValue(":id",id_el);
-    } else {
-        queryAmp.prepare("(select distinct d.diam, a.bot, a.vert, a.ceil "
-                         "from amp as a "
-                         "inner join diam as d on a.id_diam = d.id "
-                         "where a.id_el = :id_el1 and a.id_diam = :id_diam1 order by d.diam) "
-                         "union "
-                         "(select distinct d.diam, a.bot, a.vert, a.ceil "
-                         "from amp as a "
-                         "inner join diam as d on a.id_diam = d.id "
-                         "where a.id_el = :id_el2 and d.diam < (select diam from diam where id = :id_diam2 ) order by d.diam DESC LIMIT 2) "
-                         "union "
-                         "(select distinct d.diam, a.bot, a.vert, a.ceil "
-                         "from amp as a "
-                         "inner join diam as d on a.id_diam = d.id "
-                         "where a.id_el = :id_el3 and d.diam > (select diam from diam where id = :id_diam3 ) order by d.diam LIMIT 2) "
-                         "order by diam LIMIT 4");
-        for (int i=0; i<3; i++){
-            queryAmp.bindValue(":id_el"+QString::number(i+1),id_el);
-            queryAmp.bindValue(":id_diam"+QString::number(i+1),id_diam);
-        }
+                         "where a.id_el = :id_el and a.id_diam = :id_diam");
+        queryAmp.bindValue(":id_el",id_el);
+        queryAmp.bindValue(":id_diam",id_diam);
     }
 
     if (queryAmp.exec()){

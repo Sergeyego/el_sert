@@ -20,7 +20,7 @@ public:
     bool createLbl(QString templates, bool rotate);
     void newImage(double x, double y, double w, double h, QString fnam);
     void newBarcode(double x, double y, double w, double h, QString code);
-    void newText(double x, double y, double w, double h, QString text, int size, bool bold, Qt::Alignment al = (Qt::AlignLeft | Qt::AlignVCenter));
+    void newText(double x, double y, double w, double h, QString text, int size, bool bold, Qt::Alignment al = (Qt::AlignLeft | Qt::AlignVCenter), double spacing=1);
     void newRect(double x, double y, double w, double h);
     void newLine(double x, double y, double dx, double dy);
     bool saveFile(QString name);
