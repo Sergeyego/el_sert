@@ -412,9 +412,9 @@ bool LblCreator::createLblGlabels2(int id_el, int id_diam, QString ibco, QDate d
         lbl.newLine(1,42,133,0);
         lbl.newLine(1,39,133,0);
         lbl.newLine(11,12,0,27);
-        lbl.newLine(87,12,0,27);
+        lbl.newLine(80,12,0,27);
         lbl.newLine(47,27,0,12);
-        lbl.newLine(1,27,86,0);
+        lbl.newLine(1,27,79,0);
         lbl.newLine(1,36,46,0);
         lbl.newLine(11,30,36,0);
         lbl.newLine(11,33,36,0);
@@ -436,10 +436,10 @@ bool LblCreator::createLblGlabels2(int id_el, int id_diam, QString ibco, QDate d
         QString tuList=getTuList(id_el,id_diam,date);
         lbl.newText(34,2,32,9,tuList,6,false);
         int fdsize= (data.descr.size()<400) ? 7 : 6;
-        lbl.newText(12,13,74,13,data.descr,fdsize,false,(Qt::AlignLeft| Qt::AlignVCenter),0.7);
+        lbl.newText(11,12,69,15,data.descr,fdsize,false,(Qt::AlignLeft| Qt::AlignVCenter),0.7);
 
         lbl.newImage(2,13,8,8,QDir::currentPath()+"/images/"+QString::number(data.id_pix)+".png");
-        lbl.newText(48,28,38,10,getSrtStr(id_el,id_diam,date),5,false,(Qt::AlignLeft| Qt::AlignVCenter),0.7);
+        lbl.newText(47,27,33,12,getSrtStr(id_el,id_diam,date),5,false,(Qt::AlignLeft| Qt::AlignVCenter),0.7);
 
         lbl.newText(2,28,8,7,QString::fromUtf8("Диаметр\nмм"),6,false,(Qt::AlignCenter | Qt::AlignVCenter ));
         lbl.newText(11,27,36,3,QString::fromUtf8("Рекомендуемое значение тока (А)"),6,false,(Qt::AlignCenter | Qt::AlignVCenter ));
