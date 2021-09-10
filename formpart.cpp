@@ -81,6 +81,7 @@ FormPart::FormPart(QWidget *parent) :
     connect(ui->tableViewAdd,SIGNAL(doubleClicked(QModelIndex)),this,SLOT(showShipSert(QModelIndex)));
     connect(ui->cmdLbl,SIGNAL(clicked(bool)),this,SLOT(genLbl()));
     connect(ui->cmdLblSmall,SIGNAL(clicked(bool)),this,SLOT(genLblSmall()));
+    connect(ui->cmdLblSmall2,SIGNAL(clicked(bool)),this,SLOT(genLblSmall2()));
     connect(ui->textEditPrim,SIGNAL(textChanged()),this,SLOT(enPrimSave()));
     connect(ui->textEditPrimProd,SIGNAL(textChanged()),this,SLOT(enPrimSave()));
     connect(ui->lineEditZnam,SIGNAL(textChanged(QString)),this,SLOT(enZnamSave()));
@@ -303,6 +304,13 @@ void FormPart::genLblSmall()
     int id=currentIdPart();
     LblCreator c;
     c.createLblGlabels(id);
+}
+
+void FormPart::genLblSmall2()
+{
+    int id=currentIdPart();
+    LblCreator c;
+    c.createLblGlabels2(id);
 }
 
 void FormPart::enPrimSave()

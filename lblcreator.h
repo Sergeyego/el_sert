@@ -50,6 +50,7 @@ public:
     bool createLblGlabels(int id_el, int id_diam, QString ibco=QString(), QDate date=QDate::currentDate());
     bool createLblGlabels(int id_part);
     bool createLblGlabels2(int id_el, int id_diam, QString ibco=QString(), QDate date=QDate::currentDate());
+    bool createLblGlabels2(int id_part);
 
 private:
     QString orgNam;

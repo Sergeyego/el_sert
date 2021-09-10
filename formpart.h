@@ -59,6 +59,7 @@ private slots:
     void showCheckForm();
     void genLbl();
     void genLblSmall();
+    void genLblSmall2();
     void enPrimSave();
     void enZnamSave();
 };

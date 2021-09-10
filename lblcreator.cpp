@@ -471,6 +471,12 @@ bool LblCreator::createLblGlabels2(int id_el, int id_diam, QString ibco, QDate d
     return ok;
 }
 
+bool LblCreator::createLblGlabels2(int id_part)
+{
+    dataPart data=getDataPart(id_part);
+    return createLblGlabels2(data.id_el,data.id_diam,data.ibco,data.datePart);
+}
+
 void LblCreator::sysCommand(QString fname)
 {
     QFileInfo fileInfo(fname);

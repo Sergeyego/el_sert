@@ -480,9 +480,14 @@ void Editor::exportPdf()
             fname+="_"+doc->getNomSert();
         }
     }
-    exportname = QFileDialog::getSaveFileName(this,tr("Сохранить PDF"),QDir::homePath()+"/"+fname+".pdf", "*.pdf");
+    QSettings settings("szsm", QApplication::applicationName());
+    QDir dir(settings.value("sertPath",QDir::homePath()).toString());
+    exportname = QFileDialog::getSaveFileName(this,tr("Сохранить PDF"),dir.path()+"/"+fname+".pdf", "*.pdf");
     if (!exportname.isEmpty()) {
         exportPdf(exportname);
+        QFile file(exportname);
+        QFileInfo info(file);
+        settings.setValue("sertPath",info.path());
     }
 }
 

@@ -399,6 +399,13 @@
           </widget>
          </item>
          <item>
+          <widget class="QPushButton" name="cmdLblSmall2">
+           <property name="text">
+            <string>Сокр. этикетка 2</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QPushButton" name="cmdPartSert">
            <property name="text">
             <string>Сертификат</string>
