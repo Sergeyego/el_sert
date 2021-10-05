@@ -564,7 +564,7 @@ dataLbl LblCreator::getData(int id_el, int id_diam)
 {
     dataLbl data;
     QSqlQuery query;
-    query.prepare("select coalesce(e.marka_sert, e.marka), (select di.diam from diam as di where di.id = :id_diam), g.nam, pu.nam, d.nam, i.nam, a.nam, e.vl, e.pr, e.id_pic, e.descr "
+    query.prepare("select coalesce(e.marka_sert, e.marka), (select di.diam from diam as di where di.id = :id_diam), g.nam, pu.nam, d.nam, i.nam, a.nam, e.vl, e.pr2, e.id_pic, e.descr "
                   "from elrtr as e "
                   "inner join gost_types as g on e.id_gost_type=g.id "
                   "inner join purpose as pu on e.id_purpose=pu.id "
@@ -611,11 +611,11 @@ QString LblCreator::getProc(dataLbl &data)
 {
     QString proc=QString::fromUtf8("Допустимое содержание влаги в покрытии перед использованием - %1\%.").arg(data.vl);
     if (!data.pr.isEmpty()){
-        QString temp=data.pr.left(3);
-        QString dop=data.pr.mid(3,2);
-        QString ch=data.pr.mid(5,1);
-        QString ok=data.pr.mid(6,2);
-        proc+=QString::fromUtf8(" Режим повторной прокалки ")+temp+QString::fromUtf8("±")+dop+QString::fromUtf8("°C ")+ch+QString::fromUtf8(" час")+ok+".";
+        QStringList list=data.pr.split(":");
+        if (list.size()==4){
+            QString pr=QString("%1±%2°C %3 %4").arg(list.at(0)).arg(list.at(1)).arg(list.at(2)).arg(list.at(3));
+            proc+=QString::fromUtf8(" Режим повторной прокалки ")+pr+".";
+        }
     }
     return proc;
 }

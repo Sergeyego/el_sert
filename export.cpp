@@ -155,7 +155,7 @@ QDomElement Export::getMark(int id_el, QDomDocument *doc)
 
     QSqlQuery query;
     query.prepare("select coalesce(e.marka_sert, e.marka), e.id_vid, et.snam, g.nam, pu.nam, d.nam, "
-                  "i.nam, a.nam, e.id_pic, p.descr, e.descr, e.descr_spec, e.descr_feature, e.pr "
+                  "i.nam, a.nam, e.id_pic, p.descr, e.descr, e.descr_spec, e.descr_feature, e.pr2 "
                   "from elrtr as e "
                   "inner join el_types as et on e.id_vid=et.id "
                   "inner join gost_types as g on e.id_gost_type=g.id "
@@ -211,11 +211,10 @@ QDomElement Export::getMark(int id_el, QDomDocument *doc)
 
     QString dry;
     if (!pr.isEmpty()){
-        QString temp=pr.left(3);
-        QString dop=pr.mid(3,2);
-        QString ch=pr.mid(5,1);
-        QString ok=pr.mid(6,2);
-        dry=QString("%1±%2°C %3 час%4").arg(temp).arg(dop).arg(ch).arg(ok);
+        QStringList list=pr.split(":");
+        if (list.size()==4){
+            dry=QString("%1±%2°C %3 %4").arg(list.at(0)).arg(list.at(1)).arg(list.at(2)).arg(list.at(3));
+        }
     }
     mark.appendChild(newElement(QString::fromUtf8("Прокалка_перед_сваркой"),dry,doc));
 

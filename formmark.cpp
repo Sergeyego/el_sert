@@ -8,7 +8,7 @@ FormMark::FormMark(QWidget *parent) :
     ui->setupUi(this);
     loadsettings();
 
-    ui->lineEditPr->setInputMask(QString("999±99°C 9 часxx"));
+    ui->lineEditPr->setInputMask(QString("099±90°C 009 xxxxx"));
     ui->dateEdit->setDate(QDate::currentDate());
 
     ui->comboBoxDiam->setModel(Rels::instance()->relDiam->proxyModel());
@@ -100,7 +100,7 @@ FormMark::FormMark(QWidget *parent) :
     modelMark->addColumn("id_purpose",QString::fromUtf8("Буквенное обозначение"),NULL,Rels::instance()->relBukv);
     modelMark->addColumn("descr",QString::fromUtf8("Описание"));
     modelMark->addColumn("vl",QString::fromUtf8("Допустимое содержание влаги"));
-    modelMark->addColumn("pr",QString::fromUtf8("Режим повторной прокалки"));
+    modelMark->addColumn("pr2",QString::fromUtf8("Режим повторной прокалки"));
     modelMark->addColumn("id_u",QString::fromUtf8("Индекс сортировки"),new QIntValidator(this));
     modelMark->addColumn("katalog",QString::fromUtf8("Каталог"));
     modelMark->addColumn("descr_spec",QString::fromUtf8("Особые свойства"));
@@ -278,11 +278,12 @@ void CustomDelegate::setEditorData(QWidget *editor, const QModelIndex &index) co
         QLineEdit *line = qobject_cast<QLineEdit *>(editor);
         if (line){
             QString pr=index.model()->data(index,Qt::EditRole).toString();
-            QString temp=pr.left(3);
-            QString dop=pr.mid(3,2);
-            QString ch=pr.mid(5,1);
-            QString ok=pr.mid(6,2);
-            line->setText(QString("%1±%2°C %3 час%4").arg(temp).arg(dop).arg(ch).arg(ok));
+            QStringList list=pr.split(":");
+            if (list.size()==4){
+                line->setText(QString("%1±%2°C %3 %4").arg(list.at(0)).arg(list.at(1)).arg(list.at(2)).arg(list.at(3)));
+            } else {
+                line->clear();
+            }
         }
 
     } else {
@@ -296,10 +297,13 @@ void CustomDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, co
         QLineEdit *line = qobject_cast<QLineEdit *>(editor);
         if (line){
             QString text=line->text();
-            QRegExp reg("^(\\d{3})±(\\d{2})°C (\\d) час(\\w*)");
+            QRegExp reg("^\\s*(\\d+)\\s*±\\s*(\\d+)\\s*°C\\s+(\\d+)\\s+(\\w+)");
             QString s;
             if (reg.indexIn(text)!=-1){
                 for (int i=1; i<=reg.captureCount(); i++){
+                    if(!s.isEmpty()){
+                        s+=":";
+                    }
                     s+=reg.cap(i);
                 }
             }
