@@ -13,7 +13,7 @@
 #include <QUrl>
 #include <QProgressDialog>
 #include <QApplication>
-#include <poppler/qt5/poppler-qt5.h>
+//#include <poppler/qt5/poppler-qt5.h>
 #include "qftp/qftp.h"
 
 class PdfToImg : public QObject

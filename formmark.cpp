@@ -247,17 +247,7 @@ void FormMark::gelLblSmall2()
 
 void FormMark::exportXml()
 {
-    int n=QMessageBox::question(this,QString::fromUtf8("Созать preview"),QString::fromUtf8("Обновить preview сертификатов?"),QMessageBox::Yes,QMessageBox::No);
-    if (n==QMessageBox::Yes){
-        PdfToImg *conv = new PdfToImg;
-        connect(conv,&PdfToImg::finished,[this,conv]() {
-            conv->deleteLater();
-            createXml();
-        });
-        conv->start();
-    } else {
-        createXml();
-    }
+    createXml();
 }
 
 void FormMark::createXml()

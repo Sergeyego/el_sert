@@ -96,8 +96,6 @@ RESOURCES += \
 
 RC_FILE = ico.rc
 
-LIBS += -lpoppler-qt5
-
 DISTFILES += \
     images/logo2.png \
     images/otk.png \

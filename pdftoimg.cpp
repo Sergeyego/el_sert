@@ -45,7 +45,7 @@ void PdfToImg::ftpCommandFinished(int /*commandId*/, bool error)
 {
     if (ftpClient->currentCommand() == QFtp::Get){
         getFile->close();
-        if (!error) {
+        /*if (!error) {
             Poppler::Document *doc = Poppler::Document::load(getFile->fileName());
             if (doc){
                 Poppler::Page *pdfPage=doc->page(0);
@@ -61,7 +61,7 @@ void PdfToImg::ftpCommandFinished(int /*commandId*/, bool error)
             } else {
                 QMessageBox::critical(NULL, tr("Convert"),QString::fromUtf8("Ошибка открытия документа ")+getFile->fileName());
             }
-        }
+        }*/
         getFile->remove();
         delete getFile;
     } else if (ftpClient->currentCommand() == QFtp::Put){

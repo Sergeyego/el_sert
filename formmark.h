@@ -7,7 +7,7 @@
 #include "rels.h"
 #include "lblcreator.h"
 #include "export.h"
-#include "pdftoimg.h"
+//#include "pdftoimg.h"
 #include "models.h"
 
 namespace Ui {
