@@ -114,15 +114,18 @@ void Export::createXml()
 
     progress->close();    
 
-    QString filename = QFileDialog::getSaveFileName(nullptr,QString::fromUtf8("Сохранить документ"),
-                                                            QDate::currentDate().toString("yyyy-MM-dd")+".xml",
-                                                            QString::fromUtf8("Documents (*.xml)") );
-    QFile file(filename);
-    if ( file.open( QIODevice::WriteOnly ) ) {
-        QTextStream stream( &file );
-        stream.setCodec(QTextCodec::codecForName("UTF-8"));
-        doc.save(stream,1);
-        file.close();
+    int l= QMessageBox::question(NULL,tr("Вопрос"),tr("Файл выгрузки будет загружен на FTP сервер. Сохранить файл локально?"),QMessageBox::Yes,QMessageBox::No);
+    if (l==QMessageBox::Yes){
+        QString filename = QFileDialog::getSaveFileName(nullptr,QString::fromUtf8("Сохранить документ"),
+                                                        QDate::currentDate().toString("yyyy-MM-dd")+".xml",
+                                                        QString::fromUtf8("Documents (*.xml)") );
+        QFile file(filename);
+        if ( file.open( QIODevice::WriteOnly ) ) {
+            QTextStream stream( &file );
+            stream.setCodec(QTextCodec::codecForName("UTF-8"));
+            doc.save(stream,1);
+            file.close();
+        }
     }
 
     QTextStream dataStream(&xmldata);

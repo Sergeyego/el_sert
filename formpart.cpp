@@ -85,6 +85,7 @@ FormPart::FormPart(QWidget *parent) :
     connect(ui->textEditPrim,SIGNAL(textChanged()),this,SLOT(enPrimSave()));
     connect(ui->textEditPrimProd,SIGNAL(textChanged()),this,SLOT(enPrimSave()));
     connect(ui->lineEditZnam,SIGNAL(textChanged(QString)),this,SLOT(enZnamSave()));
+    connect(ui->pushButtonCopy,SIGNAL(clicked(bool)),this,SLOT(copyVal()));
 
     refresh();
 }
@@ -321,6 +322,52 @@ void FormPart::enPrimSave()
 void FormPart::enZnamSave()
 {
     ui->cmdSaveZnam->setEnabled(true);
+}
+
+void FormPart::copyVal()
+{
+    DialogCopy d(currentIdPart());
+    if (d.exec()==QDialog::Accepted){
+        int id_p=d.idPart();
+        if (id_p!=-1){
+            QSqlQuery queryChem;
+            queryChem.prepare("insert into sert_chem (id_part, id_chem, value) "
+                              "(select :id_part, sc.id_chem, sc.value "
+                              "from sert_chem sc "
+                              "where sc.id_part = :id_partsrc)");
+            queryChem.bindValue(":id_partsrc",id_p);
+            queryChem.bindValue(":id_part",currentIdPart());
+            if (queryChem.exec()){
+                modelSertChem->select();
+            } else {
+                QMessageBox::critical(this,tr("Ошибка"),queryChem.lastError().text(),QMessageBox::Ok);
+            }
+            QSqlQuery queryMech;
+            queryMech.prepare("insert into sert_mech (id_part, id_mech, value) "
+                              "(select :id_part, sm.id_mech, sm.value "
+                              "from sert_mech sm "
+                              "where sm.id_part = :id_partsrc)");
+            queryMech.bindValue(":id_partsrc",id_p);
+            queryMech.bindValue(":id_part",currentIdPart());
+            if (queryMech.exec()){
+                modelSertMech->select();
+            } else {
+                QMessageBox::critical(this,tr("Ошибка"),queryMech.lastError().text(),QMessageBox::Ok);
+            }
+            QSqlQuery queryMechx;
+            queryMechx.prepare("insert into sert_mechx (id_part, id_mechx, id_value) "
+                              "(select :id_part, smx.id_mechx, smx.id_value "
+                              "from sert_mechx smx "
+                              "where smx.id_part = :id_partsrc)");
+            queryMechx.bindValue(":id_partsrc",id_p);
+            queryMechx.bindValue(":id_part",currentIdPart());
+            if (queryMechx.exec()){
+                modelSertMechx->select();
+            } else {
+                QMessageBox::critical(this,tr("Ошибка"),queryMechx.lastError().text(),QMessageBox::Ok);
+            }
+        }
+    }
 }
 
 void FormPart::refresh()

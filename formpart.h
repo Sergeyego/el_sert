@@ -12,6 +12,7 @@
 #include "rels.h"
 #include "modelstu.h"
 #include "lblcreator.h"
+#include "dialogcopy.h"
 
 namespace Ui {
 class FormPart;
@@ -62,6 +63,7 @@ private slots:
     void genLblSmall2();
     void enPrimSave();
     void enZnamSave();
+    void copyVal();
 };
 
 #endif // FORMPART_H

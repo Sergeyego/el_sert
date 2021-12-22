@@ -42,7 +42,8 @@ SOURCES += main.cpp\
     modeldoc.cpp \
     pdftoimg.cpp \
     models.cpp \
-    glabels/glabelslbl.cpp
+    glabels/glabelslbl.cpp \
+    dialogcopy.cpp
 
 HEADERS  += formpart.h \
     pgdialog.h \
@@ -75,7 +76,8 @@ HEADERS  += formpart.h \
     modeldoc.h \
     pdftoimg.h \
     models.h \
-    glabels/glabelslbl.h
+    glabels/glabelslbl.h \
+    dialogcopy.h
 
 FORMS    += formpart.ui \
     pgdialog.ui \
@@ -89,7 +91,8 @@ FORMS    += formpart.ui \
     formdoc.ui \
     formmark.ui \
     formtypes.ui \
-    formpos.ui
+    formpos.ui \
+    dialogcopy.ui
 
 RESOURCES += \
     res.qrc

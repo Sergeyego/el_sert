@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1052</width>
+    <width>1143</width>
     <height>774</height>
    </rect>
   </property>
@@ -177,6 +177,13 @@
           <widget class="QPushButton" name="cmdSaveZnam">
            <property name="text">
             <string>Сохранить знаменатель</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButtonCopy">
+           <property name="text">
+            <string>Импортировать значения</string>
            </property>
           </widget>
          </item>
