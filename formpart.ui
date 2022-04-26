@@ -382,16 +382,6 @@
           </spacer>
          </item>
          <item>
-          <widget class="QCheckBox" name="checkBoxAmp">
-           <property name="text">
-            <string>Сократить таблицу токов в этикетке</string>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
           <widget class="QPushButton" name="cmdLbl">
            <property name="text">
             <string>Этикетка</string>

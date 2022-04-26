@@ -230,7 +230,7 @@ void FormMark::updImg()
 void FormMark::gelLbl()
 {
     LblCreator c;
-    c.createLbl(id_el(),id_diam(),QString(),ui->dateEdit->date(),ui->checkBoxAmp->isChecked(),ui->checkBoxOrder->isChecked());
+    c.createLbl(id_el(),id_diam(),QString(),ui->dateEdit->date(),false,ui->checkBoxOrder->isChecked());
 }
 
 void FormMark::gelLblSmall()

@@ -297,7 +297,7 @@ void FormPart::genLbl()
 {
     int id=currentIdPart();
     LblCreator c;
-    c.createLbl(id,ui->checkBoxAmp->isChecked());
+    c.createLbl(id,false);
 }
 
 void FormPart::genLblSmall()

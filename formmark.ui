@@ -333,16 +333,6 @@
              </layout>
             </item>
             <item>
-             <widget class="QCheckBox" name="checkBoxAmp">
-              <property name="text">
-               <string>Сокр. табл. токов</string>
-              </property>
-              <property name="checked">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item>
              <widget class="QCheckBox" name="checkBoxOrder">
               <property name="text">
                <string>Заказ</string>

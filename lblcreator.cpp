@@ -328,18 +328,23 @@ bool LblCreator::createLblGlabels(int id_el, int id_diam, QString ibco, QDate da
         lbl.newLine(36.5,11.5,0,-10);
         lbl.newLine(82.5,11.5,0,-10);
         lbl.newLine(1.5,58,140,0);
-        lbl.newLine(1.5,54.5,140,0);
+        lbl.newLine(1.5,54.3,140,0);
         lbl.newLine(1.5,30,140,0);
-        lbl.newLine(82.5,54.5,0,-24.5);
-        lbl.newLine(1.5,51,81,0);
-        lbl.newLine(1.5,47.5,81,0);
-        lbl.newLine(1.5,44,81,0);
-        lbl.newLine(1.5,40.5,81,0);
-        lbl.newLine(20,54.5,0,-43);
-        lbl.newLine(20,37,62.5,0);
-        lbl.newLine(20,33.5,62.5,0);
-        lbl.newLine(40.5,37,0,17.5);
-        lbl.newLine(61,37,0,17.5);
+        lbl.newLine(82.5,54.3,0,-24.3);
+
+        lbl.newLine(1.5,51.6,81,0);
+        lbl.newLine(1.5,48.9,81,0);
+
+        lbl.newLine(1.5,46.2,81,0);
+        lbl.newLine(1.5,43.5,81,0);
+        lbl.newLine(1.5,40.8,81,0);
+        lbl.newLine(1.5,38.1,81,0);
+        lbl.newLine(20,54.3,0,-42.8);
+        lbl.newLine(20,35.4,62.5,0);
+        lbl.newLine(20,32.7,62.5,0);
+
+        lbl.newLine(40.5,35.4,0,18.9);
+        lbl.newLine(61,35.4,0,18.9);
 
         QString ch=getCh(data);
         lbl.newText(2.5,2.5,33,8,data.marka,11,true);
@@ -361,21 +366,21 @@ bool LblCreator::createLblGlabels(int id_el, int id_diam, QString ibco, QDate da
         lbl.newImage(3,13,15,15,QDir::currentPath()+"/images/"+QString::number(data.id_pix)+".png");
         lbl.newText(85,32,55,21,getSrtStr(id_el,id_diam,date),7,false);
 
-        lbl.newText(2.5,31,16,9,QString::fromUtf8("Диаметр\nмм"),7,false,(Qt::AlignCenter | Qt::AlignVCenter ));
-        lbl.newText(20,30,62.5,3.5,QString::fromUtf8("Рекомендуемое значение тока (А)"),7,false,(Qt::AlignCenter | Qt::AlignVCenter ));
-        lbl.newText(20,33.5,62.5,3.5,QString::fromUtf8("Положение шва"),7,false,(Qt::AlignCenter | Qt::AlignVCenter ));
-        lbl.newText(20,37,20.5,3.5,QString::fromUtf8("нижнее"),7,false,(Qt::AlignCenter | Qt::AlignVCenter ));
-        lbl.newText(40.5,37,20.5,3.5,QString::fromUtf8("вертикальное"),7,false,(Qt::AlignCenter | Qt::AlignVCenter ));
-        lbl.newText(61,37,21.5,3.5,QString::fromUtf8("потолочное"),7,false,(Qt::AlignCenter | Qt::AlignVCenter ));
+        lbl.newText(2.5,31,16,6,QString::fromUtf8("Диаметр\nмм"),6,false,(Qt::AlignCenter | Qt::AlignVCenter ));
+        lbl.newText(20,30,62.5,2.7,QString::fromUtf8("Рекомендуемое значение тока (А)"),6,false,(Qt::AlignCenter | Qt::AlignVCenter ));
+        lbl.newText(20,32.7,62.5,2.7,QString::fromUtf8("Положение шва"),6,false,(Qt::AlignCenter | Qt::AlignVCenter ));
+        lbl.newText(20,35.4,20.5,2.7,QString::fromUtf8("нижнее"),6,false,(Qt::AlignCenter | Qt::AlignVCenter ));
+        lbl.newText(40.5,35.4,20.5,2.7,QString::fromUtf8("вертикальное"),6,false,(Qt::AlignCenter | Qt::AlignVCenter ));
+        lbl.newText(61,35.4,21.5,2.7,QString::fromUtf8("потолочное"),6,false,(Qt::AlignCenter | Qt::AlignVCenter ));
         QVector<dataAmp> amps=getAmp(id_el,id_diam,true);
         for (int i=0; i<amps.size(); i++){
-            if (i>3){
+            if (i>5){
                 break;
             }
-            lbl.newText(2.5,40.5+(3.5*i),16,3.5,amps.at(i).diam,7,false,(Qt::AlignCenter | Qt::AlignVCenter ));
-            lbl.newText(20,40.5+(3.5*i),20.5,3.5,amps.at(i).bottom,7,false,(Qt::AlignCenter | Qt::AlignVCenter ));
-            lbl.newText(40.5,40.5+(3.5*i),20.5,3.5,amps.at(i).vert,7,false,(Qt::AlignCenter | Qt::AlignVCenter ));
-            lbl.newText(61,40.5+(3.5*i),21.5,3.5,amps.at(i).top,7,false,(Qt::AlignCenter | Qt::AlignVCenter ));
+            lbl.newText(2.5,38.1+(2.7*i),16,2.7,amps.at(i).diam,6,false,(Qt::AlignCenter | Qt::AlignVCenter ));
+            lbl.newText(20,38.1+(2.7*i),20.5,2.7,amps.at(i).bottom,6,false,(Qt::AlignCenter | Qt::AlignVCenter ));
+            lbl.newText(40.5,38.1+(2.7*i),20.5,2.7,amps.at(i).vert,6,false,(Qt::AlignCenter | Qt::AlignVCenter ));
+            lbl.newText(61,38.1+(2.7*i),21.5,2.7,amps.at(i).top,6,false,(Qt::AlignCenter | Qt::AlignVCenter ));
         }
 
         lbl.newText(2.5,54.5,138,3.5,getProc(data),6,false);
@@ -644,13 +649,13 @@ QVector<dataAmp> LblCreator::getAmp(int id_el, int id_diam, bool shortAmp, bool 
                              "(select distinct d.diam, a.bot, a.vert, a.ceil "
                              "from amp as a "
                              "inner join diam as d on a.id_diam = d.id "
-                             "where a.id_el = :id_el2 and d.diam < (select diam from diam where id = :id_diam2 ) order by d.diam DESC LIMIT 2) "
+                             "where a.id_el = :id_el2 and d.diam < (select diam from diam where id = :id_diam2 ) order by d.diam DESC LIMIT 3) "
                              "union "
                              "(select distinct d.diam, a.bot, a.vert, a.ceil "
                              "from amp as a "
                              "inner join diam as d on a.id_diam = d.id "
-                             "where a.id_el = :id_el3 and d.diam > (select diam from diam where id = :id_diam3 ) order by d.diam LIMIT 2) "
-                             "order by diam LIMIT 4");
+                             "where a.id_el = :id_el3 and d.diam > (select diam from diam where id = :id_diam3 ) order by d.diam LIMIT 3) "
+                             "order by diam LIMIT 6");
             for (int i=0; i<3; i++){
                 queryAmp.bindValue(":id_el"+QString::number(i+1),id_el);
                 queryAmp.bindValue(":id_diam"+QString::number(i+1),id_diam);
