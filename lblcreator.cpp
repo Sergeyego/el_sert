@@ -332,12 +332,6 @@ bool LblCreator::createLblGlabels(int id_el, int id_diam, QString ibco, QDate da
         lbl.newLine(1.5,30,140,0);
         lbl.newLine(82.5,54.3,0,-24.3);
 
-        lbl.newLine(1.5,51.6,81,0);
-        lbl.newLine(1.5,48.9,81,0);
-
-        lbl.newLine(1.5,46.2,81,0);
-        lbl.newLine(1.5,43.5,81,0);
-        lbl.newLine(1.5,40.8,81,0);
         lbl.newLine(1.5,38.1,81,0);
         lbl.newLine(20,54.3,0,-42.8);
         lbl.newLine(20,35.4,62.5,0);
@@ -381,6 +375,7 @@ bool LblCreator::createLblGlabels(int id_el, int id_diam, QString ibco, QDate da
             lbl.newText(20,38.1+(2.7*i),20.5,2.7,amps.at(i).bottom,6,false,(Qt::AlignCenter | Qt::AlignVCenter ));
             lbl.newText(40.5,38.1+(2.7*i),20.5,2.7,amps.at(i).vert,6,false,(Qt::AlignCenter | Qt::AlignVCenter ));
             lbl.newText(61,38.1+(2.7*i),21.5,2.7,amps.at(i).top,6,false,(Qt::AlignCenter | Qt::AlignVCenter ));
+            lbl.newLine(1.5,40.8+(2.7*i),81,0);
         }
 
         lbl.newText(2.5,54.5,138,3.5,getProc(data),6,false);
