@@ -375,7 +375,9 @@ bool LblCreator::createLblGlabels(int id_el, int id_diam, QString ibco, QDate da
             lbl.newText(20,38.1+(2.7*i),20.5,2.7,amps.at(i).bottom,6,false,(Qt::AlignCenter | Qt::AlignVCenter ));
             lbl.newText(40.5,38.1+(2.7*i),20.5,2.7,amps.at(i).vert,6,false,(Qt::AlignCenter | Qt::AlignVCenter ));
             lbl.newText(61,38.1+(2.7*i),21.5,2.7,amps.at(i).top,6,false,(Qt::AlignCenter | Qt::AlignVCenter ));
-            lbl.newLine(1.5,40.8+(2.7*i),81,0);
+            if (i<5){
+                lbl.newLine(1.5,40.8+(2.7*i),81,0);
+            }
         }
 
         lbl.newText(2.5,54.5,138,3.5,getProc(data),6,false);
