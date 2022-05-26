@@ -127,7 +127,7 @@
           </widget>
          </item>
          <item row="1" column="3">
-          <widget class="DateEdit" name="dateEditEnd"/>
+          <widget class="CustomDateEdit" name="dateEditEnd"/>
          </item>
          <item row="0" column="2">
           <widget class="QLabel" name="label_3">
@@ -373,6 +373,11 @@
    <class>DateEdit</class>
    <extends>QDateEdit</extends>
    <header>db/dbviewer.h</header>
+  </customwidget>
+  <customwidget>
+   <class>CustomDateEdit</class>
+   <extends>QDateEdit</extends>
+   <header>db/dbdelegate.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>

@@ -132,9 +132,9 @@ QString ModelDoc::getDocNumrer(int id)
 
 bool ModelDoc::isActive(int ind) const
 {
-    QDate beg=data(index(ind,4),Qt::EditRole).toDate();
-    QDate end=data(index(ind,5),Qt::EditRole).toDate();
     QDate current=QDate::currentDate();
+    QDate beg=data(index(ind,4),Qt::EditRole).toDate();
+    QDate end=data(index(ind,5),Qt::EditRole).isNull()? current.addDays(1) : data(index(ind,5),Qt::EditRole).toDate();
     return (current>=beg && current<=end);
 }
 
