@@ -88,6 +88,7 @@ public:
     const mvData* mech();
     const svData* sert();
     const QImage* qrCode();
+    const QImage qrCode(QString str);
     QString tu();
     sLang mechCategory(int id);
     void setDocEn(int id_doc, bool en);
@@ -131,6 +132,7 @@ public slots:
     void build(int id, bool is_ship);
     void rebuild();
     void setPrn(bool p);
+    void setSample(bool b);
     void setLRus(bool b);
     void setLEn(bool b);
     void setLMix(bool b);
@@ -140,6 +142,7 @@ private:
     QTextCursor* cursor;
     DataSert *data;
     bool prn;
+    bool sample;
     int current_id;
     bool current_is_ship;
     bool l_rus;

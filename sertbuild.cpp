@@ -5,6 +5,7 @@ SertBuild::SertBuild(QObject *parent) :
 {
     data=new DataSert(this);
     prn=false;
+    sample=false;
     l_rus=true;
     l_en=false;
     connect(data,SIGNAL(sigRefresh()),this,SIGNAL(sigRefresh()));
@@ -233,15 +234,17 @@ void SertBuild::rebuild()
     cursor.insertText(data->head()->prov,textTableFormat);
     cursor=mainTable->cellAt(1,2).firstCursorPosition();
     cursor.setBlockFormat(formatCenter);
-    cursor.insertText(data->head()->nomPart,textTableFormat);
-    cursor=mainTable->cellAt(1,3).firstCursorPosition();
-    cursor.setBlockFormat(formatCenter);
-    cursor.setCharFormat(textTableFormat);
-    insertDate(cursor,data->head()->datePart);
-    cursor=mainTable->cellAt(1,4).firstCursorPosition();
-    cursor.setBlockFormat(formatCenter);
-    cursor.setCharFormat(textTableFormat);
-    insertDouble(cursor,data->head()->netto,1);
+    if (!sample){
+        cursor.insertText(data->head()->nomPart,textTableFormat);
+        cursor=mainTable->cellAt(1,3).firstCursorPosition();
+        cursor.setBlockFormat(formatCenter);
+        cursor.setCharFormat(textTableFormat);
+        insertDate(cursor,data->head()->datePart);
+        cursor=mainTable->cellAt(1,4).firstCursorPosition();
+        cursor.setBlockFormat(formatCenter);
+        cursor.setCharFormat(textTableFormat);
+        insertDouble(cursor,data->head()->netto,1);
+    }
 
     cursor.movePosition(QTextCursor::End);
     cursor.setBlockFormat(formatCenter);
@@ -354,7 +357,7 @@ void SertBuild::rebuild()
         cursor.setCharFormat(textBoldFormat);
         insertText(cursor,tr("Дата выдачи"),tr("Date of issue"),true);
         int i=0;
-        foreach (sertData s, /**data->sert()*/enSert){
+        foreach (sertData s, enSert){
 
             cursor=sertTable->cellAt(i+1,0).firstCursorPosition();
             cursor.setBlockFormat(formatCenter);
@@ -388,24 +391,14 @@ void SertBuild::rebuild()
         ++it;
     }
 
-    /*QString gto="";
-    for (int i=0; i<data->sertModel->rowCount(); i++){
-        gto+=data->sertModel->data(data->sertModel->index(i,5)).toString();
-    }
-    if (!gto.isEmpty()) {
-        cursor.setCharFormat(textBoldFormat);
-        insertText(cursor,tr("Группы технических устройств"),tr("Groups of technical devices"));
-        cursor.insertText(": ",textBoldFormat);
-        cursor.insertText(gto,textNormalFormat);
-        cursor.insertBlock();
-    }*/
-
     if (current_is_ship){
         cursor.setCharFormat(textBoldFormat);
         insertText(cursor,tr("Грузополучатель"),tr("Consignee"));
         cursor.insertText(":\n",textBoldFormat);
         cursor.setCharFormat(textNormalFormat);
-        insertText(cursor,data->head()->poluch.rus,data->head()->poluch.eng,true);
+        if (!sample){
+            insertText(cursor,data->head()->poluch.rus,data->head()->poluch.eng,true);
+        }
         cursor.insertBlock();
     }
     cursor.setBlockFormat(formatCenter);
@@ -427,11 +420,17 @@ void SertBuild::rebuild()
     insertText(cursor,tr("Дата выдачи сертификата"),tr("Date of issue of the certificate"),false);
     cursor.insertText(tr(": "),textBoldFormat);
     cursor.setCharFormat(textNormalFormat);
-    insertDate(cursor,date,false);
+    if (!sample){
+        insertDate(cursor,date,false);
+    }
     cursor.insertBlock();
 
     cursor.setBlockFormat(formatLeft);
-    addResource(QTextDocument::ImageResource, QUrl("qrcode"), *data->qrCode());
+    if (!sample){
+        addResource(QTextDocument::ImageResource, QUrl("qrcode"), *data->qrCode());
+    } else {
+        addResource(QTextDocument::ImageResource, QUrl("qrcode"), data->qrCode(tr("Образец сертификата качества")));
+    }
     QTextImageFormat qrformat;
     qrformat.setName("qrcode");
     qrformat.setHeight(150);
@@ -554,6 +553,12 @@ void SertBuild::insertDate(QTextCursor &c, const QDate &date, bool newpar)
 void SertBuild::setPrn(bool p)
 {
     prn=p;
+    this->rebuild();
+}
+
+void SertBuild::setSample(bool b)
+{
+    sample=b;
     this->rebuild();
 }
 
@@ -820,6 +825,31 @@ void DataSert::refreshQR(int id, bool is_ship)
 
     str+="Код подлинности "+QString::number(cod);
 
+    qr_code=qrCode(str);
+}
+
+const cvData *DataSert::chem()
+{
+    return &cData;
+}
+
+const mvData *DataSert::mech()
+{
+    return &mData;
+}
+
+const svData *DataSert::sert()
+{
+    return &sData;
+}
+
+const QImage *DataSert::qrCode()
+{
+    return &qr_code;
+}
+
+const QImage DataSert::qrCode(QString str)
+{
     QrEncode qr;
     bool ok=qr.encodeData(0,0,true,-1,str.toUtf8().data());
     const int scale=10;
@@ -848,27 +878,7 @@ void DataSert::refreshQR(int id, bool is_ship)
         painter.setBrush(error);
         painter.drawRect(0,0,scale-1,scale-1);
     }
-    qr_code=img;
-}
-
-const cvData *DataSert::chem()
-{
-    return &cData;
-}
-
-const mvData *DataSert::mech()
-{
-    return &mData;
-}
-
-const svData *DataSert::sert()
-{
-    return &sData;
-}
-
-const QImage *DataSert::qrCode()
-{
-    return &qr_code;
+    return img;
 }
 
 QString DataSert::tu()

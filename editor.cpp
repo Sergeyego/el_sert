@@ -43,6 +43,7 @@ Editor::Editor(QTextDocument *doc, QWidget *parent) :
     if (s){
         ui->checkBoxPrn->setChecked(s->getPrn());
         connect(ui->checkBoxPrn,SIGNAL(clicked(bool)),s,SLOT(setPrn(bool)));
+        connect(ui->checkBoxObr,SIGNAL(clicked(bool)),s,SLOT(setSample(bool)));
         connect(ui->radioButtonRus,SIGNAL(clicked(bool)),s,SLOT(setLRus(bool)));
         connect(ui->radioButtonEn,SIGNAL(clicked(bool)),s,SLOT(setLEn(bool)));
         connect(ui->radioButtonMix,SIGNAL(clicked(bool)),s,SLOT(setLMix(bool)));
