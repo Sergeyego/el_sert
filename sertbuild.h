@@ -81,7 +81,7 @@ class DataSert : public QObject
     Q_OBJECT
 public:
     DataSert(QObject *parent = 0);
-    void refresh(int id, bool is_ship=true);
+    void refresh(int id, bool is_ship=true,  bool sample=false);
     const generalData* general();
     const headData* head();
     const cvData* chem();
@@ -99,7 +99,7 @@ private:
     void refreshChem();
     void refreshMech();
     void refreshSert();
-    void refreshQR(int id, bool is_ship);
+    void refreshQR(int id, bool is_ship, bool sample);
     generalData gData;
     headData hData;
     QStringList tuList;
