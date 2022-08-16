@@ -234,17 +234,15 @@ void SertBuild::rebuild()
     cursor.insertText(data->head()->prov,textTableFormat);
     cursor=mainTable->cellAt(1,2).firstCursorPosition();
     cursor.setBlockFormat(formatCenter);
-    if (!sample){
-        cursor.insertText(data->head()->nomPart,textTableFormat);
-        cursor=mainTable->cellAt(1,3).firstCursorPosition();
-        cursor.setBlockFormat(formatCenter);
-        cursor.setCharFormat(textTableFormat);
-        insertDate(cursor,data->head()->datePart);
-        cursor=mainTable->cellAt(1,4).firstCursorPosition();
-        cursor.setBlockFormat(formatCenter);
-        cursor.setCharFormat(textTableFormat);
-        insertDouble(cursor,data->head()->netto,1);
-    }
+    cursor.insertText(data->head()->nomPart,textTableFormat);
+    cursor=mainTable->cellAt(1,3).firstCursorPosition();
+    cursor.setBlockFormat(formatCenter);
+    cursor.setCharFormat(textTableFormat);
+    insertDate(cursor,data->head()->datePart);
+    cursor=mainTable->cellAt(1,4).firstCursorPosition();
+    cursor.setBlockFormat(formatCenter);
+    cursor.setCharFormat(textTableFormat);
+    insertDouble(cursor,data->head()->netto,1);
 
     cursor.movePosition(QTextCursor::End);
     cursor.setBlockFormat(formatCenter);
@@ -438,8 +436,8 @@ void SertBuild::rebuild()
     cursor.insertText("   ",textNormalFormat);
     QString nach=tr("Начальник ОТК");
     QString nach_en=tr("Head of Quality Department");
-    QString line=tr("______________");
-    if (prn) {
+    QString line=tr(" ______________ ");
+    if (prn && !sample) {
         QImage im(data->general()->sign);
         QPainter p(&im);
         QFont f(textNormalFormat.font());
@@ -472,7 +470,11 @@ void SertBuild::rebuild()
         }
         insertText(cursor,nach,nach_en);
         cursor.insertText(line,textNormalFormat);
-        insertText(cursor,data->general()->otk.rus,data->general()->otk.eng);
+        if (!sample){
+            insertText(cursor,data->general()->otk.rus,data->general()->otk.eng);
+        } else {
+            insertText(cursor,tr("[МЕСТО ДЛЯ ПЕЧАТИ, ПОДПИСЬ]"),tr("[LOCUS SIGILLI, SIGNATURE]"));
+        }
     }
 }
 
@@ -559,7 +561,6 @@ void SertBuild::setSample(bool b)
 {
     sample=b;
     this->build(current_id,current_is_ship);
-    this->rebuild();
 }
 
 void SertBuild::setLRus(bool b)
@@ -650,9 +651,9 @@ void DataSert::refresh(int id, bool is_ship, bool sample)
     if (query.exec()){
         while(query.next()){
             hData.id_parti=query.value(0).toInt();
-            hData.nomPart=query.value(1).toString();
+            hData.nomPart=sample ? "1111" : query.value(1).toString();
             hData.yearPart=query.value(2).toInt();
-            hData.datePart=query.value(3).toDate();
+            hData.datePart=sample ? QDate(1111,11,11) : query.value(3).toDate();
             hData.marka=query.value(4).toString();
             hData.diam=query.value(5).toDouble();
             hData.tip1=query.value(6).toString();
@@ -662,7 +663,7 @@ void DataSert::refresh(int id, bool is_ship, bool sample)
             hData.poluch.rus=query.value(10).toString();
             hData.nomSert=query.value(11).toString();
             hData.dateVidSert=query.value(12).toDate();
-            hData.netto=query.value(13).toDouble();
+            hData.netto=sample ? 1111 : query.value(13).toDouble();
             hData.poluch.eng=query.value(14).toString();
         }
         refreshTu();
@@ -810,13 +811,13 @@ void DataSert::refreshQR(int id, bool is_ship, bool sample)
     str+=QString::number(hData.diam);
     str+="\n";
     str+="Номер партии ";
-    str+=sample? "1111" : hData.nomPart;
+    str+=hData.nomPart;
     str+="\n";
     str+="Дата производства ";
-    str+=sample? "11.11.11" : hData.datePart.toString("dd.MM.yy");
+    str+=hData.datePart.toString("dd.MM.yy");
     str+="\n";
     str+="Масса нетто, кг ";
-    str+=sample? "1111" : QString::number(hData.netto);
+    str+=QString::number(hData.netto);
     str+="\n";
     if (is_ship && !sample){
         str+="Грузополучатель: "+hData.poluch.rus+"\n";
