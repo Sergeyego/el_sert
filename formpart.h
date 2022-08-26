@@ -13,6 +13,7 @@
 #include "modelstu.h"
 #include "lblcreator.h"
 #include "dialogcopy.h"
+#include "modelro.h"
 
 namespace Ui {
 class FormPart;
@@ -37,11 +38,14 @@ private:
     ModelMechSrc *modelSrcMech;
     ModelMechSert *modelSertMech;
     DbTableModel *modelSertMechx;
+    ModelRo *modelSrcGost;
+    DbTableModel *modelGost;
 
     DbRelationalModel *modelAdd;
 
     void loadPrim(int id_part);
     void loadAdd(int id_part);
+    void loadGost(int id_part);
     int currentIdPart();
     void loadsettings();
     void savesettings();
@@ -53,6 +57,7 @@ private slots:
     void saveZnam();
     void copyChem();
     void copyMech();
+    void copyGost();
     void copyMechForward();
     void copyZnam();
     void showPartSert();

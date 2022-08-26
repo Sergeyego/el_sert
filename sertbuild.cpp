@@ -690,13 +690,18 @@ const headData *DataSert::head()
 void DataSert::refreshTu()
 {
     QSqlQuery tuQuery;
-    tuQuery.prepare("select nam "
+    /*tuQuery.prepare("select nam "
                     "from zvd_get_tu((select dat_part from parti where id = :id1 ), "
                     "(select id_el from parti where id = :id2 ), "
                     "(select d.id from diam as d where d.diam = (select diam from parti where id = :id3 )) ) ");
     tuQuery.bindValue(":id1",hData.id_parti);
     tuQuery.bindValue(":id2",hData.id_parti);
-    tuQuery.bindValue(":id3",hData.id_parti);
+    tuQuery.bindValue(":id3",hData.id_parti);*/
+    tuQuery.prepare("select gn.nam  from parti_gost pg "
+                    "inner join gost_new gn on gn.id = pg.id_gost "
+                    "where pg.id_part = :id "
+                    "order by gn.nam");
+    tuQuery.bindValue(":id",hData.id_parti);
     tuList.clear();
     if (tuQuery.exec()){
         while(tuQuery.next()){

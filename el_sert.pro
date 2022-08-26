@@ -43,7 +43,8 @@ SOURCES += main.cpp\
     pdftoimg.cpp \
     models.cpp \
     glabels/glabelslbl.cpp \
-    dialogcopy.cpp
+    dialogcopy.cpp \
+    modelro.cpp
 
 HEADERS  += formpart.h \
     pgdialog.h \
@@ -77,7 +78,8 @@ HEADERS  += formpart.h \
     pdftoimg.h \
     models.h \
     glabels/glabelslbl.h \
-    dialogcopy.h
+    dialogcopy.h \
+    modelro.h
 
 FORMS    += formpart.ui \
     pgdialog.ui \
