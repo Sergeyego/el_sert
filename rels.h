@@ -48,6 +48,7 @@ public:
     DbRelation *relChemDev;
     DbRelation *relPack;
     DbRelation *relEan;
+    DbRelation *relVar;
 
 protected:
     explicit Rels(QObject *parent = nullptr);

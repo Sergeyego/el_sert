@@ -18,6 +18,9 @@ FormMark::FormMark(QWidget *parent) :
         ui->comboBoxDiam->setCurrentIndex(ind);
     }
 
+    ui->comboBoxVar->setModel(Rels::instance()->relVar->model());
+    ui->comboBoxVar->setModelColumn(Rels::instance()->relVar->columnDisplay());
+
     modelEan = new ModelEan(this);
     ui->tableViewPack->setModel(modelEan);
     ui->tableViewPack->setColumnHidden(0,true);
@@ -131,7 +134,7 @@ FormMark::FormMark(QWidget *parent) :
     mapper->addMapping(ui->comboBoxAWS,9);
     mapper->addMapping(ui->comboBoxZnam,10);
     mapper->addMapping(ui->comboBoxBukv,11);
-    mapper->addMapping(ui->plainTextEditDescr,12);
+    mapper->addMapping(ui->plainTextEditDescrCat,12);
     mapper->addMapping(ui->lineEditVl,13);
     mapper->addMapping(ui->lineEditPr,14);
     mapper->addMapping(ui->lineEditInd,15);
@@ -143,8 +146,11 @@ FormMark::FormMark(QWidget *parent) :
     mapper->addEmptyLock(ui->tableViewChem);
     mapper->addEmptyLock(ui->tableViewMech);
     mapper->addEmptyLock(ui->tableViewPlav);
-    mapper->addEmptyLock(ui->groupBox);
+    mapper->addEmptyLock(ui->groupBoxVar);
     mapper->addEmptyLock(ui->cmdExt);
+    mapper->addEmptyLock(ui->cmdLbl);
+    mapper->addEmptyLock(ui->cmdLblSmall);
+    mapper->addEmptyLock(ui->cmdLblSmall2);
 
     connect(mapper,SIGNAL(currentIndexChanged(int)),this,SLOT(refreshCont(int)));
     connect(modelMark,SIGNAL(sigUpd()),Rels::instance()->relElMark,SLOT(refreshModel()));
@@ -152,6 +158,12 @@ FormMark::FormMark(QWidget *parent) :
     connect(ui->cmdLblSmall,SIGNAL(clicked(bool)),this,SLOT(gelLblSmall()));
     connect(ui->cmdLblSmall2,SIGNAL(clicked(bool)),this,SLOT(gelLblSmall2()));
     connect(ui->cmdExt,SIGNAL(clicked(bool)),this,SLOT(exportXml()));
+    connect(ui->pushButtonCreVar,SIGNAL(clicked(bool)),this,SLOT(createVar()));
+    connect(ui->pushButtonDelVar,SIGNAL(clicked(bool)),this,SLOT(deleteVar()));
+    connect(ui->comboBoxVar,SIGNAL(currentIndexChanged(int)),this,SLOT(loadVars()));
+    connect(ui->plainTextEditDescr,SIGNAL(textChanged()),this,SLOT(varChanged()));
+    connect(ui->lineEditVarZnam,SIGNAL(textChanged(QString)),this,SLOT(varChanged()));
+    connect(ui->pushButtonSaveVar,SIGNAL(clicked(bool)),this,SLOT(saveVar()));
 
     if (ui->tableViewMark->model()->rowCount()){
         ui->tableViewMark->selectRow(0);
@@ -189,6 +201,31 @@ int FormMark::id_diam()
     return ui->comboBoxDiam->model()->data(ind_diam,Qt::EditRole).toInt();
 }
 
+void FormMark::loadVars()
+{
+    QModelIndex ind=ui->tableViewMark->model()->index(mapper->currentIndex(),0);
+    int id_el=ui->tableViewMark->model()->data(ind,Qt::EditRole).toInt();
+    int id_var=ui->comboBoxVar->model()->data(ui->comboBoxVar->model()->index(ui->comboBoxVar->currentIndex(),0),Qt::EditRole).toInt();
+    QSqlQuery query;
+    query.prepare("select znam, descr from el_var where id_el = :id_el and id_var=:id_var");
+    query.bindValue(":id_el",id_el);
+    query.bindValue(":id_var",id_var);
+    if (query.exec()){
+        if (query.size()>0){
+            query.next();
+            blockVar(false);
+            ui->lineEditVarZnam->setText(query.value(0).toString());
+            ui->plainTextEditDescr->setPlainText(query.value(1).toString());
+
+        } else {
+            blockVar(true);
+        }
+    } else {
+        QMessageBox::critical(this,tr("Ошибка"),query.lastError().text(),QMessageBox::Cancel);
+    }
+    ui->pushButtonSaveVar->setEnabled(false);
+}
+
 void FormMark::refreshCont(int index)
 {
     QModelIndex ind=ui->tableViewMark->model()->index(index,0);
@@ -212,6 +249,7 @@ void FormMark::refreshCont(int index)
     modelPlav->setFilter("el_plav.id_el = "+QString::number(id_el));
     modelPlav->select();
     updImg();
+    loadVars();
 }
 
 void FormMark::updImg()
@@ -255,6 +293,85 @@ void FormMark::createXml()
     Export *e = new Export;
     connect(e,SIGNAL(finished()),e,SLOT(deleteLater()));
     e->start();
+}
+
+void FormMark::blockVar(bool b)
+{
+    ui->pushButtonCreVar->setEnabled(b);
+    ui->pushButtonDelVar->setEnabled(!b);
+
+    ui->lineEditVarZnam->setEnabled(!b);
+    ui->plainTextEditDescr->setEnabled(!b);
+    if (b){
+        ui->lineEditVarZnam->clear();
+        ui->plainTextEditDescr->clear();
+    }
+}
+
+void FormMark::createVar()
+{
+    QModelIndex ind=ui->tableViewMark->model()->index(mapper->currentIndex(),0);
+    int id_el=ui->tableViewMark->model()->data(ind,Qt::EditRole).toInt();
+    int id_var=ui->comboBoxVar->model()->data(ui->comboBoxVar->model()->index(ui->comboBoxVar->currentIndex(),0),Qt::EditRole).toInt();
+    QString znam=ui->comboBoxZnam->currentText();
+
+    QSqlQuery query;
+    query.prepare("insert into el_var (id_el, id_var, znam, descr) values (:id_el, :id_var, :znam, (select e.descr from elrtr as e where e.id = :id ))");
+    query.bindValue(":id_el",id_el);
+    query.bindValue(":id_var",id_var);
+    query.bindValue(":znam",znam);
+    query.bindValue(":id",id_el);
+    if (query.exec()){
+        loadVars();
+    } else {
+        QMessageBox::critical(this,tr("Ошибка"),query.lastError().text(),QMessageBox::Cancel);
+    }
+
+}
+
+void FormMark::saveVar()
+{
+    QModelIndex ind=ui->tableViewMark->model()->index(mapper->currentIndex(),0);
+    int id_el=ui->tableViewMark->model()->data(ind,Qt::EditRole).toInt();
+    int id_var=ui->comboBoxVar->model()->data(ui->comboBoxVar->model()->index(ui->comboBoxVar->currentIndex(),0),Qt::EditRole).toInt();
+    QString znam=ui->lineEditVarZnam->text();
+    QString descr=ui->plainTextEditDescr->toPlainText();
+
+    QSqlQuery query;
+    query.prepare("update el_var set znam = :znam, descr = :descr where id_el = :id_el and id_var = :id_var");
+    query.bindValue(":id_el",id_el);
+    query.bindValue(":id_var",id_var);
+    query.bindValue(":znam",znam);
+    query.bindValue(":descr",descr);
+    if (query.exec()){
+        loadVars();
+    } else {
+        QMessageBox::critical(this,tr("Ошибка"),query.lastError().text(),QMessageBox::Cancel);
+    }
+}
+
+void FormMark::deleteVar()
+{
+    int n=QMessageBox::question(this,tr("Подтвердите удаление"),tr("Удалить вариант \"")+ui->comboBoxVar->currentText()+"\"",QMessageBox::Yes,QMessageBox::No);
+    if (n==QMessageBox::Yes){
+        QModelIndex ind=ui->tableViewMark->model()->index(mapper->currentIndex(),0);
+        int id_el=ui->tableViewMark->model()->data(ind,Qt::EditRole).toInt();
+        int id_var=ui->comboBoxVar->model()->data(ui->comboBoxVar->model()->index(ui->comboBoxVar->currentIndex(),0),Qt::EditRole).toInt();
+        QSqlQuery query;
+        query.prepare("delete from el_var where id_el = :id_el and id_var = :id_var");
+        query.bindValue(":id_el",id_el);
+        query.bindValue(":id_var",id_var);
+        if (query.exec()){
+            loadVars();
+        } else {
+            QMessageBox::critical(this,tr("Ошибка"),query.lastError().text(),QMessageBox::Cancel);
+        }
+    }
+}
+
+void FormMark::varChanged()
+{
+    ui->pushButtonSaveVar->setEnabled(true);
 }
 
 CustomDelegate::CustomDelegate(QObject *parent) : DbDelegate(parent)

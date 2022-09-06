@@ -45,6 +45,12 @@ private slots:
     void gelLblSmall2();
     void exportXml();
     void createXml();
+    void blockVar(bool b);
+    void loadVars();
+    void createVar();
+    void saveVar();
+    void deleteVar();
+    void varChanged();
 };
 
 class CustomDelegate : public DbDelegate

@@ -102,6 +102,7 @@ Rels::Rels(QObject *parent) : QObject(parent)
     relChemDev = new DbRelation(QString("select id, short from chem_dev order by short"),0,1,this);
     relPack = new DbRelation(QString("select id, pack_ed || ', '|| pack_group from el_pack order by pack_ed"),0,1,this);
     relEan = new DbRelation(QString("select ean from eans order by ean"),0,0,this);
+    relVar = new DbRelation(QString("select id, nam from elrtr_vars order by id"),0,1,this);
 
     relDiam->proxyModel()->setFilterKeyColumn(2);
     relDiam->proxyModel()->setFilterFixedString("1");

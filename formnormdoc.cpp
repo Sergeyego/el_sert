@@ -26,16 +26,18 @@ FormNormDoc::FormNormDoc(QWidget *parent) :
 
     modelGostEl = new DbTableModel("gost_elnew",this);
     modelGostEl->addColumn("ide",tr("Марка"));
+    modelGostEl->addColumn("id_var",tr("Вариант"),NULL,Rels::instance()->relVar);
     modelGostEl->addColumn("dat",tr("Дата начала действия"));
     modelGostEl->addColumn("id_gost",tr("Документ"),NULL,Rels::instance()->relGost);
     modelGostEl->addColumn("dat_end",tr("Дата окончания действия"));
-    modelGostEl->setSort("gost_elnew.dat, gost_elnew.id_gost");
+    modelGostEl->setSort("gost_elnew.id_var, gost_elnew.dat, gost_elnew.id_gost");
     modelGostEl->setDefaultValue(3,QVariant());
     ui->tableViewGostEl->setModel(modelGostEl);
     ui->tableViewGostEl->setColumnHidden(0,true);
     ui->tableViewGostEl->setColumnWidth(1,200);
-    ui->tableViewGostEl->setColumnWidth(2,230);
-    ui->tableViewGostEl->setColumnWidth(3,200);
+    ui->tableViewGostEl->setColumnWidth(2,200);
+    ui->tableViewGostEl->setColumnWidth(3,230);
+    ui->tableViewGostEl->setColumnWidth(4,200);
 
     if (Rels::instance()->relElDim->model()->columnCount()>1){
         Rels::instance()->relElDim->model()->setHeaderData(1,Qt::Horizontal,QString::fromUtf8("Марка"));
@@ -121,8 +123,8 @@ void FormNormDoc::pasteTu()
         QMessageBox::critical(NULL,"Error",query.lastError().text(),QMessageBox::Cancel);
     } else {
         query.clear();
-        query.prepare("insert into gost_elnew (ide, dat, id_gost, dat_end) "
-                      "(select :ideC, n.dat, n.id_gost, n.dat_end from gost_elnew as n where n.ide = :ideN)");
+        query.prepare("insert into gost_elnew (ide, dat, id_gost, dat_end, id_var) "
+                      "(select :ideC, n.dat, n.id_gost, n.dat_end, n.id_var from gost_elnew as n where n.ide = :ideN)");
         query.bindValue(":ideC",ide);
         query.bindValue(":ideN",ideTu);
         if (!query.exec()){
