@@ -627,7 +627,7 @@ void DataSert::refresh(int id, bool is_ship, bool sample)
     QSqlQuery query;
     QString sQuery;
     sQuery= is_ship ? QString("select p.id, p.n_s, p.yea, p.dat_part, e.marka_sert, p.diam, "
-                              "gt.nam, pu.nam, p.ibco, v.nam, pol.naim, s.nom_s, s.dat_vid, o.massa, pol.naim_en "
+                              "gt.nam, pu.nam, coalesce (p.ibco, ev.znam), v.nam, pol.naim, s.nom_s, s.dat_vid, o.massa, pol.naim_en "
                               "from otpusk as o "
                               "inner join sertifikat as s on o.id_sert=s.id "
                               "inner join parti as p on o.id_part=p.id "
@@ -636,15 +636,17 @@ void DataSert::refresh(int id, bool is_ship, bool sample)
                               "inner join poluch as pol on s.id_pol=pol.id "
                               "inner join gost_types as gt on e.id_gost_type=gt.id "
                               "inner join purpose as pu on e.id_purpose=pu.id "
+                              "left join el_var ev on ev.id_el = p.id_el and ev.id_var = p.id_var "
                               "where o.id = :id") :
                   QString("select p.id, p.n_s, p.yea, p.dat_part, e.marka_sert, p.diam, "
-                          "gt.nam, pu.nam, p.ibco, v.nam, NULL, NULL, NULL, j.sum, NULL "
+                          "gt.nam, pu.nam, coalesce (p.ibco, ev.znam), v.nam, NULL, NULL, NULL, j.sum, NULL "
                           "from parti as p "
                           "inner join elrtr as e on e.id=p.id_el "
                           "inner join provol as v on v.id=e.id_gost "
                           "inner join gost_types as gt on e.id_gost_type=gt.id "
                           "inner join purpose as pu on e.id_purpose=pu.id "
-                          "left outer join (select id_part as id, sum(kvo) as sum from part_prod group by id_part) as j on j.id=p.id "
+                          "left join (select id_part as id, sum(kvo) as sum from part_prod group by id_part) as j on j.id=p.id "
+                          "left join el_var ev on ev.id_el = p.id_el and ev.id_var = p.id_var "
                           "where p.id = :id");
     query.prepare(sQuery);
     query.bindValue(":id",id);
@@ -690,18 +692,15 @@ const headData *DataSert::head()
 void DataSert::refreshTu()
 {
     QSqlQuery tuQuery;
-    /*tuQuery.prepare("select nam "
-                    "from zvd_get_tu((select dat_part from parti where id = :id1 ), "
+    tuQuery.prepare("select nam "
+                    "from zvd_get_tu_var((select dat_part from parti where id = :id1 ), "
                     "(select id_el from parti where id = :id2 ), "
-                    "(select d.id from diam as d where d.diam = (select diam from parti where id = :id3 )) ) ");
+                    "(select d.id from diam as d where d.diam = (select diam from parti where id = :id3 )), "
+                    "(select id_var from parti where id = :id4 ) ) ");
     tuQuery.bindValue(":id1",hData.id_parti);
     tuQuery.bindValue(":id2",hData.id_parti);
-    tuQuery.bindValue(":id3",hData.id_parti);*/
-    tuQuery.prepare("select gn.nam  from parti_gost pg "
-                    "inner join gost_new gn on gn.id = pg.id_gost "
-                    "where pg.id_part = :id "
-                    "order by gn.nam");
-    tuQuery.bindValue(":id",hData.id_parti);
+    tuQuery.bindValue(":id3",hData.id_parti);
+    tuQuery.bindValue(":id4",hData.id_parti);
     tuList.clear();
     if (tuQuery.exec()){
         while(tuQuery.next()){

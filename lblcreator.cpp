@@ -19,10 +19,10 @@ LblCreator::LblCreator(QObject *parent) : QObject(parent)
 bool LblCreator::createLbl(int id_part, bool shortAmp)
 {
     dataPart data=getDataPart(id_part);
-    return createLbl(data.id_el,data.id_diam,data.ibco,data.datePart,shortAmp, false);
+    return createLbl(data.id_el,data.id_diam,data.ibco,data.datePart,shortAmp, false, data.id_var);
 }
 
-bool LblCreator::createLbl(int id_el, int id_diam, QString ibco, QDate date, bool shortAmp, bool order)
+bool LblCreator::createLbl(int id_el, int id_diam, QString ibco, QDate date, bool shortAmp, bool order, int id_var)
 {
     RtfWriter rtfWriter;
     RTF_DOCUMENT_FORMAT *df = rtfWriter.get_documentformat();
@@ -82,8 +82,8 @@ bool LblCreator::createLbl(int id_el, int id_diam, QString ibco, QDate date, boo
 
     rtfWriter.start_doc();
 
-    QString tulist=getTuList(id_el,id_diam,date);
-    dataLbl data=getData(id_el,id_diam);
+    QString tulist=getTuList(id_el,id_diam,date,id_var);
+    dataLbl data=getData(id_el,id_diam,id_var);
     QString srtStr=getSrtStr(id_el,id_diam,date);
 
     if (!ibco.isEmpty()){
@@ -313,12 +313,12 @@ bool LblCreator::createLbl(int id_el, int id_diam, QString ibco, QDate date, boo
     return true;
 }
 
-bool LblCreator::createLblGlabels(int id_el, int id_diam, QString ibco, QDate date)
+bool LblCreator::createLblGlabels(int id_el, int id_diam, QString ibco, QDate date, int id_var)
 {
     GlabelsLbl lbl;
     bool ok=false;
     if (lbl.createLbl(QString("SZSM-03"),true)){
-        dataLbl data=getData(id_el,id_diam);
+        dataLbl data=getData(id_el,id_diam,id_var);
         if (!ibco.isEmpty()){
             data.znam=ibco;
         }
@@ -352,7 +352,7 @@ bool LblCreator::createLblGlabels(int id_el, int id_diam, QString ibco, QDate da
             lbl.newText(83.5,6.5,57,4,data.znam,9,true,(Qt::AlignCenter | Qt::AlignVCenter ));
         }
 
-        QString tuList=getTuList(id_el,id_diam,date);
+        QString tuList=getTuList(id_el,id_diam,date,id_var);
         int ftusize = (tuList.split("\n").size()>3) ? 6 : 7;
         lbl.newText(37.5,2.5,44.5,8.5,tuList,ftusize,false);
         int fdsize= (data.descr.size()<500) ? 7 : 6;
@@ -394,15 +394,15 @@ bool LblCreator::createLblGlabels(int id_el, int id_diam, QString ibco, QDate da
 bool LblCreator::createLblGlabels(int id_part)
 {
     dataPart data=getDataPart(id_part);
-    return createLblGlabels(data.id_el,data.id_diam,data.ibco,data.datePart);
+    return createLblGlabels(data.id_el,data.id_diam,data.ibco,data.datePart,data.id_var);
 }
 
-bool LblCreator::createLblGlabels2(int id_el, int id_diam, QString ibco, QDate date)
+bool LblCreator::createLblGlabels2(int id_el, int id_diam, QString ibco, QDate date, int id_var)
 {
     GlabelsLbl lbl;
     bool ok=false;
     if (lbl.createLbl(QString("SZSM-04"),true)){
-        dataLbl data=getData(id_el,id_diam);
+        dataLbl data=getData(id_el,id_diam,id_var);
         if (!ibco.isEmpty()){
             data.znam=ibco;
         }
@@ -435,7 +435,7 @@ bool LblCreator::createLblGlabels2(int id_el, int id_diam, QString ibco, QDate d
             lbl.newText(68,7,65,4,data.znam,9,true,(Qt::AlignCenter | Qt::AlignVCenter ));
         }
 
-        QString tuList=getTuList(id_el,id_diam,date);
+        QString tuList=getTuList(id_el,id_diam,date,id_var);
         lbl.newText(34,2,32,9,tuList,6,false);
         int fdsize= (data.descr.size()<400) ? 7 : 6;
         lbl.newText(11,12,69,15,data.descr,fdsize,false,(Qt::AlignLeft| Qt::AlignVCenter),0.7);
@@ -476,7 +476,7 @@ bool LblCreator::createLblGlabels2(int id_el, int id_diam, QString ibco, QDate d
 bool LblCreator::createLblGlabels2(int id_part)
 {
     dataPart data=getDataPart(id_part);
-    return createLblGlabels2(data.id_el,data.id_diam,data.ibco,data.datePart);
+    return createLblGlabels2(data.id_el,data.id_diam,data.ibco,data.datePart,data.id_var);
 }
 
 void LblCreator::sysCommand(QString fname)
@@ -485,14 +485,15 @@ void LblCreator::sysCommand(QString fname)
     QDesktopServices::openUrl((QUrl(QUrl::fromLocalFile(fileInfo.absoluteFilePath()))));
 }
 
-QString LblCreator::getTuList(int id_el, int id_diam, QDate date)
+QString LblCreator::getTuList(int id_el, int id_diam, QDate date, int id_var)
 {
     QSqlQuery tuQuery;
     QString tulist;
-    tuQuery.prepare("select nam from zvd_get_tu( :date, :id_el, :id_diam)");
+    tuQuery.prepare("select nam from zvd_get_tu_var( :date, :id_el, :id_diam, :id_var)");
     tuQuery.bindValue(":date",date);
     tuQuery.bindValue(":id_el",id_el);
     tuQuery.bindValue(":id_diam",id_diam);
+    tuQuery.bindValue(":id_var",id_var);
 
     if (tuQuery.exec()){
         while (tuQuery.next()){
@@ -562,20 +563,21 @@ QString LblCreator::getSrtStr(int id_el, int id_diam, QDate date)
     return srtStr;
 }
 
-dataLbl LblCreator::getData(int id_el, int id_diam)
+dataLbl LblCreator::getData(int id_el, int id_diam, int id_var)
 {
     dataLbl data;
     QSqlQuery query;
-    query.prepare("select coalesce(e.marka_sert, e.marka), (select di.diam from diam as di where di.id = :id_diam), g.nam, pu.nam, d.nam, i.nam, a.nam, e.vl, e.pr2, e.id_pic, e.descr "
+    query.prepare("select coalesce(e.marka_sert, e.marka), (select di.diam from diam as di where di.id = :id_diam), g.nam, pu.nam, ev.znam, i.nam, a.nam, e.vl, e.pr2, e.id_pic, ev.descr "
                   "from elrtr as e "
                   "inner join gost_types as g on e.id_gost_type=g.id "
                   "inner join purpose as pu on e.id_purpose=pu.id "
-                  "inner join denominator as d on e.id_denominator=d.id "
                   "inner join iso_types as i on e.id_iso_type=i.id "
                   "inner join aws_types as a on e.id_aws_type=a.id "
+                  "left join el_var ev on ev.id_el = e.id and ev.id_var = :id_var "
                   "where e.id = :id");
     query.bindValue(":id_diam",id_diam);
     query.bindValue(":id",id_el);
+    query.bindValue(":id_var",id_var);
     if (!query.exec()){
         QMessageBox::critical(NULL,tr("Ошибка"),query.lastError().text(),QMessageBox::Ok);
     }
@@ -685,7 +687,7 @@ dataPart LblCreator::getDataPart(int id_part)
 {
     dataPart data;
     QSqlQuery queryPart;
-    queryPart.prepare("select p.id_el, (select d.id from diam as d where p.diam=d.diam), p.dat_part, p.ibco "
+    queryPart.prepare("select p.id_el, (select d.id from diam as d where p.diam=d.diam), p.dat_part, p.ibco, p.id_var "
                       "from parti as p where p.id= :id");
     queryPart.bindValue(":id",id_part);
     bool ok=queryPart.exec();
@@ -695,6 +697,7 @@ dataPart LblCreator::getDataPart(int id_part)
             data.id_diam=queryPart.value(1).toInt();
             data.datePart=queryPart.value(2).toDate();
             data.ibco=queryPart.value(3).toString();
+            data.id_var=queryPart.value(4).toInt();
         }
     } else {
         QMessageBox::critical(NULL,tr("Error"),queryPart.lastError().text(),QMessageBox::Ok);

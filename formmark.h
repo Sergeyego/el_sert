@@ -36,6 +36,7 @@ private:
     void savesettings();
     int id_el();
     int id_diam();
+    int id_var();
 
 private slots:
     void refreshCont(int index);

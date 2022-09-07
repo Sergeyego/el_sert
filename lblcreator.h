@@ -17,6 +17,7 @@ struct dataPart{
     int id_diam;
     QDate datePart;
     QString ibco;
+    int id_var;
 };
 
 struct dataLbl {
@@ -46,10 +47,10 @@ class LblCreator : public QObject
 public:
     explicit LblCreator(QObject *parent = nullptr);
     bool createLbl(int id_part, bool shortAmp=true);
-    bool createLbl(int id_el, int id_diam, QString ibco=QString(), QDate date=QDate::currentDate(), bool shortAmp=true, bool order=false);
-    bool createLblGlabels(int id_el, int id_diam, QString ibco=QString(), QDate date=QDate::currentDate());
+    bool createLbl(int id_el, int id_diam, QString ibco=QString(), QDate date=QDate::currentDate(), bool shortAmp=true, bool order=false, int id_var=1);
+    bool createLblGlabels(int id_el, int id_diam, QString ibco=QString(), QDate date=QDate::currentDate(), int id_var=1);
     bool createLblGlabels(int id_part);
-    bool createLblGlabels2(int id_el, int id_diam, QString ibco=QString(), QDate date=QDate::currentDate());
+    bool createLblGlabels2(int id_el, int id_diam, QString ibco=QString(), QDate date=QDate::currentDate(), int id_var=1);
     bool createLblGlabels2(int id_part);
 
 private:
@@ -58,9 +59,9 @@ private:
     QString otk;
     QString kach;
     void sysCommand(QString fname);
-    QString getTuList(int id_el, int id_diam, QDate date);
+    QString getTuList(int id_el, int id_diam, QDate date, int id_var=1);
     QString getSrtStr(int id_el, int id_diam, QDate date);
-    dataLbl getData(int id_el, int id_diam);
+    dataLbl getData(int id_el, int id_diam, int id_var=1);
     QString getCh(dataLbl &data);
     QString getProc(dataLbl &data);
     QString getIzg();

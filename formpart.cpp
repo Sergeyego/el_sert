@@ -22,15 +22,6 @@ FormPart::FormPart(QWidget *parent) :
     modelSrcGost = new ModelRo(this);
     ui->tableViewSrcGost->setModel(modelSrcGost);
 
-    modelGost = new DbTableModel("parti_gost",this);
-    modelGost->addColumn("id_part","id_part");
-    modelGost->addColumn("id_gost",tr("ГОСТ,ТУ"),NULL,Rels::instance()->relGost);
-    modelGost->setSuffix("inner join gost_new on gost_new.id = parti_gost.id_gost");
-    modelGost->setSort("gost_new.nam");
-    ui->tableViewGost->setModel(modelGost);
-    ui->tableViewGost->setColumnHidden(0,true);
-    ui->tableViewGost->setColumnWidth(1,200);
-
     modelAdd = new DbRelationalModel(this);
     ui->tableViewAdd->verticalHeader()->setDefaultSectionSize(ui->tableViewAdd->verticalHeader()->fontMetrics().height()*1.5);
     ui->tableViewAdd->verticalHeader()->hide();
@@ -98,7 +89,6 @@ FormPart::FormPart(QWidget *parent) :
     connect(ui->textEditPrimProd,SIGNAL(textChanged()),this,SLOT(enPrimSave()));
     connect(ui->lineEditZnam,SIGNAL(textChanged(QString)),this,SLOT(enZnamSave()));
     connect(ui->pushButtonCopy,SIGNAL(clicked(bool)),this,SLOT(copyVal()));
-    connect(ui->toolButtonCopyGost,SIGNAL(clicked(bool)),this,SLOT(copyGost()));
 
     refresh();
 }
@@ -116,10 +106,10 @@ void FormPart::loadPrim(int id_part)
     ui->lineEditZnam->clear();
     ui->lineEditSrcZnam->clear();
     QSqlQuery query;
-    query.prepare("select p.prim, p.ibco, d.nam, p.prim_prod from parti as p "
+    query.prepare("select p.prim, p.ibco, ev.znam, p.prim_prod from parti as p "
                   "inner join elrtr as e on p.id_el=e.id "
-                  "inner join denominator as d on e.id_denominator=d.id "
-                  "where p.id=:id");
+                  "left join el_var ev on ev.id_el = p.id_el and ev.id_var = p.id_var "
+                  "where p.id = :id");
     query.bindValue(":id",id_part);
     if (query.exec()){
         while (query.next()){
@@ -157,21 +147,19 @@ void FormPart::loadGost(int id_part)
 {
     QSqlQuery tuQuery;
     tuQuery.prepare("select id, nam "
-                    "from zvd_get_tu((select dat_part from parti where id = :id1 ), "
+                    "from zvd_get_tu_var((select dat_part from parti where id = :id1 ), "
                     "(select id_el from parti where id = :id2 ), "
-                    "(select d.id from diam as d where d.diam = (select diam from parti where id = :id3 )) ) ");
+                    "(select d.id from diam as d where d.diam = (select diam from parti where id = :id3 )), "
+                    "(select id_var from parti where id = :id4) ) ");
     tuQuery.bindValue(":id1",id_part);
     tuQuery.bindValue(":id2",id_part);
     tuQuery.bindValue(":id3",id_part);
+    tuQuery.bindValue(":id4",id_part);
     if (modelSrcGost->execQuery(tuQuery)){
         modelSrcGost->setHeaderData(1,Qt::Horizontal,tr("ГОСТ/ТУ"));
         ui->tableViewSrcGost->setColumnHidden(0,true);
         ui->tableViewSrcGost->setColumnWidth(1,200);
     }
-
-    modelGost->setDefaultValue(0,id_part);
-    modelGost->setFilter("parti_gost.id_part = "+QString::number(id_part));
-    modelGost->select();
 }
 
 int FormPart::currentIdPart()
@@ -264,33 +252,6 @@ void FormPart::copyMech()
     }
 }
 
-void FormPart::copyGost()
-{
-    if (modelSrcGost->rowCount()<1) {
-        return;
-    }
-    int r=modelGost->isAdd()? modelGost->rowCount()-1 : modelGost->rowCount();
-    if (r){
-        QMessageBox::information(this,tr("Предупреждение"),tr("Сначала удалите все уже существующие элементы!"),QMessageBox::Ok);
-        return;
-    }
-    int id_part=currentIdPart();
-    QSqlQuery query;
-    query.prepare("insert into parti_gost (id_part, id_gost)"
-                  "(select :id1, id "
-                  "from zvd_get_tu((select dat_part from parti where id = :id2 ), "
-                  "(select id_el from parti where id = :id3 ), "
-                  "(select d.id from diam as d where d.diam = (select diam from parti where id = :id4 ))))");
-    query.bindValue(":id1",id_part);
-    query.bindValue(":id2",id_part);
-    query.bindValue(":id3",id_part);
-    query.bindValue(":id4",id_part);
-    if (query.exec()){
-        modelGost->select();
-    } else {
-        QMessageBox::critical(this,"Error",query.lastError().text(),QMessageBox::Cancel);
-    }
-}
 
 void FormPart::copyMechForward()
 {
@@ -437,12 +398,13 @@ void FormPart::refresh()
     int id_el= ui->checkBoxOnly->isChecked()? ui->comboBoxMar->model()->data(ui->comboBoxMar->model()->index(ui->comboBoxMar->currentIndex(),0),Qt::EditRole).toInt() : -1;
     modelPart->refresh(ui->dateEditBeg->date(),ui->dateEditEnd->date(),id_el);
     ui->tableViewPart->setColumnHidden(0,true);
-    ui->tableViewPart->setColumnHidden(6,true);
+    ui->tableViewPart->setColumnHidden(7,true);
     ui->tableViewPart->setColumnWidth(1,55);
     ui->tableViewPart->setColumnWidth(2,70);
     ui->tableViewPart->setColumnWidth(3,150);
     ui->tableViewPart->setColumnWidth(4,90);
     ui->tableViewPart->setColumnWidth(5,125);
+    ui->tableViewPart->setColumnWidth(6,125);
     if (ui->tableViewPart->model()->rowCount()){
         ui->tableViewPart->selectRow(ui->tableViewPart->model()->rowCount()-1);
         ui->tableViewPart->scrollToBottom();

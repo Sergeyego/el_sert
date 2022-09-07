@@ -201,15 +201,17 @@ int FormMark::id_diam()
     return ui->comboBoxDiam->model()->data(ind_diam,Qt::EditRole).toInt();
 }
 
+int FormMark::id_var()
+{
+    return ui->comboBoxVar->model()->data(ui->comboBoxVar->model()->index(ui->comboBoxVar->currentIndex(),0),Qt::EditRole).toInt();
+}
+
 void FormMark::loadVars()
 {
-    QModelIndex ind=ui->tableViewMark->model()->index(mapper->currentIndex(),0);
-    int id_el=ui->tableViewMark->model()->data(ind,Qt::EditRole).toInt();
-    int id_var=ui->comboBoxVar->model()->data(ui->comboBoxVar->model()->index(ui->comboBoxVar->currentIndex(),0),Qt::EditRole).toInt();
     QSqlQuery query;
     query.prepare("select znam, descr from el_var where id_el = :id_el and id_var=:id_var");
-    query.bindValue(":id_el",id_el);
-    query.bindValue(":id_var",id_var);
+    query.bindValue(":id_el",id_el());
+    query.bindValue(":id_var",id_var());
     if (query.exec()){
         if (query.size()>0){
             query.next();
@@ -268,19 +270,19 @@ void FormMark::updImg()
 void FormMark::gelLbl()
 {
     LblCreator c;
-    c.createLbl(id_el(),id_diam(),QString(),ui->dateEdit->date(),false,ui->checkBoxOrder->isChecked());
+    c.createLbl(id_el(),id_diam(),QString(),ui->dateEdit->date(),false,ui->checkBoxOrder->isChecked(),id_var());
 }
 
 void FormMark::gelLblSmall()
 {
     LblCreator c;
-    c.createLblGlabels(id_el(),id_diam(),QString(),ui->dateEdit->date());
+    c.createLblGlabels(id_el(),id_diam(),QString(),ui->dateEdit->date(),id_var());
 }
 
 void FormMark::gelLblSmall2()
 {
     LblCreator c;
-    c.createLblGlabels2(id_el(),id_diam(),QString(),ui->dateEdit->date());
+    c.createLblGlabels2(id_el(),id_diam(),QString(),ui->dateEdit->date(),id_var());
 }
 
 void FormMark::exportXml()
@@ -310,17 +312,14 @@ void FormMark::blockVar(bool b)
 
 void FormMark::createVar()
 {
-    QModelIndex ind=ui->tableViewMark->model()->index(mapper->currentIndex(),0);
-    int id_el=ui->tableViewMark->model()->data(ind,Qt::EditRole).toInt();
-    int id_var=ui->comboBoxVar->model()->data(ui->comboBoxVar->model()->index(ui->comboBoxVar->currentIndex(),0),Qt::EditRole).toInt();
     QString znam=ui->comboBoxZnam->currentText();
 
     QSqlQuery query;
     query.prepare("insert into el_var (id_el, id_var, znam, descr) values (:id_el, :id_var, :znam, (select e.descr from elrtr as e where e.id = :id ))");
-    query.bindValue(":id_el",id_el);
-    query.bindValue(":id_var",id_var);
+    query.bindValue(":id_el",id_el());
+    query.bindValue(":id_var",id_var());
     query.bindValue(":znam",znam);
-    query.bindValue(":id",id_el);
+    query.bindValue(":id",id_el());
     if (query.exec()){
         loadVars();
     } else {
@@ -331,16 +330,13 @@ void FormMark::createVar()
 
 void FormMark::saveVar()
 {
-    QModelIndex ind=ui->tableViewMark->model()->index(mapper->currentIndex(),0);
-    int id_el=ui->tableViewMark->model()->data(ind,Qt::EditRole).toInt();
-    int id_var=ui->comboBoxVar->model()->data(ui->comboBoxVar->model()->index(ui->comboBoxVar->currentIndex(),0),Qt::EditRole).toInt();
     QString znam=ui->lineEditVarZnam->text();
     QString descr=ui->plainTextEditDescr->toPlainText();
 
     QSqlQuery query;
     query.prepare("update el_var set znam = :znam, descr = :descr where id_el = :id_el and id_var = :id_var");
-    query.bindValue(":id_el",id_el);
-    query.bindValue(":id_var",id_var);
+    query.bindValue(":id_el",id_el());
+    query.bindValue(":id_var",id_var());
     query.bindValue(":znam",znam);
     query.bindValue(":descr",descr);
     if (query.exec()){
@@ -354,13 +350,10 @@ void FormMark::deleteVar()
 {
     int n=QMessageBox::question(this,tr("Подтвердите удаление"),tr("Удалить вариант \"")+ui->comboBoxVar->currentText()+"\"",QMessageBox::Yes,QMessageBox::No);
     if (n==QMessageBox::Yes){
-        QModelIndex ind=ui->tableViewMark->model()->index(mapper->currentIndex(),0);
-        int id_el=ui->tableViewMark->model()->data(ind,Qt::EditRole).toInt();
-        int id_var=ui->comboBoxVar->model()->data(ui->comboBoxVar->model()->index(ui->comboBoxVar->currentIndex(),0),Qt::EditRole).toInt();
         QSqlQuery query;
         query.prepare("delete from el_var where id_el = :id_el and id_var = :id_var");
-        query.bindValue(":id_el",id_el);
-        query.bindValue(":id_var",id_var);
+        query.bindValue(":id_el",id_el());
+        query.bindValue(":id_var",id_var());
         if (query.exec()){
             loadVars();
         } else {

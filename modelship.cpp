@@ -93,7 +93,7 @@ ModelPart::ModelPart(QObject *parent) :
 void ModelPart::refresh(QDate dbeg, QDate dend, int id_el)
 {
     QString flt= (id_el==-1) ? "" : "and p.id_el= "+QString::number(id_el)+" ";
-    setQuery("select p.id, p.n_s, p.dat_part, e.marka||' "+tr("ф")+" '||p.diam, i.nam as inam, r.nam, "
+    setQuery("select p.id, p.n_s, p.dat_part, e.marka||' "+tr("ф")+" '||p.diam, i.nam as inam, r.nam, ev.nam, "
              "(select case when exists(select id_chem from sert_chem where id_part=p.id) "
              "then 1 else 0 end "
              "+ "
@@ -104,6 +104,7 @@ void ModelPart::refresh(QDate dbeg, QDate dend, int id_el)
              "inner join elrtr e on e.id=p.id_el "
              "inner join istoch i on i.id=p.id_ist "
              "left join rcp_nam r on r.id=p.id_rcp "
+             "inner join elrtr_vars ev on ev.id = p.id_var "
              "where p.dat_part between '"+dbeg.toString("yyyy-MM-dd")+"' and '"
              +dend.toString("yyyy-MM-dd")+"' "+flt+
              "order by p.n_s, p.dat_part");
@@ -116,13 +117,14 @@ void ModelPart::refresh(QDate dbeg, QDate dend, int id_el)
         setHeaderData(3, Qt::Horizontal,tr("Марка"));
         setHeaderData(4, Qt::Horizontal,tr("Источник"));
         setHeaderData(5, Qt::Horizontal,tr("Рецептура"));
+        setHeaderData(6, Qt::Horizontal,tr("Вариант"));
     }
 }
 
 QVariant ModelPart::data(const QModelIndex &index, int role) const
 {
-    if((role == Qt::BackgroundColorRole)&&(this->columnCount()>6)) {
-        int area = record(index.row()).value(6).toInt();
+    if((role == Qt::BackgroundColorRole)&&(this->columnCount()>7)) {
+        int area = record(index.row()).value(7).toInt();
         if(area == 0) return QVariant(QColor(255,170,170)); else
             if(area == 1) return QVariant(QColor(Qt::yellow)); else
                 if(area == 2) return QVariant(QColor(Qt::gray)); else

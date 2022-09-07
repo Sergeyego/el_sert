@@ -39,7 +39,6 @@ private:
     ModelMechSert *modelSertMech;
     DbTableModel *modelSertMechx;
     ModelRo *modelSrcGost;
-    DbTableModel *modelGost;
 
     DbRelationalModel *modelAdd;
 
@@ -57,7 +56,6 @@ private slots:
     void saveZnam();
     void copyChem();
     void copyMech();
-    void copyGost();
     void copyMechForward();
     void copyZnam();
     void showPartSert();
