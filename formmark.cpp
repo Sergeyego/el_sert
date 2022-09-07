@@ -37,6 +37,7 @@ FormMark::FormMark(QWidget *parent) :
     modelAmp = new DbTableModel("amp",this);
     modelAmp->addColumn("id","id");
     modelAmp->addColumn("id_el","id_el");
+    modelAmp->addColumn("id_var","id_var");
     modelAmp->addColumn("id_diam",QString::fromUtf8("Диаметр, мм"),NULL,Rels::instance()->relDiam);
     modelAmp->addColumn("bot",QString::fromUtf8("Нижнее"));
     modelAmp->addColumn("vert",QString::fromUtf8("Вертикальное"));
@@ -47,10 +48,11 @@ FormMark::FormMark(QWidget *parent) :
     ui->tableViewAmp->setModel(modelAmp);
     ui->tableViewAmp->setColumnHidden(0,true);
     ui->tableViewAmp->setColumnHidden(1,true);
-    ui->tableViewAmp->setColumnWidth(2,100);
+    ui->tableViewAmp->setColumnHidden(2,true);
     ui->tableViewAmp->setColumnWidth(3,100);
     ui->tableViewAmp->setColumnWidth(4,100);
     ui->tableViewAmp->setColumnWidth(5,100);
+    ui->tableViewAmp->setColumnWidth(6,100);
 
     modelChemTu = new DbTableModel("chem_tu",this);
     modelChemTu->addColumn("id_el","id_el");
@@ -163,6 +165,7 @@ FormMark::FormMark(QWidget *parent) :
     connect(ui->comboBoxVar,SIGNAL(currentIndexChanged(int)),this,SLOT(loadVars()));
     connect(ui->plainTextEditDescr,SIGNAL(textChanged()),this,SLOT(varChanged()));
     connect(ui->lineEditVarZnam,SIGNAL(textChanged(QString)),this,SLOT(varChanged()));
+    connect(ui->lineEditProcVar,SIGNAL(textChanged(QString)),this,SLOT(varChanged()));
     connect(ui->pushButtonSaveVar,SIGNAL(clicked(bool)),this,SLOT(saveVar()));
 
     if (ui->tableViewMark->model()->rowCount()){
@@ -208,17 +211,19 @@ int FormMark::id_var()
 
 void FormMark::loadVars()
 {
+    int id_e=id_el();
+    int id_v=id_var();
     QSqlQuery query;
-    query.prepare("select znam, descr from el_var where id_el = :id_el and id_var=:id_var");
-    query.bindValue(":id_el",id_el());
-    query.bindValue(":id_var",id_var());
+    query.prepare("select znam, descr, proc from el_var where id_el = :id_el and id_var=:id_var");
+    query.bindValue(":id_el",id_e);
+    query.bindValue(":id_var",id_v);
     if (query.exec()){
         if (query.size()>0){
             query.next();
             blockVar(false);
             ui->lineEditVarZnam->setText(query.value(0).toString());
             ui->plainTextEditDescr->setPlainText(query.value(1).toString());
-
+            ui->lineEditProcVar->setText(query.value(2).toString());
         } else {
             blockVar(true);
         }
@@ -226,6 +231,11 @@ void FormMark::loadVars()
         QMessageBox::critical(this,tr("Ошибка"),query.lastError().text(),QMessageBox::Cancel);
     }
     ui->pushButtonSaveVar->setEnabled(false);
+
+    modelAmp->setDefaultValue(1,id_e);
+    modelAmp->setDefaultValue(2,id_v);
+    modelAmp->setFilter("amp.id_el = "+QString::number(id_e)+" and amp.id_var = "+QString::number(id_v));
+    modelAmp->select();
 }
 
 void FormMark::refreshCont(int index)
@@ -234,10 +244,6 @@ void FormMark::refreshCont(int index)
     int id_el=ui->tableViewMark->model()->data(ind,Qt::EditRole).toInt();
 
     modelEan->refresh(id_el);
-
-    modelAmp->setDefaultValue(1,id_el);
-    modelAmp->setFilter("amp.id_el = "+QString::number(id_el));
-    modelAmp->select();
 
     modelChemTu->setDefaultValue(0,id_el);
     modelChemTu->setFilter("chem_tu.id_el = "+QString::number(id_el));
@@ -304,9 +310,11 @@ void FormMark::blockVar(bool b)
 
     ui->lineEditVarZnam->setEnabled(!b);
     ui->plainTextEditDescr->setEnabled(!b);
+    ui->lineEditProcVar->setEnabled(!b);
     if (b){
         ui->lineEditVarZnam->clear();
         ui->plainTextEditDescr->clear();
+        ui->lineEditProcVar->clear();
     }
 }
 
@@ -315,11 +323,12 @@ void FormMark::createVar()
     QString znam=ui->comboBoxZnam->currentText();
 
     QSqlQuery query;
-    query.prepare("insert into el_var (id_el, id_var, znam, descr) values (:id_el, :id_var, :znam, (select e.descr from elrtr as e where e.id = :id ))");
+    query.prepare("insert into el_var (id_el, id_var, znam, descr, proc) values (:id_el, :id_var, :znam, (select e.descr from elrtr as e where e.id = :id ), :proc)");
     query.bindValue(":id_el",id_el());
     query.bindValue(":id_var",id_var());
     query.bindValue(":znam",znam);
     query.bindValue(":id",id_el());
+    query.bindValue(":proc",ui->lineEditPr->text());
     if (query.exec()){
         loadVars();
     } else {
@@ -334,11 +343,12 @@ void FormMark::saveVar()
     QString descr=ui->plainTextEditDescr->toPlainText();
 
     QSqlQuery query;
-    query.prepare("update el_var set znam = :znam, descr = :descr where id_el = :id_el and id_var = :id_var");
+    query.prepare("update el_var set znam = :znam, descr = :descr, proc = :proc where id_el = :id_el and id_var = :id_var");
     query.bindValue(":id_el",id_el());
     query.bindValue(":id_var",id_var());
     query.bindValue(":znam",znam);
     query.bindValue(":descr",descr);
+    query.bindValue(":proc",ui->lineEditProcVar->text());
     if (query.exec()){
         loadVars();
     } else {

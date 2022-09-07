@@ -237,19 +237,6 @@
            </property>
           </widget>
          </item>
-         <item row="7" column="0">
-          <widget class="QLabel" name="label_22">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="text">
-            <string>Особенности сварки</string>
-           </property>
-          </widget>
-         </item>
          <item row="5" column="1" colspan="4">
           <widget class="QPlainTextEdit" name="plainTextEditDescrCat">
            <property name="maximumSize">
@@ -282,7 +269,7 @@
            </property>
           </widget>
          </item>
-         <item row="6" column="1" colspan="5">
+         <item row="6" column="1" colspan="2">
           <widget class="QPlainTextEdit" name="plainTextEditDescrSpec">
            <property name="maximumSize">
             <size>
@@ -292,7 +279,20 @@
            </property>
           </widget>
          </item>
-         <item row="7" column="1" colspan="5">
+         <item row="6" column="3">
+          <widget class="QLabel" name="label_22">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>Особенности сварки</string>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="4" colspan="2">
           <widget class="QPlainTextEdit" name="plainTextEditDescrFeature">
            <property name="maximumSize">
             <size>
@@ -389,32 +389,42 @@
             </item>
            </layout>
           </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_3">
+            <item>
+             <widget class="QLabel" name="label_16">
+              <property name="text">
+               <string>Режим повт. прок.</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="lineEditProcVar">
+              <property name="maximumSize">
+               <size>
+                <width>150</width>
+                <height>16777215</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="label_19">
+              <property name="text">
+               <string>Токи</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="DbViewer" name="tableViewAmp"/>
+            </item>
+           </layout>
+          </item>
          </layout>
         </widget>
        </item>
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_2">
-         <item>
-          <layout class="QVBoxLayout" name="verticalLayout_4">
-           <item>
-            <widget class="QLabel" name="label_16">
-             <property name="text">
-              <string>Рекомендуемые значения токов при различных положениях шва, А</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="DbViewer" name="tableViewAmp">
-             <property name="maximumSize">
-              <size>
-               <width>500</width>
-               <height>16777215</height>
-              </size>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
          <item>
           <layout class="QVBoxLayout" name="verticalLayout_3">
            <item>

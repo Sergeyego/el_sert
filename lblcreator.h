@@ -65,7 +65,7 @@ private:
     QString getCh(dataLbl &data);
     QString getProc(dataLbl &data);
     QString getIzg();
-    QVector<dataAmp> getAmp(int id_el, int id_diam, bool shortAmp=false, bool single=false);
+    QVector<dataAmp> getAmp(int id_el, int id_diam, bool shortAmp=false, bool single=false, int id_var=1);
     dataPart getDataPart(int id_part);
 signals:
 

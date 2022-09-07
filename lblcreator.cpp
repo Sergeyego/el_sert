@@ -247,7 +247,7 @@ bool LblCreator::createLbl(int id_el, int id_diam, QString ibco, QDate date, boo
     rtfWriter.end_tablecell();//6
     rtfWriter.end_tablerow();
 
-    QVector<dataAmp> amps=getAmp(id_el,id_diam,shortAmp);
+    QVector<dataAmp> amps=getAmp(id_el,id_diam,shortAmp,false,id_var);
     foreach (dataAmp amp, amps) {
         rtfWriter.start_tablerow();
         rtfWriter.start_tablecell(sz1);
@@ -366,7 +366,7 @@ bool LblCreator::createLblGlabels(int id_el, int id_diam, QString ibco, QDate da
         lbl.newText(20,35.4,20.5,2.7,QString::fromUtf8("нижнее"),6,false,(Qt::AlignCenter | Qt::AlignVCenter ));
         lbl.newText(40.5,35.4,20.5,2.7,QString::fromUtf8("вертикальное"),6,false,(Qt::AlignCenter | Qt::AlignVCenter ));
         lbl.newText(61,35.4,21.5,2.7,QString::fromUtf8("потолочное"),6,false,(Qt::AlignCenter | Qt::AlignVCenter ));
-        QVector<dataAmp> amps=getAmp(id_el,id_diam,true);
+        QVector<dataAmp> amps=getAmp(id_el,id_diam,true,false,id_var);
         for (int i=0; i<amps.size(); i++){
             if (i>5){
                 break;
@@ -450,7 +450,7 @@ bool LblCreator::createLblGlabels2(int id_el, int id_diam, QString ibco, QDate d
         lbl.newText(23,33,12,3,QString::fromUtf8("вертикальное"),5,false,(Qt::AlignCenter | Qt::AlignVCenter ));
         lbl.newText(35,33,12,3,QString::fromUtf8("потолочное"),5,false,(Qt::AlignCenter | Qt::AlignVCenter ));
 
-        QVector<dataAmp> amps=getAmp(id_el,id_diam,true,true);
+        QVector<dataAmp> amps=getAmp(id_el,id_diam,true,true,id_var);
         for (int i=0; i<amps.size(); i++){
             if (i>0){
                 break;
@@ -567,7 +567,7 @@ dataLbl LblCreator::getData(int id_el, int id_diam, int id_var)
 {
     dataLbl data;
     QSqlQuery query;
-    query.prepare("select coalesce(e.marka_sert, e.marka), (select di.diam from diam as di where di.id = :id_diam), g.nam, pu.nam, ev.znam, i.nam, a.nam, e.vl, e.pr2, e.id_pic, ev.descr "
+    query.prepare("select coalesce(e.marka_sert, e.marka), (select di.diam from diam as di where di.id = :id_diam), g.nam, pu.nam, ev.znam, i.nam, a.nam, e.vl, ev.proc, e.id_pic, ev.descr "
                   "from elrtr as e "
                   "inner join gost_types as g on e.id_gost_type=g.id "
                   "inner join purpose as pu on e.id_purpose=pu.id "
@@ -615,10 +615,8 @@ QString LblCreator::getProc(dataLbl &data)
 {
     QString proc=QString::fromUtf8("Допустимое содержание влаги в покрытии перед использованием - %1\%.").arg(data.vl);
     if (!data.pr.isEmpty()){
-        QStringList list=data.pr.split(":");
-        if (list.size()==4){
-            QString pr=QString("%1±%2°C %3 %4").arg(list.at(0)).arg(list.at(1)).arg(list.at(2)).arg(list.at(3));
-            proc+=QString::fromUtf8(" Режим повторной прокалки ")+pr+".";
+        if (!data.pr.isEmpty()){
+            proc+=QString::fromUtf8(" Режим повторной прокалки ")+data.pr+".";
         }
     }
     return proc;
@@ -629,7 +627,7 @@ QString LblCreator::getIzg()
     return QString::fromUtf8("Изготовитель ")+orgNam+", "+adres;
 }
 
-QVector<dataAmp> LblCreator::getAmp(int id_el, int id_diam, bool shortAmp, bool single)
+QVector<dataAmp> LblCreator::getAmp(int id_el, int id_diam, bool shortAmp, bool single, int id_var)
 {
     QVector<dataAmp> amps;
     QSqlQuery queryAmp;
@@ -637,35 +635,38 @@ QVector<dataAmp> LblCreator::getAmp(int id_el, int id_diam, bool shortAmp, bool 
         if (!shortAmp){
             queryAmp.prepare("select d.diam, a.bot, a.vert, a.ceil from amp as a "
                              "inner join diam as d on a.id_diam=d.id "
-                             "where a.id_el = :id order by d.diam");
+                             "where a.id_el = :id and a.id_var = :id_var order by d.diam");
             queryAmp.bindValue(":id",id_el);
+            queryAmp.bindValue(":id_var",id_var);
         } else {
             queryAmp.prepare("(select distinct d.diam, a.bot, a.vert, a.ceil "
                              "from amp as a "
                              "inner join diam as d on a.id_diam = d.id "
-                             "where a.id_el = :id_el1 and a.id_diam = :id_diam1 order by d.diam) "
+                             "where a.id_el = :id_el1 and a.id_var = :id_var1 and a.id_diam = :id_diam1 order by d.diam) "
                              "union "
                              "(select distinct d.diam, a.bot, a.vert, a.ceil "
                              "from amp as a "
                              "inner join diam as d on a.id_diam = d.id "
-                             "where a.id_el = :id_el2 and d.diam < (select diam from diam where id = :id_diam2 ) order by d.diam DESC LIMIT 3) "
+                             "where a.id_el = :id_el2 and a.id_var = :id_var2 and d.diam < (select diam from diam where id = :id_diam2 ) order by d.diam DESC LIMIT 3) "
                              "union "
                              "(select distinct d.diam, a.bot, a.vert, a.ceil "
                              "from amp as a "
                              "inner join diam as d on a.id_diam = d.id "
-                             "where a.id_el = :id_el3 and d.diam > (select diam from diam where id = :id_diam3 ) order by d.diam LIMIT 3) "
+                             "where a.id_el = :id_el3 and a.id_var = :id_var3 and d.diam > (select diam from diam where id = :id_diam3 ) order by d.diam LIMIT 3) "
                              "order by diam LIMIT 6");
             for (int i=0; i<3; i++){
                 queryAmp.bindValue(":id_el"+QString::number(i+1),id_el);
                 queryAmp.bindValue(":id_diam"+QString::number(i+1),id_diam);
+                queryAmp.bindValue(":id_var"+QString::number(i+1),id_var);
             }
         }
     } else {
         queryAmp.prepare("select d.diam, a.bot, a.vert, a.ceil from amp as a "
                          "inner join diam as d on a.id_diam=d.id "
-                         "where a.id_el = :id_el and a.id_diam = :id_diam");
+                         "where a.id_el = :id_el and a.id_diam = :id_diam and a.id_var = :id_var");
         queryAmp.bindValue(":id_el",id_el);
         queryAmp.bindValue(":id_diam",id_diam);
+        queryAmp.bindValue(":id_var",id_var);
     }
 
     if (queryAmp.exec()){
