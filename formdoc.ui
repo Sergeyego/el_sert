@@ -116,9 +116,6 @@
            </property>
           </widget>
          </item>
-         <item row="2" column="3" rowspan="5">
-          <widget class="QPlainTextEdit" name="textEditDoc"/>
-         </item>
          <item row="7" column="2">
           <widget class="QPushButton" name="pushButtonDel">
            <property name="text">
@@ -182,7 +179,7 @@
          <item row="2" column="2">
           <widget class="QLabel" name="label_10">
            <property name="text">
-            <string>Текст документа</string>
+            <string>Норматив. документ.</string>
            </property>
           </widget>
          </item>
@@ -257,6 +254,9 @@
             <string>Сохранить как</string>
            </property>
           </widget>
+         </item>
+         <item row="2" column="3" rowspan="5">
+          <widget class="DbViewer" name="tableViewTu"/>
          </item>
         </layout>
        </item>
@@ -365,13 +365,13 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>DbViewer</class>
-   <extends>QTableView</extends>
+   <class>DateEdit</class>
+   <extends>QDateEdit</extends>
    <header>db/dbviewer.h</header>
   </customwidget>
   <customwidget>
-   <class>DateEdit</class>
-   <extends>QDateEdit</extends>
+   <class>DbViewer</class>
+   <extends>QTableView</extends>
    <header>db/dbviewer.h</header>
   </customwidget>
   <customwidget>
@@ -387,7 +387,6 @@
   <tabstop>lineEditNam</tabstop>
   <tabstop>dateEditBeg</tabstop>
   <tabstop>dateEditEnd</tabstop>
-  <tabstop>textEditDoc</tabstop>
   <tabstop>tableViewElDim</tabstop>
   <tabstop>tableViewEl</tabstop>
   <tabstop>tableVieewGrade</tabstop>

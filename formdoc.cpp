@@ -35,6 +35,16 @@ FormDoc::FormDoc(QWidget *parent) :
     ui->tableVieewGrade->setColumnHidden(0,true);
     ui->tableVieewGrade->setColumnWidth(1,250);
 
+    modelTu = new DbTableModel("zvd_sert_tu",this);
+    modelTu->addColumn("id_sert","id_sert");
+    modelTu->addColumn("id_tu",QString::fromUtf8("ТУ, ОСТ"),NULL,Rels::instance()->relGost);
+    modelTu->setSuffix("inner join gost_new on gost_new.id = zvd_sert_tu.id_tu");
+    modelTu->setSort("gost_new.nam");
+
+    ui->tableViewTu->setModel(modelTu);
+    ui->tableViewTu->setColumnHidden(0,true);
+    ui->tableViewTu->setColumnWidth(1,250);
+
     modelWireDiam = new DbTableModel("zvd_wire_diam_sert");
     modelWireDiam->addColumn("id","id");
     modelWireDiam->addColumn("id_sert","id_sert");
@@ -83,7 +93,7 @@ FormDoc::FormDoc(QWidget *parent) :
     mapper->addMapping(ui->dateEditEnd,5);
     mapper->addMapping(ui->lineEditNumBl,6);
     mapper->addMapping(ui->lineEditNumNak,7);
-    mapper->addMapping(ui->textEditDoc,8);
+    //mapper->addMapping(ui->textEditDoc,8);
     mapper->addMapping(ui->lineEditGtu,9);
     mapper->addMapping(ui->comboBoxVed,10);
     mapper->addMapping(ui->comboBoxVid,11);
@@ -94,6 +104,7 @@ FormDoc::FormDoc(QWidget *parent) :
     mapper->addEmptyLock(ui->tableViewElDim);
     mapper->addEmptyLock(ui->pushButtonUpload);
     mapper->addEmptyLock(ui->tableViewWire);
+    mapper->addEmptyLock(ui->tableViewTu);
     ui->horizontalLayoutMap->insertWidget(0,mapper);
 
     connect(mapper,SIGNAL(currentIndexChanged(int)),this,SLOT(refreshData(int)));
@@ -168,6 +179,10 @@ void FormDoc::refreshData(int index)
     modelWire->setDefaultValue(0,id);
     modelWire->setFilter("zvd_wire_sert.id_sert = "+QString::number(id));
     modelWire->select();
+
+    modelTu->setDefaultValue(0,id);
+    modelTu->setFilter("zvd_sert_tu.id_sert = "+QString::number(id));
+    modelTu->select();
 
     updState();
 }

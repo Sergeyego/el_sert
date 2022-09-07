@@ -26,6 +26,7 @@ private:
     DbTableModel *modelElDim;
     DbTableModel *modelWireDiam;
     DbTableModel *modelWire;
+    DbTableModel *modelTu;
     DbMapper *mapper;
     void loadsettings();
     void savesettings();

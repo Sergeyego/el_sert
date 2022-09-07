@@ -430,7 +430,7 @@
            <item>
             <widget class="QLabel" name="label_24">
              <property name="text">
-              <string>Упаковка, штрих код</string>
+              <string>Упаковка, штрихкод</string>
              </property>
             </widget>
            </item>
