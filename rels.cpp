@@ -141,6 +141,7 @@ void Rels::refresh()
     relChemDev->refreshModel();
     relPack->refreshModel();
     relEan->refreshModel();
+    relVar->refreshModel();
 
     emit sigRefresh();
 }
