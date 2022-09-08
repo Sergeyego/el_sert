@@ -768,12 +768,14 @@ void DataSert::refreshSert()
 {
     QSqlQuery query;
     query.prepare("select z.id_ved, z.doc_nam, z.ved_nam, z.nom_doc, z.dat_doc, z.gr_tech_ust, z.id_doc_t, z.ved_short, z.grade_nam, z.ved_short_en, z.doc_nam_en, z.ved_nam_en, z.id_doc, z.en "
-                  "from zvd_get_sert((select dat_part from parti where id = :id_part1 ), "
+                  "from zvd_get_sert_var((select dat_part from parti where id = :id_part1 ), "
                   "(select id_el from parti where id = :id_part2 ), "
-                  "(select d.id from diam as d where d.diam = (select diam from parti where id = :id_part3 )) ) as z");
+                  "(select d.id from diam as d where d.diam = (select diam from parti where id = :id_part3 )), "
+                  "(select id_var from parti where id = :id_part4 ) ) as z");
     query.bindValue(":id_part1",hData.id_parti);
     query.bindValue(":id_part2",hData.id_parti);
     query.bindValue(":id_part3",hData.id_parti);
+    query.bindValue(":id_part4",hData.id_parti);
     sData.clear();
     if (query.exec()){
         while (query.next()){

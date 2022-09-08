@@ -84,7 +84,7 @@ bool LblCreator::createLbl(int id_el, int id_diam, QString ibco, QDate date, boo
 
     QString tulist=getTuList(id_el,id_diam,date,id_var);
     dataLbl data=getData(id_el,id_diam,id_var);
-    QString srtStr=getSrtStr(id_el,id_diam,date);
+    QString srtStr=getSrtStr(id_el,id_diam,date,id_var);
 
     if (!ibco.isEmpty()){
         data.znam=ibco;
@@ -358,7 +358,7 @@ bool LblCreator::createLblGlabels(int id_el, int id_diam, QString ibco, QDate da
         int fdsize= (data.descr.size()<500) ? 7 : 6;
         lbl.newText(20.5,12,120.5,17.5,data.descr,fdsize,false);
         lbl.newImage(3,13,15,15,QDir::currentPath()+"/images/"+QString::number(data.id_pix)+".png");
-        lbl.newText(85,32,55,21,getSrtStr(id_el,id_diam,date),7,false);
+        lbl.newText(85,32,55,21,getSrtStr(id_el,id_diam,date,id_var),7,false);
 
         lbl.newText(2.5,31,16,6,QString::fromUtf8("Диаметр\nмм"),6,false,(Qt::AlignCenter | Qt::AlignVCenter ));
         lbl.newText(20,30,62.5,2.7,QString::fromUtf8("Рекомендуемое значение тока (А)"),6,false,(Qt::AlignCenter | Qt::AlignVCenter ));
@@ -441,7 +441,7 @@ bool LblCreator::createLblGlabels2(int id_el, int id_diam, QString ibco, QDate d
         lbl.newText(11,12,69,15,data.descr,fdsize,false,(Qt::AlignLeft| Qt::AlignVCenter),0.7);
 
         lbl.newImage(2,13,8,8,QDir::currentPath()+"/images/"+QString::number(data.id_pix)+".png");
-        lbl.newText(47,27,33,12,getSrtStr(id_el,id_diam,date),5,false,(Qt::AlignLeft| Qt::AlignVCenter),0.7);
+        lbl.newText(47,27,33,12,getSrtStr(id_el,id_diam,date,id_var),5,false,(Qt::AlignLeft| Qt::AlignVCenter),0.7);
 
         lbl.newText(2,28,8,7,QString::fromUtf8("Диаметр\nмм"),6,false,(Qt::AlignCenter | Qt::AlignVCenter ));
         lbl.newText(11,27,36,3,QString::fromUtf8("Рекомендуемое значение тока (А)"),6,false,(Qt::AlignCenter | Qt::AlignVCenter ));
@@ -508,17 +508,18 @@ QString LblCreator::getTuList(int id_el, int id_diam, QDate date, int id_var)
     return tulist;
 }
 
-QString LblCreator::getSrtStr(int id_el, int id_diam, QDate date)
+QString LblCreator::getSrtStr(int id_el, int id_diam, QDate date, int id_var)
 {
     QString srtStr;
     QMultiMap <int, QString> srt;
 
     QSqlQuery vedQuery;
     vedQuery.prepare("select z.id_doc_t, z.ved_short, z.grade_nam "
-                     "from zvd_get_sert(:date, :id_el, :id_diam) as z order by z.id_doc_t, z.ved_short");
+                     "from zvd_get_sert_var(:date, :id_el, :id_diam, :id_var) as z where z.en=true order by z.id_doc_t, z.ved_short");
     vedQuery.bindValue(":date",date);
     vedQuery.bindValue(":id_el",id_el);
     vedQuery.bindValue(":id_diam",id_diam);
+    vedQuery.bindValue(":id_var",id_var);
     if (vedQuery.exec()){
         while (vedQuery.next()){
             int id_doc_t=vedQuery.value(0).toInt();

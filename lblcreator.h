@@ -60,7 +60,7 @@ private:
     QString kach;
     void sysCommand(QString fname);
     QString getTuList(int id_el, int id_diam, QDate date, int id_var=1);
-    QString getSrtStr(int id_el, int id_diam, QDate date);
+    QString getSrtStr(int id_el, int id_diam, QDate date, int id_var=1);
     dataLbl getData(int id_el, int id_diam, int id_var=1);
     QString getCh(dataLbl &data);
     QString getProc(dataLbl &data);
