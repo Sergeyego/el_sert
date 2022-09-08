@@ -31,7 +31,7 @@ FormNormDoc::FormNormDoc(QWidget *parent) :
     modelGostEl->addColumn("id_gost",tr("Документ"),NULL,Rels::instance()->relGost);
     modelGostEl->addColumn("dat_end",tr("Дата окончания действия"));
     modelGostEl->setSort("gost_elnew.id_var, gost_elnew.dat, gost_elnew.id_gost");
-    modelGostEl->setDefaultValue(3,QVariant());
+    modelGostEl->setDefaultValue(4,QVariant());
     ui->tableViewGostEl->setModel(modelGostEl);
     ui->tableViewGostEl->setColumnHidden(0,true);
     ui->tableViewGostEl->setColumnWidth(1,200);

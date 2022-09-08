@@ -329,12 +329,20 @@ void FormMark::createVar()
     query.bindValue(":znam",znam);
     query.bindValue(":id",id_el());
     query.bindValue(":proc",ui->lineEditPr->text());
-    if (query.exec()){
-        loadVars();
-    } else {
+    if (!query.exec()){
         QMessageBox::critical(this,tr("Ошибка"),query.lastError().text(),QMessageBox::Cancel);
     }
 
+    QSqlQuery queryAmp;
+    queryAmp.prepare("insert into amp (id_el, id_diam, bot, vert, ceil, id_var) "
+                  "(select id_el, id_diam, bot, vert, ceil, :id_var from amp where id_el = :id_el )");
+    queryAmp.bindValue(":id_el",id_el());
+    queryAmp.bindValue(":id_var",id_var());
+    if (!queryAmp.exec()){
+        QMessageBox::critical(this,tr("Ошибка"),queryAmp.lastError().text(),QMessageBox::Cancel);
+    }
+
+    loadVars();
 }
 
 void FormMark::saveVar()
