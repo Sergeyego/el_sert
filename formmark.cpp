@@ -153,6 +153,7 @@ FormMark::FormMark(QWidget *parent) :
     mapper->addEmptyLock(ui->cmdLbl);
     mapper->addEmptyLock(ui->cmdLblSmall);
     mapper->addEmptyLock(ui->cmdLblSmall2);
+    mapper->addEmptyLock(ui->tableViewPack);
 
     connect(mapper,SIGNAL(currentIndexChanged(int)),this,SLOT(refreshCont(int)));
     connect(modelMark,SIGNAL(sigUpd()),Rels::instance()->relElMark,SLOT(refreshModel()));

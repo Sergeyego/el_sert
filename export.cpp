@@ -467,7 +467,7 @@ QDomElement Export::getTu(int id_el, QDomDocument *doc)
 {
     QDomElement tu = doc->createElement(QString::fromUtf8("Нормативная_документация"));
     QSqlQuery tuQuery;
-    tuQuery.prepare("select nam from zvd_get_tu( :date, :id_el, :id_diam)");
+    tuQuery.prepare("select nam from zvd_get_tu_var( :date, :id_el, :id_diam, 1)");
     tuQuery.bindValue(":date",QDate::currentDate());
     tuQuery.bindValue(":id_el",id_el);
     tuQuery.bindValue(":id_diam",4);
@@ -507,7 +507,7 @@ QDomElement Export::getAmp(int id_el, QDomDocument *doc)
     QSqlQuery queryAmp;
     queryAmp.prepare("select d.diam, a.bot, a.vert, a.ceil from amp as a "
                      "inner join diam as d on a.id_diam=d.id "
-                     "where a.id_el = :id order by d.diam");
+                     "where a.id_el = :id and a.id_var=1 order by d.diam");
     queryAmp.bindValue(":id",id_el);
     if (queryAmp.exec()){
         while (queryAmp.next()){
