@@ -359,15 +359,32 @@
            </layout>
           </item>
           <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_4">
-            <item>
+           <layout class="QGridLayout" name="gridLayout_2">
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_20">
+              <property name="text">
+               <string>Проволока</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QComboBox" name="comboBoxProvVar"/>
+            </item>
+            <item row="0" column="2">
+             <widget class="QLabel" name="label_27">
+              <property name="text">
+               <string>Описание</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
              <widget class="QLabel" name="label_26">
               <property name="text">
                <string>Знаменатель</string>
               </property>
              </widget>
             </item>
-            <item>
+            <item row="1" column="1">
              <widget class="QLineEdit" name="lineEditVarZnam">
               <property name="maximumSize">
                <size>
@@ -377,28 +394,14 @@
               </property>
              </widget>
             </item>
-            <item>
-             <widget class="QLabel" name="label_27">
-              <property name="text">
-               <string>Описание</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPlainTextEdit" name="plainTextEditDescr"/>
-            </item>
-           </layout>
-          </item>
-          <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_3">
-            <item>
+            <item row="2" column="0">
              <widget class="QLabel" name="label_16">
               <property name="text">
                <string>Режим повт. прок.</string>
               </property>
              </widget>
             </item>
-            <item>
+            <item row="2" column="1">
              <widget class="QLineEdit" name="lineEditProcVar">
               <property name="maximumSize">
                <size>
@@ -408,14 +411,17 @@
               </property>
              </widget>
             </item>
-            <item>
+            <item row="0" column="3" rowspan="2">
+             <widget class="QPlainTextEdit" name="plainTextEditDescr"/>
+            </item>
+            <item row="2" column="2">
              <widget class="QLabel" name="label_19">
               <property name="text">
                <string>Токи</string>
               </property>
              </widget>
             </item>
-            <item>
+            <item row="2" column="3">
              <widget class="DbViewer" name="tableViewAmp"/>
             </item>
            </layout>
@@ -616,7 +622,6 @@
   <tabstop>lineEditVl</tabstop>
   <tabstop>lineEditPr</tabstop>
   <tabstop>lineEditInd</tabstop>
-  <tabstop>tableViewAmp</tabstop>
   <tabstop>tableViewChem</tabstop>
   <tabstop>tableViewMech</tabstop>
  </tabstops>

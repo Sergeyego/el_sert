@@ -18,6 +18,9 @@ FormMark::FormMark(QWidget *parent) :
         ui->comboBoxDiam->setCurrentIndex(ind);
     }
 
+    ui->comboBoxProvVar->setModel(Rels::instance()->relProvol->model());
+    ui->comboBoxProvVar->setModelColumn(Rels::instance()->relProvol->columnDisplay());
+
     ui->comboBoxVar->setModel(Rels::instance()->relVar->model());
     ui->comboBoxVar->setModelColumn(Rels::instance()->relVar->columnDisplay());
 
@@ -167,6 +170,7 @@ FormMark::FormMark(QWidget *parent) :
     connect(ui->plainTextEditDescr,SIGNAL(textChanged()),this,SLOT(varChanged()));
     connect(ui->lineEditVarZnam,SIGNAL(textChanged(QString)),this,SLOT(varChanged()));
     connect(ui->lineEditProcVar,SIGNAL(textChanged(QString)),this,SLOT(varChanged()));
+    connect(ui->comboBoxProvVar,SIGNAL(currentIndexChanged(int)),this,SLOT(varChanged()));
     connect(ui->pushButtonSaveVar,SIGNAL(clicked(bool)),this,SLOT(saveVar()));
 
     if (ui->tableViewMark->model()->rowCount()){
@@ -215,7 +219,7 @@ void FormMark::loadVars()
     int id_e=id_el();
     int id_v=id_var();
     QSqlQuery query;
-    query.prepare("select znam, descr, proc from el_var where id_el = :id_el and id_var=:id_var");
+    query.prepare("select znam, descr, proc, id_prov from el_var where id_el = :id_el and id_var=:id_var");
     query.bindValue(":id_el",id_e);
     query.bindValue(":id_var",id_v);
     if (query.exec()){
@@ -225,6 +229,14 @@ void FormMark::loadVars()
             ui->lineEditVarZnam->setText(query.value(0).toString());
             ui->plainTextEditDescr->setPlainText(query.value(1).toString());
             ui->lineEditProcVar->setText(query.value(2).toString());
+            int id_prov=query.value(3).toInt();
+            for (int i=0; i<ui->comboBoxProvVar->model()->rowCount();i++){
+                int id_p=ui->comboBoxProvVar->model()->data(ui->comboBoxProvVar->model()->index(i,0),Qt::EditRole).toInt();
+                if (id_p==id_prov){
+                    ui->comboBoxProvVar->setCurrentIndex(i);
+                    break;
+                }
+            }
         } else {
             blockVar(true);
         }
@@ -312,24 +324,28 @@ void FormMark::blockVar(bool b)
     ui->lineEditVarZnam->setEnabled(!b);
     ui->plainTextEditDescr->setEnabled(!b);
     ui->lineEditProcVar->setEnabled(!b);
+    ui->comboBoxProvVar->setEnabled(!b);
     if (b){
         ui->lineEditVarZnam->clear();
         ui->plainTextEditDescr->clear();
         ui->lineEditProcVar->clear();
+        ui->comboBoxProvVar->setCurrentIndex(0);
     }
 }
 
 void FormMark::createVar()
 {
     QString znam=ui->comboBoxZnam->currentText();
+    int id_prov=ui->comboBoxProv->model()->data(ui->comboBoxProv->model()->index(ui->comboBoxProv->currentIndex(),0),Qt::EditRole).toInt();
 
     QSqlQuery query;
-    query.prepare("insert into el_var (id_el, id_var, znam, descr, proc) values (:id_el, :id_var, :znam, (select e.descr from elrtr as e where e.id = :id ), :proc)");
+    query.prepare("insert into el_var (id_el, id_var, znam, descr, proc, id_prov) values (:id_el, :id_var, :znam, (select e.descr from elrtr as e where e.id = :id ), :proc, :id_prov)");
     query.bindValue(":id_el",id_el());
     query.bindValue(":id_var",id_var());
     query.bindValue(":znam",znam);
     query.bindValue(":id",id_el());
     query.bindValue(":proc",ui->lineEditPr->text());
+    query.bindValue(":id_prov",id_prov);
     if (!query.exec()){
         QMessageBox::critical(this,tr("Ошибка"),query.lastError().text(),QMessageBox::Cancel);
     }
@@ -353,13 +369,16 @@ void FormMark::saveVar()
     QString znam=ui->lineEditVarZnam->text();
     QString descr=ui->plainTextEditDescr->toPlainText();
 
+    int id_prov=ui->comboBoxProvVar->model()->data(ui->comboBoxProvVar->model()->index(ui->comboBoxProvVar->currentIndex(),0),Qt::EditRole).toInt();
+
     QSqlQuery query;
-    query.prepare("update el_var set znam = :znam, descr = :descr, proc = :proc where id_el = :id_el and id_var = :id_var");
+    query.prepare("update el_var set znam = :znam, descr = :descr, proc = :proc, id_prov = :id_prov where id_el = :id_el and id_var = :id_var");
     query.bindValue(":id_el",id_el());
     query.bindValue(":id_var",id_var());
     query.bindValue(":znam",znam);
     query.bindValue(":descr",descr);
     query.bindValue(":proc",ui->lineEditProcVar->text());
+    query.bindValue(":id_prov",id_prov);
     if (query.exec()){
         loadVars();
     } else {
