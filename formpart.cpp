@@ -199,7 +199,7 @@ void FormPart::saveZnam()
     int id=currentIdPart();
     QSqlQuery query;
     query.prepare("update parti set ibco=:ibco where id=:id");
-    query.bindValue(":ibco",ui->lineEditZnam->text());
+    query.bindValue(":ibco",ui->lineEditZnam->text().isEmpty() ? NULL : ui->lineEditZnam->text());
     query.bindValue(":id",id);
     if (!query.exec()){
         QMessageBox::critical(NULL,"Error",query.lastError().text(),QMessageBox::Cancel);
@@ -285,7 +285,8 @@ void FormPart::copyZnam()
 {
     int id=currentIdPart();
     QSqlQuery query;
-    query.prepare("update parti as p set ibco = (select d.nam from elrtr as e inner join denominator as d on e.id_denominator=d.id where e.id=p.id_el) where p.id=:id");
+    query.prepare("update parti as p set ibco = :ibco where p.id=:id");
+    query.bindValue(":ibco",ui->lineEditSrcZnam->text());
     query.bindValue(":id",id);
     if (!query.exec()){
         QMessageBox::critical(NULL,"Error",query.lastError().text(),QMessageBox::Cancel);
