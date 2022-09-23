@@ -18,6 +18,7 @@ public:
     DbTableModel *modelAws;
     DbTableModel *modelZnam;
     DbTableModel *modelBukv;
+    DbTableModel *modelVar;
 
     DbRelation *relVed;
     DbRelation *relVedPix;

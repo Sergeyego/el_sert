@@ -14,26 +14,26 @@
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0">
-    <widget class="QGroupBox" name="groupBox">
+   <item row="2" column="0">
+    <widget class="QGroupBox" name="groupBox_5">
      <property name="title">
-      <string>Типы по ГОСТ</string>
+      <string>Постфиксы</string>
      </property>
-     <layout class="QVBoxLayout" name="verticalLayout">
+     <layout class="QVBoxLayout" name="verticalLayout_5">
       <item>
-       <widget class="DbViewer" name="tableViewGost"/>
+       <widget class="DbViewer" name="tableViewBukv"/>
       </item>
      </layout>
     </widget>
    </item>
-   <item row="0" column="1" rowspan="2">
-    <widget class="QGroupBox" name="groupBox_4">
+   <item row="0" column="0">
+    <widget class="QGroupBox" name="groupBox_6">
      <property name="title">
-      <string>Знаменатели</string>
+      <string>Варианты</string>
      </property>
-     <layout class="QVBoxLayout" name="verticalLayout_4">
+     <layout class="QVBoxLayout" name="verticalLayout_6">
       <item>
-       <widget class="DbViewer" name="tableViewZnam"/>
+       <widget class="DbViewer" name="tableViewVar"/>
       </item>
      </layout>
     </widget>
@@ -50,19 +50,7 @@
      </layout>
     </widget>
    </item>
-   <item row="1" column="0">
-    <widget class="QGroupBox" name="groupBox_5">
-     <property name="title">
-      <string>Постфиксы</string>
-     </property>
-     <layout class="QVBoxLayout" name="verticalLayout_5">
-      <item>
-       <widget class="DbViewer" name="tableViewBukv"/>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="1" column="2">
+   <item row="1" column="2" rowspan="2">
     <widget class="QGroupBox" name="groupBox_3">
      <property name="title">
       <string>Типы по AWS</string>
@@ -70,6 +58,30 @@
      <layout class="QVBoxLayout" name="verticalLayout_3">
       <item>
        <widget class="DbViewer" name="tableViewAws"/>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="1" column="1" rowspan="2">
+    <widget class="QGroupBox" name="groupBox_4">
+     <property name="title">
+      <string>Знаменатели</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_4">
+      <item>
+       <widget class="DbViewer" name="tableViewZnam"/>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="0" column="1">
+    <widget class="QGroupBox" name="groupBox">
+     <property name="title">
+      <string>Типы по ГОСТ</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <widget class="DbViewer" name="tableViewGost"/>
       </item>
      </layout>
     </widget>

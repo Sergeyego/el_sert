@@ -28,8 +28,9 @@ void ModelChem::refresh(int id_part)
 {
     map.clear();
     QSqlQuery query;
-    query.prepare(tuQuery);
-    query.bindValue(":id",id_part);
+    QString qu = tuQuery;
+    qu.replace(":id",QString::number(id_part));
+    query.prepare(qu);
     if (query.exec()){
         while (query.next()){
             range r;
@@ -112,7 +113,9 @@ ModelChemSrc::ModelChemSrc(QObject *parent) : ModelChem("parti_chem",parent)
     colIdPart=1;
     colIdChem=2;
     colVal=3;
-    tuQuery="select c.id_chem, c.min, c.max from chem_tu as c where c.id_el = (select p.id_el from parti as p where p.id = :id )";
+    tuQuery="select c.id_chem, c.min, c.max from chem_tu as c where "
+            "c.id_el = (select p.id_el from parti as p where p.id = :id ) "
+            "and c.id_var = (select p.id_var from parti as p where p.id = :id )";
 }
 
 ModelChemSert::ModelChemSert(QObject *parent) : ModelChem("sert_chem",parent)
@@ -125,7 +128,9 @@ ModelChemSert::ModelChemSert(QObject *parent) : ModelChem("sert_chem",parent)
     colIdPart=0;
     colIdChem=1;
     colVal=2;
-    tuQuery="select c.id_chem, c.min, c.max from chem_tu as c where c.id_el = (select p.id_el from parti as p where p.id = :id )";
+    tuQuery="select c.id_chem, c.min, c.max from chem_tu as c where "
+            "c.id_el = (select p.id_el from parti as p where p.id = :id ) "
+            "and c.id_var = (select p.id_var from parti as p where p.id = :id )";
 }
 
 ModelMechSrc::ModelMechSrc(QObject *parent) : ModelChem("parti_mech",parent)
@@ -138,7 +143,9 @@ ModelMechSrc::ModelMechSrc(QObject *parent) : ModelChem("parti_mech",parent)
     colIdPart=0;
     colIdChem=1;
     colVal=2;
-    tuQuery="select m.id_mech, m.min, m.max from mech_tu as m where m.id_el = (select p.id_el from parti as p where p.id = :id )";
+    tuQuery="select m.id_mech, m.min, m.max from mech_tu as m where "
+            "m.id_el = (select p.id_el from parti as p where p.id = :id ) "
+            "and m.id_var = (select p.id_var from parti as p where p.id = :id )";
 }
 
 ModelMechSert::ModelMechSert(QObject *parent) : ModelChem("sert_mech",parent)
@@ -151,5 +158,7 @@ ModelMechSert::ModelMechSert(QObject *parent) : ModelChem("sert_mech",parent)
     colIdPart=0;
     colIdChem=1;
     colVal=2;
-    tuQuery="select m.id_mech, m.min, m.max from mech_tu as m where m.id_el = (select p.id_el from parti as p where p.id = :id )";
+    tuQuery="select m.id_mech, m.min, m.max from mech_tu as m where "
+            "m.id_el = (select p.id_el from parti as p where p.id = :id ) "
+            "and m.id_var = (select p.id_var from parti as p where p.id = :id )";
 }

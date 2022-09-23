@@ -52,6 +52,7 @@ private slots:
     void saveVar();
     void deleteVar();
     void varChanged();
+    void copyTableData();
 };
 
 class CustomDelegate : public DbDelegate

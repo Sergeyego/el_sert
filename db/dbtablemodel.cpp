@@ -198,6 +198,11 @@ bool DbTableModel::isEdt()
     return (editor->isEdt());
 }
 
+bool DbTableModel::isEmpty()
+{
+    return (rowCount()==1 && isAdd()) || (rowCount()<1);
+}
+
 bool DbTableModel::insertRow(int /*row*/, const QModelIndex& /*parent*/)
 {
     if (block) return false;
@@ -637,7 +642,9 @@ DbRelation::DbRelation(const QString &query, int key, int disp, QObject *parent)
     filterModel->setSourceModel(relQueryModel);
     filterModel->setFilterKeyColumn(disp);
     DbRelationalModel *sqlModel = qobject_cast< DbRelationalModel *>(relQueryModel);
-    connect(sqlModel,SIGNAL(sigRefresh()),this,SLOT(reHash()));
+    if (sqlModel){
+        connect(sqlModel,SIGNAL(sigRefresh()),this,SLOT(reHash()));
+    }
 }
 
 QVariant DbRelation::data(QString key)

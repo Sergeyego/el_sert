@@ -553,7 +553,7 @@ QDomElement Export::getChem(int id_el, QDomDocument *doc)
     QSqlQuery queryChem;
     queryChem.prepare("select t.nam, t.sig, c.min, c.max from chem_tu as c "
                       "inner join chem_tbl as t on t.id=c.id_chem "
-                      "where c.id_el = :id order by t.sig");
+                      "where c.id_el = :id and c.id_var=1 order by t.sig");
     queryChem.bindValue(":id",id_el);
     if (queryChem.exec()){
         while (queryChem.next()){
@@ -601,7 +601,7 @@ QDomElement Export::getMech(int id_el, QDomDocument *doc)
     QSqlQuery queryMech;
     queryMech.prepare("select t.nam_html, t.sig_html, m.min, m.max from mech_tu as m "
                       "inner join mech_tbl as t on t.id=m.id_mech "
-                      "where id_el= :id order by t.nam_html");
+                      "where m.id_el= :id and m.id_var=1 order by t.nam_html");
     queryMech.bindValue(":id",id_el);
     if (queryMech.exec()){
         while (queryMech.next()){

@@ -74,6 +74,12 @@ Rels::Rels(QObject *parent) : QObject(parent)
     modelBukv->setSort("purpose.nam");
     modelBukv->select();
 
+    modelVar = new DbTableModel("elrtr_vars",this);
+    modelVar->addColumn("id","id");
+    modelVar->addColumn("nam",QString::fromUtf8("Название"));
+    modelVar->setSort("elrtr_vars.id");
+    modelVar->select();
+
     relVed = new DbRelation(modelVed,0,1,this);
     relVedPix = new DbRelation(QString("select id, simb from zvd_ved"),0,1,this);
     relVidDoc = new DbRelation(modelDoc,0,1,this);
@@ -102,7 +108,7 @@ Rels::Rels(QObject *parent) : QObject(parent)
     relChemDev = new DbRelation(QString("select id, short from chem_dev order by short"),0,1,this);
     relPack = new DbRelation(QString("select id, pack_ed || ', '|| pack_group from el_pack order by pack_ed"),0,1,this);
     relEan = new DbRelation(QString("select ean from eans order by ean"),0,0,this);
-    relVar = new DbRelation(QString("select id, nam from elrtr_vars order by id"),0,1,this);
+    relVar = new DbRelation(modelVar,0,1,this);
 
     relDiam->proxyModel()->setFilterKeyColumn(2);
     relDiam->proxyModel()->setFilterFixedString("1");

@@ -28,7 +28,7 @@ FormMark::FormMark(QWidget *parent) :
     ui->tableViewPack->setModel(modelEan);
     ui->tableViewPack->setColumnHidden(0,true);
     ui->tableViewPack->setColumnWidth(1,70);
-    ui->tableViewPack->setColumnWidth(2,260);
+    ui->tableViewPack->setColumnWidth(2,200);
     ui->tableViewPack->setColumnWidth(3,125);
     ui->tableViewPack->setColumnWidth(4,125);
 
@@ -41,10 +41,10 @@ FormMark::FormMark(QWidget *parent) :
     modelAmp->addColumn("id","id");
     modelAmp->addColumn("id_el","id_el");
     modelAmp->addColumn("id_var","id_var");
-    modelAmp->addColumn("id_diam",QString::fromUtf8("Диаметр, мм"),NULL,Rels::instance()->relDiam);
+    modelAmp->addColumn("id_diam",QString::fromUtf8("Ф, мм"),NULL,Rels::instance()->relDiam);
     modelAmp->addColumn("bot",QString::fromUtf8("Нижнее"));
-    modelAmp->addColumn("vert",QString::fromUtf8("Вертикальное"));
-    modelAmp->addColumn("ceil",QString::fromUtf8("Потолочное"));
+    modelAmp->addColumn("vert",QString::fromUtf8("Вертикаль."));
+    modelAmp->addColumn("ceil",QString::fromUtf8("Потолоч."));
     modelAmp->setSuffix("inner join diam on amp.id_diam=diam.id");
     modelAmp->setSort("diam.sdim");
 
@@ -52,13 +52,14 @@ FormMark::FormMark(QWidget *parent) :
     ui->tableViewAmp->setColumnHidden(0,true);
     ui->tableViewAmp->setColumnHidden(1,true);
     ui->tableViewAmp->setColumnHidden(2,true);
-    ui->tableViewAmp->setColumnWidth(3,100);
-    ui->tableViewAmp->setColumnWidth(4,100);
-    ui->tableViewAmp->setColumnWidth(5,100);
-    ui->tableViewAmp->setColumnWidth(6,100);
+    ui->tableViewAmp->setColumnWidth(3,70);
+    ui->tableViewAmp->setColumnWidth(4,90);
+    ui->tableViewAmp->setColumnWidth(5,90);
+    ui->tableViewAmp->setColumnWidth(6,90);
 
     modelChemTu = new DbTableModel("chem_tu",this);
     modelChemTu->addColumn("id_el","id_el");
+    modelChemTu->addColumn("id_var","id_var");
     modelChemTu->addColumn("id_chem",QString::fromUtf8("Элемент"),NULL,Rels::instance()->relChem);
     modelChemTu->addColumn("min",QString::fromUtf8("Минимум, %"),new QDoubleValidator(0,1000000000,3,this));
     modelChemTu->addColumn("max",QString::fromUtf8("Максимум, %"),new QDoubleValidator(0,1000000000,3,this));
@@ -66,12 +67,14 @@ FormMark::FormMark(QWidget *parent) :
 
     ui->tableViewChem->setModel(modelChemTu);
     ui->tableViewChem->setColumnHidden(0,true);
-    ui->tableViewChem->setColumnWidth(1,100);
+    ui->tableViewChem->setColumnHidden(1,true);
     ui->tableViewChem->setColumnWidth(2,100);
     ui->tableViewChem->setColumnWidth(3,100);
+    ui->tableViewChem->setColumnWidth(4,100);
 
     modelMechTu = new DbTableModel("mech_tu",this);
     modelMechTu->addColumn("id_el","id_el");
+    modelMechTu->addColumn("id_var","id_var");
     modelMechTu->addColumn("id_mech",QString::fromUtf8("Параметр"),NULL,Rels::instance()->relMech);
     modelMechTu->addColumn("min",QString::fromUtf8("Минимум"),new QDoubleValidator(-1000000000,1000000000,3,this));
     modelMechTu->addColumn("max",QString::fromUtf8("Максимум"),new QDoubleValidator(-1000000000,1000000000,3,this));
@@ -79,9 +82,10 @@ FormMark::FormMark(QWidget *parent) :
 
     ui->tableViewMech->setModel(modelMechTu);
     ui->tableViewMech->setColumnHidden(0,true);
-    ui->tableViewMech->setColumnWidth(1,150);
-    ui->tableViewMech->setColumnWidth(2,90);
+    ui->tableViewMech->setColumnHidden(1,true);
+    ui->tableViewMech->setColumnWidth(2,150);
     ui->tableViewMech->setColumnWidth(3,90);
+    ui->tableViewMech->setColumnWidth(4,90);
 
     modelPlav = new DbTableModel("el_plav",this);
     modelPlav->addColumn("id_el","id_el");
@@ -172,6 +176,7 @@ FormMark::FormMark(QWidget *parent) :
     connect(ui->lineEditProcVar,SIGNAL(textChanged(QString)),this,SLOT(varChanged()));
     connect(ui->comboBoxProvVar,SIGNAL(currentIndexChanged(int)),this,SLOT(varChanged()));
     connect(ui->pushButtonSaveVar,SIGNAL(clicked(bool)),this,SLOT(saveVar()));
+    connect(ui->pushButtonCopy,SIGNAL(clicked(bool)),this,SLOT(copyTableData()));
 
     if (ui->tableViewMark->model()->rowCount()){
         ui->tableViewMark->selectRow(0);
@@ -218,6 +223,7 @@ void FormMark::loadVars()
 {
     int id_e=id_el();
     int id_v=id_var();
+    bool ok=false;
     QSqlQuery query;
     query.prepare("select znam, descr, proc, id_prov from el_var where id_el = :id_el and id_var=:id_var");
     query.bindValue(":id_el",id_e);
@@ -225,7 +231,7 @@ void FormMark::loadVars()
     if (query.exec()){
         if (query.size()>0){
             query.next();
-            blockVar(false);
+            ok=true;
             ui->lineEditVarZnam->setText(query.value(0).toString());
             ui->plainTextEditDescr->setPlainText(query.value(1).toString());
             ui->lineEditProcVar->setText(query.value(2).toString());
@@ -237,8 +243,6 @@ void FormMark::loadVars()
                     break;
                 }
             }
-        } else {
-            blockVar(true);
         }
     } else {
         QMessageBox::critical(this,tr("Ошибка"),query.lastError().text(),QMessageBox::Cancel);
@@ -249,6 +253,18 @@ void FormMark::loadVars()
     modelAmp->setDefaultValue(2,id_v);
     modelAmp->setFilter("amp.id_el = "+QString::number(id_e)+" and amp.id_var = "+QString::number(id_v));
     modelAmp->select();
+
+    modelChemTu->setDefaultValue(0,id_e);
+    modelChemTu->setDefaultValue(1,id_v);
+    modelChemTu->setFilter("chem_tu.id_el = "+QString::number(id_e)+" and chem_tu.id_var = "+QString::number(id_v));
+    modelChemTu->select();
+
+    modelMechTu->setDefaultValue(0,id_e);
+    modelMechTu->setDefaultValue(1,id_v);
+    modelMechTu->setFilter("mech_tu.id_el = "+QString::number(id_e)+" and mech_tu.id_var = "+QString::number(id_v));
+    modelMechTu->select();
+
+    blockVar(!ok);
 }
 
 void FormMark::refreshCont(int index)
@@ -257,14 +273,6 @@ void FormMark::refreshCont(int index)
     int id_el=ui->tableViewMark->model()->data(ind,Qt::EditRole).toInt();
 
     modelEan->refresh(id_el);
-
-    modelChemTu->setDefaultValue(0,id_el);
-    modelChemTu->setFilter("chem_tu.id_el = "+QString::number(id_el));
-    modelChemTu->select();
-
-    modelMechTu->setDefaultValue(0,id_el);
-    modelMechTu->setFilter("mech_tu.id_el = "+QString::number(id_el));
-    modelMechTu->select();
 
     modelPlav->setDefaultValue(0,id_el);
     modelPlav->setFilter("el_plav.id_el = "+QString::number(id_el));
@@ -320,6 +328,7 @@ void FormMark::blockVar(bool b)
 {
     ui->pushButtonCreVar->setEnabled(b);
     ui->pushButtonDelVar->setEnabled(!b);
+    ui->pushButtonCopy->setEnabled(!b && (modelAmp->isEmpty() || modelChemTu->isEmpty() || modelMechTu->isEmpty()) && id_var()!=1);
 
     ui->lineEditVarZnam->setEnabled(!b);
     ui->plainTextEditDescr->setEnabled(!b);
@@ -350,18 +359,7 @@ void FormMark::createVar()
         QMessageBox::critical(this,tr("Ошибка"),query.lastError().text(),QMessageBox::Cancel);
     }
 
-    if (modelAmp->isAdd() && modelAmp->rowCount()==1){
-        QSqlQuery queryAmp;
-        queryAmp.prepare("insert into amp (id_el, id_diam, bot, vert, ceil, id_var) "
-                         "(select id_el, id_diam, bot, vert, ceil, :id_var from amp where id_el = :id_el and id_var = 1)");
-        queryAmp.bindValue(":id_el",id_el());
-        queryAmp.bindValue(":id_var",id_var());
-        if (!queryAmp.exec()){
-            QMessageBox::critical(this,tr("Ошибка"),queryAmp.lastError().text(),QMessageBox::Cancel);
-        }
-    }
-
-    loadVars();
+    copyTableData();
 }
 
 void FormMark::saveVar()
@@ -405,6 +403,44 @@ void FormMark::deleteVar()
 void FormMark::varChanged()
 {
     ui->pushButtonSaveVar->setEnabled(true);
+}
+
+void FormMark::copyTableData()
+{
+    if (modelAmp->isEmpty()){
+        QSqlQuery queryAmp;
+        queryAmp.prepare("insert into amp (id_el, id_diam, bot, vert, ceil, id_var) "
+                         "(select id_el, id_diam, bot, vert, ceil, :id_var from amp where id_el = :id_el and id_var = 1)");
+        queryAmp.bindValue(":id_el",id_el());
+        queryAmp.bindValue(":id_var",id_var());
+        if (!queryAmp.exec()){
+            QMessageBox::critical(this,tr("Ошибка"),queryAmp.lastError().text(),QMessageBox::Cancel);
+        }
+    }
+
+    if (modelChemTu->isEmpty()){
+        QSqlQuery queryChem;
+        queryChem.prepare("insert into chem_tu (id_el, id_var, id_chem, min, max) "
+                         "(select id_el, :id_var, id_chem, min, max from chem_tu where id_el = :id_el and id_var = 1)");
+        queryChem.bindValue(":id_el",id_el());
+        queryChem.bindValue(":id_var",id_var());
+        if (!queryChem.exec()){
+            QMessageBox::critical(this,tr("Ошибка"),queryChem.lastError().text(),QMessageBox::Cancel);
+        }
+    }
+
+    if (modelMechTu->isEmpty()){
+        QSqlQuery queryMech;
+        queryMech.prepare("insert into mech_tu (id_el, id_var, id_mech, min, max) "
+                         "(select id_el, :id_var, id_mech, min, max from mech_tu where id_el = :id_el and id_var = 1)");
+        queryMech.bindValue(":id_el",id_el());
+        queryMech.bindValue(":id_var",id_var());
+        if (!queryMech.exec()){
+            QMessageBox::critical(this,tr("Ошибка"),queryMech.lastError().text(),QMessageBox::Cancel);
+        }
+    }
+
+    loadVars();
 }
 
 CustomDelegate::CustomDelegate(QObject *parent) : DbDelegate(parent)

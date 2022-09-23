@@ -128,6 +128,7 @@ public:
     void setSuffix(QString s);
     bool isAdd();
     bool isEdt();
+    bool isEmpty();
     virtual bool insertRow(int row, const QModelIndex &parent=QModelIndex());
     DbRelation *relation(int column) const;
     QVariant::Type columnType(int column) const;
