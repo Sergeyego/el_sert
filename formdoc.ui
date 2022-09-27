@@ -149,13 +149,6 @@
          <item row="0" column="1">
           <widget class="QLineEdit" name="lineEditDoc"/>
          </item>
-         <item row="7" column="3">
-          <widget class="QCheckBox" name="checkBoxEn">
-           <property name="text">
-            <string>Включен по умолчанию</string>
-           </property>
-          </widget>
-         </item>
          <item row="1" column="1">
           <widget class="QLineEdit" name="lineEditNam"/>
          </item>
@@ -255,8 +248,66 @@
            </property>
           </widget>
          </item>
-         <item row="2" column="3" rowspan="5">
+         <item row="2" column="3" rowspan="6">
           <widget class="DbViewer" name="tableViewTu"/>
+         </item>
+         <item row="7" column="4">
+          <layout class="QHBoxLayout" name="horizontalLayout_4">
+           <item>
+            <widget class="QToolButton" name="toolButtonCheckAll">
+             <property name="minimumSize">
+              <size>
+               <width>25</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>25</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>+</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QToolButton" name="toolButtonUnCheckAll">
+             <property name="minimumSize">
+              <size>
+               <width>25</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>25</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>-</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="horizontalSpacer_3">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </item>
+         <item row="0" column="4" rowspan="7">
+          <widget class="QListView" name="listViewEn"/>
          </item>
         </layout>
        </item>
