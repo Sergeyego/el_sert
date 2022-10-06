@@ -19,7 +19,7 @@
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
-     <widget class="QWidget" name="">
+     <widget class="QWidget" name="layoutWidget">
       <layout class="QVBoxLayout" name="verticalLayout_5">
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_2">
@@ -108,24 +108,6 @@
             <widget class="DbViewer" name="tableViewGostEl"/>
            </item>
           </layout>
-         </item>
-         <item>
-          <widget class="QGroupBox" name="groupBox">
-           <property name="maximumSize">
-            <size>
-             <width>300</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="title">
-            <string>Список стандартов</string>
-           </property>
-           <layout class="QVBoxLayout" name="verticalLayout_2">
-            <item>
-             <widget class="DbViewer" name="tableViewListGost"/>
-            </item>
-           </layout>
-          </widget>
          </item>
         </layout>
        </item>

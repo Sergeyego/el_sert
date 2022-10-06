@@ -24,7 +24,7 @@
       </widget>
      </item>
      <item>
-      <widget class="DateEdit" name="dateEditBeg">
+      <widget class="DbDateEdit" name="dateEditBeg">
        <property name="calendarPopup">
         <bool>true</bool>
        </property>
@@ -38,7 +38,7 @@
       </widget>
      </item>
      <item>
-      <widget class="DateEdit" name="dateEditEnd">
+      <widget class="DbDateEdit" name="dateEditEnd">
        <property name="calendarPopup">
         <bool>true</bool>
        </property>
@@ -150,58 +150,19 @@
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_2">
          <item>
-          <widget class="QLabel" name="label_6">
-           <property name="text">
-            <string>Нормативная документация</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="DbViewer" name="tableViewSrcGost">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>110</height>
-            </size>
-           </property>
+          <widget class="QListView" name="listViewGost">
            <property name="maximumSize">
             <size>
-             <width>16777215</width>
-             <height>110</height>
+             <width>220</width>
+             <height>80</height>
             </size>
            </property>
-           <property name="editTriggers">
-            <set>QAbstractItemView::NoEditTriggers</set>
-           </property>
-           <attribute name="horizontalHeaderVisible">
-            <bool>false</bool>
-           </attribute>
-           <attribute name="verticalHeaderVisible">
-            <bool>false</bool>
-           </attribute>
           </widget>
          </item>
-         <item>
-          <spacer name="horizontalSpacer">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_10">
          <item>
           <widget class="QLabel" name="label_3">
            <property name="text">
-            <string>Знаменатель</string>
+            <string>Знам.</string>
            </property>
           </widget>
          </item>
@@ -225,18 +186,21 @@
          <item>
           <widget class="QPushButton" name="cmdSaveZnam">
            <property name="text">
-            <string>Сохранить знаменатель</string>
+            <string>Сохр. знам.</string>
            </property>
           </widget>
          </item>
          <item>
           <widget class="QPushButton" name="pushButtonCopy">
            <property name="text">
-            <string>Импортировать значения</string>
+            <string>Импор. знач.</string>
            </property>
           </widget>
          </item>
         </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_10"/>
        </item>
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_6">
@@ -254,7 +218,7 @@
              <property name="maximumSize">
               <size>
                <width>170</width>
-               <height>170</height>
+               <height>150</height>
               </size>
              </property>
             </widget>
@@ -271,7 +235,7 @@
              <property name="maximumSize">
               <size>
                <width>170</width>
-               <height>170</height>
+               <height>150</height>
               </size>
              </property>
             </widget>
@@ -474,9 +438,9 @@
    <header>db/dbviewer.h</header>
   </customwidget>
   <customwidget>
-   <class>DateEdit</class>
+   <class>DbDateEdit</class>
    <extends>QDateEdit</extends>
-   <header>db/dbviewer.h</header>
+   <header>db/dbdateedit.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

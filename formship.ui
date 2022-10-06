@@ -30,7 +30,7 @@
       </widget>
      </item>
      <item>
-      <widget class="DateEdit" name="dateEditBeg">
+      <widget class="DbDateEdit" name="dateEditBeg">
        <property name="calendarPopup">
         <bool>true</bool>
        </property>
@@ -50,7 +50,7 @@
       </widget>
      </item>
      <item>
-      <widget class="DateEdit" name="dateEditEnd">
+      <widget class="DbDateEdit" name="dateEditEnd">
        <property name="calendarPopup">
         <bool>true</bool>
        </property>
@@ -163,9 +163,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>DateEdit</class>
+   <class>DbDateEdit</class>
    <extends>QDateEdit</extends>
-   <header>db/dbviewer.h</header>
+   <header>db/dbdateedit.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

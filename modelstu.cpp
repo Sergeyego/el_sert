@@ -103,13 +103,14 @@ ModelChemSrc::ModelChemSrc(QObject *parent) : ModelChem("parti_chem",parent)
 {
     addColumn("id","id");
     addColumn("id_part","id_part");
-    addColumn("id_chem",tr("Элем."),NULL,Rels::instance()->relChem);
-    addColumn("kvo",tr("Сод., %"),new QDoubleValidator(0,1000000000,3,this));
-    addColumn("id_dev",tr("Прибор"),NULL,Rels::instance()->relChemDev);
+    addColumn("id_chem",tr("Элем."),Rels::instance()->relChem);
+    addColumn("kvo",tr("Сод., %"));
+    addColumn("id_dev",tr("Прибор"),Rels::instance()->relChemDev);
     addColumn("dt_cre",tr("Дата"));
     setSort(tablename+".id_chem, "+tablename+".dt_cre");
     flt=tableName+".id_part";
     setColumnFlags(5,Qt::ItemIsSelectable | Qt::ItemIsEnabled);
+    setDecimals(3,3);
     colIdPart=1;
     colIdChem=2;
     colVal=3;
@@ -121,9 +122,10 @@ ModelChemSrc::ModelChemSrc(QObject *parent) : ModelChem("parti_chem",parent)
 ModelChemSert::ModelChemSert(QObject *parent) : ModelChem("sert_chem",parent)
 {
     addColumn("id_part","id_part");
-    addColumn("id_chem",tr("Элем."),NULL,Rels::instance()->relChem);
-    addColumn("value",tr("Сод., %"),new QDoubleValidator(0,1000000000,3,this));
+    addColumn("id_chem",tr("Элем."),Rels::instance()->relChem);
+    addColumn("value",tr("Сод., %"));
     setSort("sert_chem.id_chem");
+    setDecimals(2,3);
     flt=tableName+".id_part";
     colIdPart=0;
     colIdChem=1;
@@ -136,9 +138,10 @@ ModelChemSert::ModelChemSert(QObject *parent) : ModelChem("sert_chem",parent)
 ModelMechSrc::ModelMechSrc(QObject *parent) : ModelChem("parti_mech",parent)
 {
     addColumn("id_part","id_part");
-    addColumn("id_mech",tr("Параметр"),NULL,Rels::instance()->relMech);
-    addColumn("kvo",tr("Значение"),new QDoubleValidator(-1000000000,1000000000,2,this));
+    addColumn("id_mech",tr("Параметр"),Rels::instance()->relMech);
+    addColumn("kvo",tr("Значение"));
     setSort("parti_mech.id_mech");
+    setDecimals(2,2);
     flt=tableName+".id_part";
     colIdPart=0;
     colIdChem=1;
@@ -151,9 +154,10 @@ ModelMechSrc::ModelMechSrc(QObject *parent) : ModelChem("parti_mech",parent)
 ModelMechSert::ModelMechSert(QObject *parent) : ModelChem("sert_mech",parent)
 {
     addColumn("id_part","id_part");
-    addColumn("id_mech",tr("Параметр"),NULL,Rels::instance()->relMech);
-    addColumn("value",tr("Значение"),new QDoubleValidator(0,1000000000,2,this));
+    addColumn("id_mech",tr("Параметр"),Rels::instance()->relMech);
+    addColumn("value",tr("Значение"));
     setSort("sert_mech.id_mech");
+    setDecimals(2,2);
     flt=tableName+".id_part";
     colIdPart=0;
     colIdChem=1;

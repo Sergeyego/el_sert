@@ -21,7 +21,8 @@ public:
 private:
     Ui::FormVed *ui;
     void viewPix(const QPixmap &pix);
-    DbTableModel *modelDocType;
+    DbTableModel *modelVed;
+    DbTableModel *modelDoc;
 
 private slots:
     void loadImg(QModelIndex index);

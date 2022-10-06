@@ -15,7 +15,7 @@ class DbLogin : public QDialog
     Q_OBJECT
 
 public:
-    explicit DbLogin(const QString title, QPixmap &pix, QWidget *parent = 0);
+    explicit DbLogin(const QString title, QPixmap &pix, QWidget *parent = nullptr);
     ~DbLogin();
 
 private:

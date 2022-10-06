@@ -7,7 +7,7 @@ FormTypes::FormTypes(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    ui->tableViewVar->setModel(Rels::instance()->modelVar);
+    /*ui->tableViewVar->setModel(Rels::instance()->modelVar);
     ui->tableViewVar->setColumnHidden(0,true);
     ui->tableViewVar->setColumnWidth(1,200);
 
@@ -29,7 +29,7 @@ FormTypes::FormTypes(QWidget *parent) :
 
     ui->tableViewAws->setModel(Rels::instance()->modelAws);
     ui->tableViewAws->setColumnHidden(0,true);
-    ui->tableViewAws->setColumnWidth(1,200);
+    ui->tableViewAws->setColumnWidth(1,200);*/
 }
 
 FormTypes::~FormTypes()

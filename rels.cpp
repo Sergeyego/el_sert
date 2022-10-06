@@ -11,143 +11,67 @@ Rels *Rels::instance()
 
 Rels::Rels(QObject *parent) : QObject(parent)
 {
-    modelGrade = new DbTableModel("zvd_grade",this);
-    modelGrade->addColumn("id","id");
-    modelGrade->addColumn("nam",QString::fromUtf8("Наименование"));
-    modelGrade->setSort("zvd_grade.nam");
-    modelGrade->select();
-
-    modelListGost = new DbTableModel("gost_new",this);
-    modelListGost->addColumn("id","id");
-    modelListGost->addColumn("nam",QString::fromUtf8("Наименование"));
-    modelListGost->setSort("gost_new.nam");
-    modelListGost->select();
-
-    relDocType = new DbRelation(QString("select id, nam from zvd_doc_type order by nam"),0,1,this);
-
-    modelDoc = new DbTableModel("zvd_doc",this);
-    modelDoc->addColumn("id","id");
-    modelDoc->addColumn("nam",QString::fromUtf8("Название"));
-    modelDoc->addColumn("fnam",QString::fromUtf8("Полное название"));
-    modelDoc->addColumn("id_doc_type",QString::fromUtf8("Тип"),NULL,relDocType);
-    modelDoc->addColumn("fnam_en",QString::fromUtf8("Полное название анг."));
-    modelDoc->setSort("zvd_doc.nam");
-    modelDoc->select();
-
-    modelVed = new DbTableModel("zvd_ved",this);
-    modelVed->addColumn("id","id");
-    modelVed->addColumn("nam",QString::fromUtf8("Название"));
-    modelVed->addColumn("short",QString::fromUtf8("Кратеое название"));
-    modelVed->addColumn("fnam",QString::fromUtf8("Полное название"));
-    modelVed->addColumn("fnam_en",QString::fromUtf8("Полное название анг."));
-    modelVed->addColumn("short_en",QString::fromUtf8("Кратеое название анг."));
-    modelVed->setSort("zvd_ved.nam");
-    modelVed->select();
-
-    modelGost = new DbTableModel("gost_types",this);
-    modelGost->addColumn("id","id");
-    modelGost->addColumn("nam",QString::fromUtf8("Название"));
-    modelGost->setSort("gost_types.nam");
-    modelGost->select();
-
-    modelIso = new DbTableModel("iso_types",this);
-    modelIso->addColumn("id","id");
-    modelIso->addColumn("nam",QString::fromUtf8("Название"));
-    modelIso->setSort("iso_types.nam");
-    modelIso->select();
-
-    modelAws = new DbTableModel("aws_types",this);
-    modelAws->addColumn("id","id");
-    modelAws->addColumn("nam",QString::fromUtf8("Название"));
-    modelAws->setSort("aws_types.nam");
-    modelAws->select();
-
-    modelZnam = new DbTableModel("denominator",this);
-    modelZnam->addColumn("id","id");
-    modelZnam->addColumn("nam",QString::fromUtf8("Название"));
-    modelZnam->setSort("denominator.nam");
-    modelZnam->select();
-
-    modelBukv = new DbTableModel("purpose",this);
-    modelBukv->addColumn("id","id");
-    modelBukv->addColumn("nam",QString::fromUtf8("Название"));
-    modelBukv->setSort("purpose.nam");
-    modelBukv->select();
-
-    modelVar = new DbTableModel("elrtr_vars",this);
-    modelVar->addColumn("id","id");
-    modelVar->addColumn("nam",QString::fromUtf8("Название"));
-    modelVar->setSort("elrtr_vars.id");
-    modelVar->select();
-
-    relVed = new DbRelation(modelVed,0,1,this);
-    relVedPix = new DbRelation(QString("select id, simb from zvd_ved"),0,1,this);
-    relVidDoc = new DbRelation(modelDoc,0,1,this);
-    relElMark = new DbRelation(QString("select id, marka from elrtr where id<>0 order by marka"),0,1,this);
-    relElDim = new DbRelation(QString("select ide, fnam from dry_els order by fnam"),0,1,this);
-    relElTypes = new DbRelation(QString("select id, nam from el_types order by sort_order, nam"),0,1,this);
-    relGrade = new DbRelation(modelGrade,0,1,this);
-    relGost = new DbRelation(modelListGost,0,1,this);
-    relChem = new DbRelation(QString("select id, sig from chem_tbl order by sig"),0,1,this);
-    relMech = new DbRelation(QString("select id, nam from mech_tbl order by nam"),0,1,this);
-    relMechx = new DbRelation(QString("select id, short from mechx_tbl order by nam"),0,1,this);
-    relMechxVal = new DbRelation(QString("select id, nam from mechx_nams order by nam"),0,1,this);
-    relProvol = new DbRelation(QString("select id, nam from provol order by nam"),0,1,this);
-    relGrp = new DbRelation(QString("select id, typ from el_grp order by typ"),0,1,this);
-    relVid = new DbRelation(QString("select id, nam from el_types order by nam"),0,1,this);
-    relPol = new DbRelation(QString("select id, descr from pics order by descr"),0,1,this);
-    relGostType = new DbRelation(modelGost,0,1,this);
-    relIso = new DbRelation(modelIso,0,1,this);
-    relAws = new DbRelation(modelAws,0,1,this);
-    relZnam = new DbRelation(modelZnam,0,1,this);
-    relBukv = new DbRelation(modelBukv,0,1,this);
-    relDiam = new DbRelation(QString("select id, sdim, is_el from diam order by sdim"),0,1,this);
-    relPosPix = new DbRelation(QString("select id, data from pics"),0,1,this);
-    relPlav = new DbRelation(QString("select id, nam from el_plav_nams"),0,1,this);
-    relWireDiam = new DbRelation(QString("select id, sdim from diam order by sdim"),0,1,this);
-    relChemDev = new DbRelation(QString("select id, short from chem_dev order by short"),0,1,this);
-    relPack = new DbRelation(QString("select id, pack_ed || ', '|| pack_group from el_pack order by pack_ed"),0,1,this);
-    relEan = new DbRelation(QString("select ean from eans order by ean"),0,0,this);
-    relVar = new DbRelation(modelVar,0,1,this);
-
-    relDiam->proxyModel()->setFilterKeyColumn(2);
-    relDiam->proxyModel()->setFilterFixedString("1");
-
-    connect(modelVed,SIGNAL(sigUpd()),relVedPix,SLOT(refreshModel()));
+    relVed = new DbSqlRelation("zvd_ved","id","nam",this);
+    //relVedPix = new DbRelation(QString("select id, simb from zvd_ved"),0,1,this);
+    relVidDoc = new DbSqlRelation("zvd_doc","id","nam",this);
+    relElMark = new DbSqlRelation("elrtr","id","marka",this);
+    relElMark->setFilter("elrtr.id<>0");
+    relElDim = new DbSqlRelation("dry_els","ide","fnam",this);
+    relGrade = new DbSqlRelation("zvd_grade","id","nam",this);
+    relGrade->setEditable(true);
+    relGost = new DbSqlRelation("gost_new","id","nam",this);
+    relGost->setEditable(true);
+    relChem = new DbSqlRelation("chem_tbl","id","sig",this);
+    relMech = new DbSqlRelation("mech_tbl","id","nam",this);
+    relMechx = new DbSqlRelation("mechx_tbl","id","short",this);
+    relMechxVal = new DbSqlRelation("mechx_nams","id","nam",this);
+    relProvol = new DbSqlRelation("provol","id","nam",this);
+    relProvol->setFilter("provol.id<>0");
+    relGrp = new DbSqlRelation("el_grp","id","typ",this);
+    relGrp->setEditable(true);
+    relVid = new DbSqlRelation("el_types","id","nam",this);
+    relPol = new DbSqlRelation("pics","id","descr",this);
+    relGostType = new DbSqlRelation("gost_types","id","nam",this);
+    relGostType->setEditable(true);
+    relIso = new DbSqlRelation("iso_types","id","nam",this);
+    relIso->setEditable(true);
+    relAws = new DbSqlRelation("aws_types","id","nam",this);
+    relAws->setEditable(true);
+    relZnam = new DbSqlRelation("denominator","id","nam",this);
+    relZnam->setEditable(true);
+    relBukv = new DbSqlRelation("purpose","id","nam",this);
+    relBukv->setEditable(true);
+    relDiam = new DbSqlRelation("diam","id","sdim",this);
+    relDiam->setFilter("diam.is_el<>0");
+    relPlav = new DbSqlRelation("el_plav_nams","id","nam",this);
+    relPlav->setEditable(true);
+    relWireDiam = new DbSqlRelation("diam","id","sdim",this);
+    relWireDiam->setFilter("diam.id<>0");
+    relChemDev = new DbSqlRelation("chem_dev","id","short",this);
+    relPack = new DbSqlRelation("el_pack","id","pack_ed",this);
+    relEanEd = new DbSqlRelation("eans","ean","ean",this);
+    relEanEd->setAlias("eansEd");
+    relEanGr = new DbSqlRelation("eans","ean","ean",this);
+    relEanGr->setAlias("eansGr");
+    relVar = new DbSqlRelation("elrtr_vars","id","nam",this);
+    relVar->setSort("elrtr_vars.id");
+    relVar->setEditable(true);
+    relDocType = new DbSqlRelation("zvd_doc_type","id","nam",this);
+    relDocType->setEditable(true);
 }
 
 void Rels::refresh()
 {
-    relVed->refreshModel();
-    relVedPix->refreshModel();
-    relVidDoc->refreshModel();
-    relElMark->refreshModel();
-    relElDim->refreshModel();
-    relElTypes->refreshModel();
-    relGrade->refreshModel();
-    relGost->refreshModel();
-    relChem->refreshModel();
-    relMech->refreshModel();
-    relMechx->refreshModel();
-    relMechxVal->refreshModel();
-    relProvol->refreshModel();
-    relGrp->refreshModel();
-    relVid->refreshModel();
-    relPol->refreshModel();
-    relGostType->refreshModel();
-    relIso->refreshModel();
-    relAws->refreshModel();
-    relZnam->refreshModel();
-    relBukv->refreshModel();
-    relDiam->refreshModel();
-    relPosPix->refreshModel();
-    relDocType->refreshModel();
-    relPlav->refreshModel();
-    relWireDiam->refreshModel();
-    relChemDev->refreshModel();
-    relPack->refreshModel();
-    relEan->refreshModel();
-    relVar->refreshModel();
-
     emit sigRefresh();
+}
+
+void Rels::refreshElDim()
+{
+    QSqlQuery query;
+    query.prepare("select * from rx_els()");
+    if (query.exec()){
+        relElDim->refreshModel();
+    } else {
+        QMessageBox::critical(nullptr,tr("Error"),query.lastError().text(),QMessageBox::Ok);
+    }
 }

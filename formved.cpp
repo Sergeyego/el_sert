@@ -7,17 +7,17 @@ FormVed::FormVed(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    modelDocType = new DbTableModel("zvd_doc_type",this);
-    modelDocType->addColumn("id","id");
-    modelDocType->addColumn("nam",QString::fromUtf8("Наименование"));
-    modelDocType->setSort("zvd_doc_type.nam");
-    modelDocType->select();
+    modelVed = new DbTableModel("zvd_ved",this);
+    modelVed->addColumn("id","id");
+    modelVed->addColumn("nam",QString::fromUtf8("Название"));
+    modelVed->addColumn("short",QString::fromUtf8("Кратеое название"));
+    modelVed->addColumn("fnam",QString::fromUtf8("Полное название"));
+    modelVed->addColumn("fnam_en",QString::fromUtf8("Полное название анг."));
+    modelVed->addColumn("short_en",QString::fromUtf8("Кратеое название анг."));
+    modelVed->setSort("zvd_ved.nam");
+    modelVed->select();
 
-    ui->tableViewDocType->setModel(modelDocType);
-    ui->tableViewDocType->setColumnHidden(0,true);
-    ui->tableViewDocType->setColumnWidth(1,140);
-
-    ui->tableViewVed->setModel(Rels::instance()->modelVed);
+    ui->tableViewVed->setModel(modelVed);
     ui->tableViewVed->setColumnHidden(0,true);
     ui->tableViewVed->setColumnWidth(1,170);
     ui->tableViewVed->setColumnWidth(2,170);
@@ -25,17 +25,24 @@ FormVed::FormVed(QWidget *parent) :
     ui->tableViewVed->setColumnWidth(4,530);
     ui->tableViewVed->setColumnWidth(5,170);
 
-    ui->tableViewDocVid->setModel(Rels::instance()->modelDoc);
+    modelDoc = new DbTableModel("zvd_doc",this);
+    modelDoc->addColumn("id","id");
+    modelDoc->addColumn("nam",QString::fromUtf8("Название"));
+    modelDoc->addColumn("fnam",QString::fromUtf8("Полное название"));
+    modelDoc->addColumn("id_doc_type",QString::fromUtf8("Тип"),Rels::instance()->relDocType);
+    modelDoc->addColumn("fnam_en",QString::fromUtf8("Полное название анг."));
+    modelDoc->setSort("zvd_doc.nam");
+    modelDoc->select();
+    ui->tableViewDocVid->setModel(modelDoc);
     ui->tableViewDocVid->setColumnHidden(0,true);
-    ui->tableViewDocVid->setColumnWidth(1,180);
-    ui->tableViewDocVid->setColumnWidth(2,370);
-    ui->tableViewDocVid->setColumnWidth(3,110);
-    ui->tableViewDocVid->setColumnWidth(4,360);
+    ui->tableViewDocVid->setColumnWidth(1,230);
+    ui->tableViewDocVid->setColumnWidth(2,480);
+    ui->tableViewDocVid->setColumnWidth(3,150);
+    ui->tableViewDocVid->setColumnWidth(4,470);
 
     connect(ui->tableViewVed->selectionModel(),SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),this,SLOT(loadImg(QModelIndex)));
     connect(ui->cmdBrowse,SIGNAL(clicked(bool)),this,SLOT(newImg()));
     connect(ui->cmdDel,SIGNAL(clicked(bool)),this,SLOT(delImg()));
-    connect(modelDocType,SIGNAL(sigUpd()),Rels::instance()->relDocType,SLOT(refreshModel()));
 
     if (ui->tableViewVed->model()->rowCount()){
         ui->tableViewVed->selectRow(0);
@@ -61,7 +68,7 @@ void FormVed::loadImg(QModelIndex index)
     ui->labelSimb->setPixmap(QPixmap());
     int id=ui->tableViewVed->model()->data(ui->tableViewVed->model()->index(index.row(),0),Qt::EditRole).toInt();
     QPixmap pix;
-    pix.loadFromData(Rels::instance()->relVedPix->data(QString::number(id)).toByteArray());
+    //pix.loadFromData(Rels::instance()->relVedPix->data(QString::number(id)).toByteArray());
     if (!pix.isNull()){
         viewPix(pix);
     }
@@ -89,7 +96,7 @@ void FormVed::newImg()
         query.bindValue(":data",arr);
         if (query.exec()){
             viewPix(QPixmap::fromImage(img));
-            Rels::instance()->relVedPix->refreshModel();
+            //Rels::instance()->relVedPix->refreshModel();
         } else {
             QMessageBox::critical(this,"Error",query.lastError().text(),QMessageBox::Cancel);
         }
@@ -105,7 +112,7 @@ void FormVed::delImg()
     query.bindValue(":id",id);
     if (query.exec()){
         viewPix(QPixmap());
-        Rels::instance()->relVedPix->refreshModel();
+        //Rels::instance()->relVedPix->refreshModel();
     } else {
         QMessageBox::critical(this,"Error",query.lastError().text(),QMessageBox::Cancel);
     }

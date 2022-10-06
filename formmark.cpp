@@ -7,22 +7,32 @@ FormMark::FormMark(QWidget *parent) :
 {
     ui->setupUi(this);
     loadsettings();
+    currentIdVar=1;
+    currentIdDiam=4;
 
     ui->lineEditPr->setInputMask(QString("099±90°C 009 xxxxx"));
     ui->dateEdit->setDate(QDate::currentDate());
 
-    ui->comboBoxDiam->setModel(Rels::instance()->relDiam->proxyModel());
+    ui->comboBoxDiam->setModel(Rels::instance()->relDiam->model());
     ui->comboBoxDiam->setModelColumn(1);
-    int ind=ui->comboBoxDiam->findText("3.0 ");
-    if (ind>=0){
-        ui->comboBoxDiam->setCurrentIndex(ind);
+
+    if (!Rels::instance()->relProvol->isInital()){
+        Rels::instance()->relProvol->refreshModel();
+    }
+
+    if (!Rels::instance()->relVar->isInital()){
+        Rels::instance()->relVar->refreshModel();
+    }
+
+    if (!Rels::instance()->relDiam->isInital()){
+        Rels::instance()->relDiam->refreshModel();
     }
 
     ui->comboBoxProvVar->setModel(Rels::instance()->relProvol->model());
-    ui->comboBoxProvVar->setModelColumn(Rels::instance()->relProvol->columnDisplay());
+    ui->comboBoxProvVar->setModelColumn(1);
 
     ui->comboBoxVar->setModel(Rels::instance()->relVar->model());
-    ui->comboBoxVar->setModelColumn(Rels::instance()->relVar->columnDisplay());
+    ui->comboBoxVar->setModelColumn(1);
 
     modelEan = new ModelEan(this);
     ui->tableViewPack->setModel(modelEan);
@@ -41,11 +51,10 @@ FormMark::FormMark(QWidget *parent) :
     modelAmp->addColumn("id","id");
     modelAmp->addColumn("id_el","id_el");
     modelAmp->addColumn("id_var","id_var");
-    modelAmp->addColumn("id_diam",QString::fromUtf8("Ф, мм"),NULL,Rels::instance()->relDiam);
+    modelAmp->addColumn("id_diam",QString::fromUtf8("Ф, мм"),Rels::instance()->relDiam);
     modelAmp->addColumn("bot",QString::fromUtf8("Нижнее"));
     modelAmp->addColumn("vert",QString::fromUtf8("Вертикаль."));
     modelAmp->addColumn("ceil",QString::fromUtf8("Потолоч."));
-    modelAmp->setSuffix("inner join diam on amp.id_diam=diam.id");
     modelAmp->setSort("diam.sdim");
 
     ui->tableViewAmp->setModel(modelAmp);
@@ -60,10 +69,12 @@ FormMark::FormMark(QWidget *parent) :
     modelChemTu = new DbTableModel("chem_tu",this);
     modelChemTu->addColumn("id_el","id_el");
     modelChemTu->addColumn("id_var","id_var");
-    modelChemTu->addColumn("id_chem",QString::fromUtf8("Элемент"),NULL,Rels::instance()->relChem);
-    modelChemTu->addColumn("min",QString::fromUtf8("Минимум, %"),new QDoubleValidator(0,1000000000,3,this));
-    modelChemTu->addColumn("max",QString::fromUtf8("Максимум, %"),new QDoubleValidator(0,1000000000,3,this));
+    modelChemTu->addColumn("id_chem",QString::fromUtf8("Элемент"),Rels::instance()->relChem);
+    modelChemTu->addColumn("min",QString::fromUtf8("Минимум, %"));
+    modelChemTu->addColumn("max",QString::fromUtf8("Максимум, %"));
     modelChemTu->setSort("chem_tu.id_chem");
+    modelChemTu->setDecimals(3,3);
+    modelChemTu->setDecimals(4,3);
 
     ui->tableViewChem->setModel(modelChemTu);
     ui->tableViewChem->setColumnHidden(0,true);
@@ -75,10 +86,12 @@ FormMark::FormMark(QWidget *parent) :
     modelMechTu = new DbTableModel("mech_tu",this);
     modelMechTu->addColumn("id_el","id_el");
     modelMechTu->addColumn("id_var","id_var");
-    modelMechTu->addColumn("id_mech",QString::fromUtf8("Параметр"),NULL,Rels::instance()->relMech);
-    modelMechTu->addColumn("min",QString::fromUtf8("Минимум"),new QDoubleValidator(-1000000000,1000000000,3,this));
-    modelMechTu->addColumn("max",QString::fromUtf8("Максимум"),new QDoubleValidator(-1000000000,1000000000,3,this));
+    modelMechTu->addColumn("id_mech",QString::fromUtf8("Параметр"),Rels::instance()->relMech);
+    modelMechTu->addColumn("min",QString::fromUtf8("Минимум"));
+    modelMechTu->addColumn("max",QString::fromUtf8("Максимум"));
     modelMechTu->setSort("mech_tu.id_mech");
+    modelMechTu->setDecimals(3,3);
+    modelMechTu->setDecimals(4,3);
 
     ui->tableViewMech->setModel(modelMechTu);
     ui->tableViewMech->setColumnHidden(0,true);
@@ -89,8 +102,9 @@ FormMark::FormMark(QWidget *parent) :
 
     modelPlav = new DbTableModel("el_plav",this);
     modelPlav->addColumn("id_el","id_el");
-    modelPlav->addColumn("id_plav",QString::fromUtf8("Параметр"),NULL,Rels::instance()->relPlav);
-    modelPlav->addColumn("value",QString::fromUtf8("Значение"),new QDoubleValidator(-1000000000,1000000000,2,this));
+    modelPlav->addColumn("id_plav",QString::fromUtf8("Параметр"),Rels::instance()->relPlav);
+    modelPlav->addColumn("value",QString::fromUtf8("Значение"));
+    modelPlav->setDecimals(2,2);
 
     ui->tableViewPlav->setModel(modelPlav);
     ui->tableViewPlav->setColumnHidden(0,true);
@@ -101,19 +115,19 @@ FormMark::FormMark(QWidget *parent) :
     modelMark->addColumn("id","id");
     modelMark->addColumn("marka",QString::fromUtf8("Марка"));
     modelMark->addColumn("marka_sert",QString::fromUtf8("Название для сертификата"));
-    modelMark->addColumn("id_grp",QString::fromUtf8("Группа"),NULL,Rels::instance()->relGrp);
-    modelMark->addColumn("id_vid",QString::fromUtf8("Вид"),NULL,Rels::instance()->relVid);
-    modelMark->addColumn("id_gost",QString::fromUtf8("Проволока"),NULL,Rels::instance()->relProvol);
-    modelMark->addColumn("id_pic",QString::fromUtf8("Положение при сварке"),NULL,Rels::instance()->relPol);
-    modelMark->addColumn("id_gost_type",QString::fromUtf8("Тип по ГОСТ"),NULL,Rels::instance()->relGostType);
-    modelMark->addColumn("id_iso_type",QString::fromUtf8("Тип по ISO"),NULL,Rels::instance()->relIso);
-    modelMark->addColumn("id_aws_type",QString::fromUtf8("Тип по AWS"),NULL,Rels::instance()->relAws);
-    modelMark->addColumn("id_denominator",QString::fromUtf8("Знаменатель"),NULL,Rels::instance()->relZnam);
-    modelMark->addColumn("id_purpose",QString::fromUtf8("Буквенное обозначение"),NULL,Rels::instance()->relBukv);
+    modelMark->addColumn("id_grp",QString::fromUtf8("Группа"),Rels::instance()->relGrp);
+    modelMark->addColumn("id_vid",QString::fromUtf8("Вид"),Rels::instance()->relVid);
+    modelMark->addColumn("id_gost",QString::fromUtf8("Проволока"),Rels::instance()->relProvol);
+    modelMark->addColumn("id_pic",QString::fromUtf8("Положение при сварке"),Rels::instance()->relPol);
+    modelMark->addColumn("id_gost_type",QString::fromUtf8("Тип по ГОСТ"),Rels::instance()->relGostType);
+    modelMark->addColumn("id_iso_type",QString::fromUtf8("Тип по ISO"),Rels::instance()->relIso);
+    modelMark->addColumn("id_aws_type",QString::fromUtf8("Тип по AWS"),Rels::instance()->relAws);
+    modelMark->addColumn("id_denominator",QString::fromUtf8("Знаменатель"),Rels::instance()->relZnam);
+    modelMark->addColumn("id_purpose",QString::fromUtf8("Буквенное обозначение"),Rels::instance()->relBukv);
     modelMark->addColumn("descr",QString::fromUtf8("Описание"));
     modelMark->addColumn("vl",QString::fromUtf8("Допустимое содержание влаги"));
     modelMark->addColumn("pr2",QString::fromUtf8("Режим повторной прокалки"));
-    modelMark->addColumn("id_u",QString::fromUtf8("Индекс сортировки"),new QIntValidator(this));
+    modelMark->addColumn("id_u",QString::fromUtf8("Индекс сортировки"));
     modelMark->addColumn("katalog",QString::fromUtf8("Каталог"));
     modelMark->addColumn("descr_spec",QString::fromUtf8("Особые свойства"));
     modelMark->addColumn("descr_feature",QString::fromUtf8("Особенности сварки"));
@@ -170,18 +184,22 @@ FormMark::FormMark(QWidget *parent) :
     connect(ui->cmdExt,SIGNAL(clicked(bool)),this,SLOT(exportXml()));
     connect(ui->pushButtonCreVar,SIGNAL(clicked(bool)),this,SLOT(createVar()));
     connect(ui->pushButtonDelVar,SIGNAL(clicked(bool)),this,SLOT(deleteVar()));
-    connect(ui->comboBoxVar,SIGNAL(currentIndexChanged(int)),this,SLOT(loadVars()));
+    connect(ui->comboBoxVar,SIGNAL(currentIndexChanged(int)),this,SLOT(changeIdVar()));
     connect(ui->plainTextEditDescr,SIGNAL(textChanged()),this,SLOT(varChanged()));
     connect(ui->lineEditVarZnam,SIGNAL(textChanged(QString)),this,SLOT(varChanged()));
     connect(ui->lineEditProcVar,SIGNAL(textChanged(QString)),this,SLOT(varChanged()));
     connect(ui->comboBoxProvVar,SIGNAL(currentIndexChanged(int)),this,SLOT(varChanged()));
     connect(ui->pushButtonSaveVar,SIGNAL(clicked(bool)),this,SLOT(saveVar()));
     connect(ui->pushButtonCopy,SIGNAL(clicked(bool)),this,SLOT(copyTableData()));
+    connect(Rels::instance()->relVar->model(),SIGNAL(searchFinished(QString)),this,SLOT(setComboBoxVar()));
+    connect(Rels::instance()->relProvol->model(),SIGNAL(searchFinished(QString)),this,SLOT(setComboBoxProv()));
+    connect(Rels::instance()->relDiam->model(),SIGNAL(searchFinished(QString)),this,SLOT(setComboBoxDiam()));
+    connect(ui->pushButtonUpd,SIGNAL(clicked(bool)),this,SLOT(upd()));
+    connect(ui->comboBoxDiam,SIGNAL(currentIndexChanged(int)),this,SLOT(changeIdDiam()));
 
     if (ui->tableViewMark->model()->rowCount()){
         ui->tableViewMark->selectRow(0);
     }
-
 }
 
 FormMark::~FormMark()
@@ -210,13 +228,12 @@ int FormMark::id_el()
 
 int FormMark::id_diam()
 {
-    QModelIndex ind_diam=ui->comboBoxDiam->model()->index(ui->comboBoxDiam->currentIndex(),0);
-    return ui->comboBoxDiam->model()->data(ind_diam,Qt::EditRole).toInt();
+    return currentIdDiam;
 }
 
 int FormMark::id_var()
 {
-    return ui->comboBoxVar->model()->data(ui->comboBoxVar->model()->index(ui->comboBoxVar->currentIndex(),0),Qt::EditRole).toInt();
+    return currentIdVar;
 }
 
 void FormMark::loadVars()
@@ -236,13 +253,8 @@ void FormMark::loadVars()
             ui->plainTextEditDescr->setPlainText(query.value(1).toString());
             ui->lineEditProcVar->setText(query.value(2).toString());
             int id_prov=query.value(3).toInt();
-            for (int i=0; i<ui->comboBoxProvVar->model()->rowCount();i++){
-                int id_p=ui->comboBoxProvVar->model()->data(ui->comboBoxProvVar->model()->index(i,0),Qt::EditRole).toInt();
-                if (id_p==id_prov){
-                    ui->comboBoxProvVar->setCurrentIndex(i);
-                    break;
-                }
-            }
+            ui->comboBoxProvVar->setProperty("id_prov",id_prov);
+            setComboBoxProv();
         }
     } else {
         QMessageBox::critical(this,tr("Ошибка"),query.lastError().text(),QMessageBox::Cancel);
@@ -272,7 +284,7 @@ void FormMark::refreshCont(int index)
     QModelIndex ind=ui->tableViewMark->model()->index(index,0);
     int id_el=ui->tableViewMark->model()->data(ind,Qt::EditRole).toInt();
 
-    modelEan->refresh(id_el);
+    //modelEan->refresh(id_el);
 
     modelPlav->setDefaultValue(0,id_el);
     modelPlav->setFilter("el_plav.id_el = "+QString::number(id_el));
@@ -286,7 +298,16 @@ void FormMark::updImg()
     QModelIndex ind=ui->tableViewMark->model()->index(mapper->currentIndex(),6);
     int id_pix=ui->tableViewMark->model()->data(ind,Qt::EditRole).toInt();
     QPixmap pix;
-    pix.loadFromData(Rels::instance()->relPosPix->data(QString::number(id_pix)).toByteArray());
+    QSqlQuery query;
+    query.prepare("select data from pics where id = :id_pix");
+    query.bindValue(":id_pix",id_pix);
+    if (query.exec()){
+        if (query.next()){
+            pix.loadFromData(query.value(0).toByteArray());
+        }
+    } else {
+        QMessageBox::critical(this,tr("Ошибка"),query.lastError().text(),QMessageBox::Cancel);
+    }
     if (pix.isNull()){
         ui->labelPix->setPixmap(pix);
     } else {
@@ -405,6 +426,7 @@ void FormMark::varChanged()
     ui->pushButtonSaveVar->setEnabled(true);
 }
 
+
 void FormMark::copyTableData()
 {
     if (modelAmp->isEmpty()){
@@ -441,6 +463,70 @@ void FormMark::copyTableData()
     }
 
     loadVars();
+}
+
+void FormMark::changeIdVar()
+{
+    if (ui->comboBoxVar->currentIndex()>=0){
+        currentIdVar=ui->comboBoxVar->model()->data(ui->comboBoxVar->model()->index(ui->comboBoxVar->currentIndex(),0),Qt::EditRole).toInt();
+    }
+    loadVars();
+}
+
+void FormMark::changeIdDiam()
+{
+    if (ui->comboBoxDiam->currentIndex()>=0){
+        currentIdDiam=ui->comboBoxDiam->model()->data(ui->comboBoxDiam->model()->index(ui->comboBoxDiam->currentIndex(),0),Qt::EditRole).toInt();
+    }
+}
+
+void FormMark::setComboBoxVar()
+{
+    for (int i=0; i<ui->comboBoxVar->model()->rowCount();i++){
+        if (ui->comboBoxVar->model()->data(ui->comboBoxVar->model()->index(i,0),Qt::EditRole).toInt()==currentIdVar){
+            ui->comboBoxVar->blockSignals(true);
+            ui->comboBoxVar->setCurrentIndex(i);
+            ui->comboBoxVar->blockSignals(false);
+            break;
+        }
+    }
+}
+
+void FormMark::setComboBoxProv()
+{
+    int id_prov=ui->comboBoxProvVar->property("id_prov").toInt();
+    for (int i=0; i<ui->comboBoxProvVar->model()->rowCount();i++){
+        int id_p=ui->comboBoxProvVar->model()->data(ui->comboBoxProvVar->model()->index(i,0),Qt::EditRole).toInt();
+        if (id_p==id_prov){
+            ui->comboBoxProvVar->blockSignals(true);
+            ui->comboBoxProvVar->setCurrentIndex(i);
+            ui->comboBoxProvVar->blockSignals(false);
+            break;
+        }
+    }
+}
+
+void FormMark::setComboBoxDiam()
+{
+    for (int i=0; i<ui->comboBoxDiam->model()->rowCount();i++){
+        if (ui->comboBoxDiam->model()->data(ui->comboBoxDiam->model()->index(i,0),Qt::EditRole).toInt()==currentIdDiam){
+            ui->comboBoxDiam->blockSignals(true);
+            ui->comboBoxDiam->setCurrentIndex(i);
+            ui->comboBoxDiam->blockSignals(false);
+            break;
+        }
+    }
+}
+
+void FormMark::upd()
+{
+    modelMark->select();
+    modelMark->refreshRelsModel();
+    Rels::instance()->relPlav->refreshModel();
+    modelAmp->refreshRelsModel();
+    modelChemTu->refreshRelsModel();
+    modelMechTu->refreshRelsModel();
+    Rels::instance()->relVar->refreshModel();
 }
 
 CustomDelegate::CustomDelegate(QObject *parent) : DbDelegate(parent)

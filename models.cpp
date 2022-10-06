@@ -4,11 +4,11 @@
 ModelEan::ModelEan(QObject *parent) : DbTableModel("ean_el",parent)
 {
     addColumn("id_el","id_el");
-    addColumn("id_diam",tr("Диаметр"),NULL,Rels::instance()->relDiam);
-    addColumn("id_pack",tr("Упаковка (ед., групп.)"),NULL,Rels::instance()->relPack);
-    addColumn("ean_ed",tr("Штрих код (ед.)"),NULL,Rels::instance()->relEan);
-    addColumn("ean_group",tr("Штрих код (гр.)"),NULL,Rels::instance()->relEan);
-    setSuffix("inner join diam on ean_el.id_diam=diam.id");
+    addColumn("id_diam",tr("Диаметр"),Rels::instance()->relDiam);
+    addColumn("id_pack",tr("Упаковка (ед., групп.)"),Rels::instance()->relPack);
+    addColumn("ean_ed",tr("Штрих код (ед.)"),Rels::instance()->relEanEd);
+    addColumn("ean_group",tr("Штрих код (гр.)"),Rels::instance()->relEanGr);
+    //setSuffix("inner join diam on ean_el.id_diam=diam.id");
     setSort("diam.sdim");
 }
 
@@ -40,7 +40,8 @@ void ModelEan::updRels(QModelIndex index)
                 }
                 flt+=query.value(0).toString();
             }
-            Rels::instance()->relEan->proxyModel()->setFilterRegExp(flt);
+            Rels::instance()->relEanEd->setFilterRegExp(flt);
+            Rels::instance()->relEanGr->setFilterRegExp(flt);
         } else {
             QMessageBox::critical(NULL,"Error",query.lastError().text(),QMessageBox::Cancel);
         }

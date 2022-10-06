@@ -14,11 +14,13 @@ DbViewer::DbViewer(QWidget *parent) :
 
     updAct = new QAction(QString::fromUtf8("Обновить"),this);
     removeAct = new QAction(QString::fromUtf8("Удалить"),this);
+    DbDelegate *delegate = new DbDelegate(this);
     this->setAutoScroll(true);
-    this->setItemDelegate(new DbDelegate(this));
+    this->setItemDelegate(delegate);
     writeOk=true;
     connect(updAct,SIGNAL(triggered()),this,SLOT(upd()));
     connect(removeAct,SIGNAL(triggered()),this,SLOT(remove()));
+    connect(delegate,SIGNAL(sigActionEdtRel(QModelIndex)),this,SLOT(edtRel(QModelIndex)));
 }
 
 void DbViewer::setModel(QAbstractItemModel *model)
@@ -87,10 +89,13 @@ void DbViewer::keyPressEvent(QKeyEvent *e)
 
                 if ((currentIndex().column()==j) && (row==sqlModel->rowCount()-1)) {
                     if (sqlModel->isEdt()){
-                        sqlModel->submit();
+                        if (sqlModel->submit()){
+                            sqlModel->insertRow(sqlModel->rowCount());
+                            QTableView::keyPressEvent(e);
+                        }
+                    } else if (sqlModel->insertRow(sqlModel->rowCount())){
+                        QTableView::keyPressEvent(e);
                     }
-                    sqlModel->insertRow(sqlModel->rowCount());
-                    QTableView::keyPressEvent(e);
                 } else {
                     QTableView::keyPressEvent(e);
                 }
@@ -156,6 +161,19 @@ void DbViewer::focusOutEvent(QFocusEvent *event)
     return QTableView::focusOutEvent(event);
 }
 
+void DbViewer::edtRel(QModelIndex index)
+{
+    DbTableModel *sqlModel = qobject_cast<DbTableModel *>(this->model());
+    if (sqlModel){
+        DbRelationEditDialog d(index);
+        if (d.exec()==QDialog::Accepted){
+            colVal c = d.currentData();
+            sqlModel->setData(index,c.val,Qt::EditRole);
+            sqlModel->setData(index,c.disp,Qt::DisplayRole);
+        }
+    }
+}
+
 void DbViewer::setMenuEnabled(bool value)
 {
     menuEnabled=value;
@@ -168,20 +186,11 @@ void DbViewer::contextMenuEvent(QContextMenuEvent *event)
         menu.addAction(updAct);
         menu.addSeparator();
         if (this->selectionModel()){
-            if (this->indexAt(event->pos()).isValid()){
+            if (this->indexAt(event->pos()).isValid() && this->editTriggers()!=QAbstractItemView::NoEditTriggers){
                 menu.addAction(removeAct);
                 menu.addSeparator();
             }
         }
         menu.exec(event->globalPos());
     }
-}
-
-DateEdit::DateEdit(QWidget *parent): QDateEdit(parent)
-{
-    this->setCalendarPopup(true);
-    QCalendarWidget * pCW = new QCalendarWidget(this);
-    pCW->setFirstDayOfWeek( Qt::Monday );
-    this->setCalendarWidget( pCW );
-    this->setDisplayFormat("dd.MM.yy");
 }

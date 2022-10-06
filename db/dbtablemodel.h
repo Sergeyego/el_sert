@@ -16,73 +16,116 @@
 #include <QSqlDriver>
 #include <QSqlRecord>
 #include <QSqlIndex>
+#include "tablemodel.h"
+#include "executor.h"
 
-class DbRelationalModel : public QSqlQueryModel{
-    Q_OBJECT
-public:
-    DbRelationalModel(QObject *parent=0);
-    DbRelationalModel(QString query, QObject *parent=0);
-    bool setQuery(const QString &query, const QSqlDatabase &db=QSqlDatabase());
-signals:
-    void sigRefresh();
-public slots:
-    void refresh();
-private:
-    QString qu;
-};
+class DbSqlRelation;
 
-class DbRelation : public QObject
+class DbSqlLikeModel : public QSortFilterProxyModel
 {
     Q_OBJECT
 public:
-    DbRelation(QAbstractItemModel *queryModel, int key, int disp, QObject *parent=0);
-    DbRelation(const QString &query, int key, int disp, QObject *parent=0);
-    QVariant data(QString key);
-    QModelIndex modelIndex(QString key);
-    QAbstractItemModel *model() const;
-    QSortFilterProxyModel *proxyModel() const;
-    int columnKey();
-    int columnDisplay();
-private:
-    QAbstractItemModel *relQueryModel;
-    QSortFilterProxyModel *filterModel;
-    QHash <QString, QModelIndex> dict;
-    int keyCol;
-    int dispCol;
-private slots:
-    void reHash();
+    DbSqlLikeModel(DbSqlRelation *r, QObject *parent=nullptr);
+    void setAsync(bool b);
+    void setLimit(int l);
+    TableModel *originalModel();
+    DbSqlRelation *getRelation();
+
 public slots:
-    void refreshModel();
+    void startSearch(QString s);
+
+private slots:
+    void queryFinished();
+
+private:
+    DbSqlRelation *relation;
+    int limit;
+    bool async;
+    TableModel *origModel;
+signals:
+    void searchFinished(QString s);
 };
 
-typedef struct
+class DbSqlRelation : public QObject
+{
+    Q_OBJECT
+public:
+    DbSqlRelation(QString tableRel, QString cKey, QString cDisplay, QObject *parent=nullptr);
+    QString getTable(bool prefix=true);
+    QString getCKey(bool prefix=true);
+    QString getCDisplay(bool prefix=true);
+    QString getCFilter(bool prefix=true);
+    QString getSort();
+    QString getFilter();
+    QString getCurrentFilterRegExp();
+    QString joinStr(QString tablename, QString tablecol);
+    QString getDisplayValue(QVariant key);
+    DbSqlLikeModel *model();
+    void setAlias(QString a);
+    void setSort(QString s);
+    void setFilter(QString f);
+    void setFilterColumn(QString c);
+    void setEditable(bool b);
+    bool isEditable();
+    bool isInital();
+private:
+    QString table;
+    QString alias;
+    QString key;
+    QString display;
+    QString sort;
+    QString filter;
+    QString filterColumn;
+    DbSqlLikeModel *limModel;
+    QString currentFilterRegExp;
+    bool editable;
+    bool inital;
+public slots:
+    void refreshModel();
+    void setFilterRegExp(QString pattern);
+signals:
+    void filterRegExpInstalled(QString pattern);
+};
+
+struct colVal
+{
+    QString disp;
+    QVariant val;
+    bool operator==(const colVal& rh) const {
+        return (this->disp==rh.disp) && (this->val==rh.val);
+    }
+};
+
+
+struct col
 {
     QString name;
     QString display;
-    DbRelation *relation;
-    QVector<QVariant> data;
+    QVector<colVal> data;
     QValidator *validator;
     Qt::ItemFlags flags;
-} col;
+    DbSqlRelation *sqlRelation;
+    colVal defaultVal;
+};
 
 
 class MData : public QObject
 {
     Q_OBJECT
 public:
-    MData(QObject *parent=0);
+    MData(QObject *parent=nullptr);
     int rowCount();
     int columnCount();
-    QVariant value(int row, int column);
+    colVal value(int row, int column);
     col *column(int c);
     void addColumn(col &column);
     void clear();
     void delRow(int pos);
-    void setRow(QVector<QVariant> &row, int pos);
+    void setRow(QVector<colVal> &row, int pos);
 protected:
-    void insertRow(int pos, QVector<QVariant> &row);
-    QVector<QVariant> row(int r) const;
-    void setValue(const QVariant &val, int row, int column);
+    void insertRow(int pos, QVector<colVal> &row);
+    QVector<colVal> row(int r) const;
+    void setValue(const colVal &val, int row, int column);
     friend class DataEditor;
 private:
     QVector<col> data;
@@ -92,19 +135,19 @@ class DataEditor : public QObject
 {
     Q_OBJECT
 public:
-    DataEditor(MData *dat, QObject *parent=0);
-    bool add(int p, QVector<QVariant> &row);
-    bool edt(int row, int col, QVariant val);
+    DataEditor(MData *dat, QObject *parent=nullptr);
+    bool add(int p, QVector<colVal> &row);
+    bool edt(int row, int col, colVal val);
     void submit();
     void esc();
     bool isAdd();
     bool isEdt();
     int currentPos();
-    QVector<QVariant> oldRow();
-    QVector<QVariant> newRow();
+    QVector<colVal> oldRow();
+    QVector<colVal> newRow();
 private:
     MData *mData;
-    QVector<QVariant> saveRow;
+    QVector<colVal> saveRow;
     bool addFlag;
     bool edtFlag;
     int pos;
@@ -114,36 +157,39 @@ class DbTableModel : public QAbstractTableModel
 {
     Q_OBJECT
 public:
-    explicit DbTableModel(QString table, QObject *parent = 0);
+    explicit DbTableModel(QString table, QObject *parent=nullptr);
     Qt::ItemFlags flags(const QModelIndex &index) const;
     QVariant data(const QModelIndex &index, int role=Qt::DisplayRole) const;
     int rowCount(const QModelIndex &parent=QModelIndex()) const;
     int columnCount(const QModelIndex &parent=QModelIndex()) const;
     bool setData(const QModelIndex &index, const QVariant &value, int role);
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
-    bool addColumn(QString name, QString display, QValidator *validator=NULL, DbRelation *relation=NULL);
+    bool addColumn(QString name, QString display, DbSqlRelation *relation=nullptr);
     virtual bool removeRow(int row, const QModelIndex &parent = QModelIndex());
     void setFilter(QString s);
     void setSort(QString s);
     void setSuffix(QString s);
-    bool isAdd();
-    bool isEdt();
-    bool isEmpty();
+    bool isAdd() const;
+    bool isEdt() const;
+    bool isEmpty() const;
     virtual bool insertRow(int row, const QModelIndex &parent=QModelIndex());
-    DbRelation *relation(int column) const;
+    DbSqlRelation *sqlRelation(int column) const;
     QVariant::Type columnType(int column) const;
     QVariant nullVal(int column) const;
-    int currentEdtRow();
+    int currentEdtRow() const;
     QValidator* validator(int column) const;
+    void setValidator(int column, QValidator *validator);
     void setDefaultValue(int column, QVariant value);
     void setColumnFlags(int column, Qt::ItemFlags flags);
+    QVariant defaultValue(int column) const;
+    bool setDecimals(int column, int dec);
+    QString name() const;
 
 protected:
     QString tableName;
     QString filter;
     QString sort;
     QString suffix;
-    QVector<QVariant> defaultTmpRow;
     virtual bool insertDb();
     virtual bool updateDb();
     virtual bool deleteDb(int row);
@@ -163,7 +209,7 @@ public slots:
     virtual bool select();
     virtual void revert();
     virtual bool submit();
+    void refreshRelsModel();
 };
-
 
 #endif // DBTABLEMODEL_H

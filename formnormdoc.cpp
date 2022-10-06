@@ -20,39 +20,41 @@ FormNormDoc::FormNormDoc(QWidget *parent) :
 
     ideTu=-1;
 
-    ui->tableViewListGost->setModel(Rels::instance()->modelListGost);
-    ui->tableViewListGost->setColumnHidden(0,true);
-    ui->tableViewListGost->setColumnWidth(1,210);
-
     modelGostEl = new DbTableModel("gost_elnew",this);
     modelGostEl->addColumn("ide",tr("Марка"));
-    modelGostEl->addColumn("id_var",tr("Вариант"),NULL,Rels::instance()->relVar);
+    modelGostEl->addColumn("id_var",tr("Вариант"),Rels::instance()->relVar);
     modelGostEl->addColumn("dat",tr("Дата начала действия"));
-    modelGostEl->addColumn("id_gost",tr("Документ"),NULL,Rels::instance()->relGost);
+    modelGostEl->addColumn("id_gost",tr("Документ"),Rels::instance()->relGost);
     modelGostEl->addColumn("dat_end",tr("Дата окончания действия"));
     modelGostEl->setSort("gost_elnew.id_var, gost_elnew.dat, gost_elnew.id_gost");
     modelGostEl->setDefaultValue(4,QVariant());
     ui->tableViewGostEl->setModel(modelGostEl);
     ui->tableViewGostEl->setColumnHidden(0,true);
     ui->tableViewGostEl->setColumnWidth(1,200);
-    ui->tableViewGostEl->setColumnWidth(2,200);
-    ui->tableViewGostEl->setColumnWidth(3,230);
-    ui->tableViewGostEl->setColumnWidth(4,200);
+    ui->tableViewGostEl->setColumnWidth(2,180);
+    ui->tableViewGostEl->setColumnWidth(3,260);
+    ui->tableViewGostEl->setColumnWidth(4,180);
 
     if (Rels::instance()->relElDim->model()->columnCount()>1){
         Rels::instance()->relElDim->model()->setHeaderData(1,Qt::Horizontal,QString::fromUtf8("Марка"));
     }
 
+    if(!Rels::instance()->relElDim->isInital()){
+        Rels::instance()->relElDim->refreshModel();
+    }
     ui->tableViewMark->verticalHeader()->setDefaultSectionSize(ui->tableViewMark->verticalHeader()->fontMetrics().height()*1.5);
     ui->tableViewMark->verticalHeader()->hide();
     ui->tableViewMark->setModel(Rels::instance()->relElDim->model());
     ui->tableViewMark->setColumnHidden(0,true);
     ui->tableViewMark->setColumnWidth(1,200);
+    ui->tableViewMark->setColumnHidden(2,true);
 
     connect(ui->tableViewMark->selectionModel(),SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),this,SLOT(refreshGostEl(QModelIndex)));
     connect(ui->cmdCopy,SIGNAL(clicked(bool)),this,SLOT(copyTu()));
     connect(ui->cmdPaste,SIGNAL(clicked(bool)),this,SLOT(pasteTu()));
     connect(ui->cmdUpd,SIGNAL(clicked(bool)),this,SLOT(updElDim()));
+    connect(Rels::instance()->relElDim->model(),SIGNAL(searchFinished(QString)),this,SLOT(updateFinished()));
+    updateFinished();
 }
 
 FormNormDoc::~FormNormDoc()
@@ -136,11 +138,13 @@ void FormNormDoc::pasteTu()
 
 void FormNormDoc::updElDim()
 {
-    QSqlQuery query;
-    query.prepare("select * from rx_els()");
-    if (query.exec()){
-        Rels::instance()->relElDim->refreshModel();
-    } else {
-        QMessageBox::critical(this,tr("Error"),query.lastError().text(),QMessageBox::Ok);
+    Rels::instance()->refreshElDim();
+    modelGostEl->refreshRelsModel();
+}
+
+void FormNormDoc::updateFinished()
+{
+    if (ui->tableViewMark->model()->rowCount()){
+        ui->tableViewMark->selectRow(0);
     }
 }

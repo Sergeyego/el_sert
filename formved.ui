@@ -92,24 +92,6 @@
        </layout>
       </widget>
      </item>
-     <item>
-      <widget class="QGroupBox" name="groupBox_3">
-       <property name="maximumSize">
-        <size>
-         <width>210</width>
-         <height>16777215</height>
-        </size>
-       </property>
-       <property name="title">
-        <string>Типы свидетельств</string>
-       </property>
-       <layout class="QVBoxLayout" name="verticalLayout_3">
-        <item>
-         <widget class="DbViewer" name="tableViewDocType"/>
-        </item>
-       </layout>
-      </widget>
-     </item>
     </layout>
    </item>
   </layout>

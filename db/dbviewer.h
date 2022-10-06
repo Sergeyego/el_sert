@@ -8,6 +8,7 @@
 #include <QHeaderView>
 #include <QAction>
 #include <QMenu>
+#include "dbrelationeditdialog.h"
 
 class QMenu;
 class QAction;
@@ -15,7 +16,7 @@ class DbViewer : public QTableView
 {
     Q_OBJECT
 public:
-    DbViewer(QWidget *parent = 0);
+    DbViewer(QWidget *parent=nullptr);
     void setModel(QAbstractItemModel *model);
     void setColumnsWidth(QVector<int> width);
 
@@ -34,15 +35,10 @@ private slots:
      void remove();
      void submit(QModelIndex ind, QModelIndex oldInd);
      void focusOutEvent(QFocusEvent *event);
+     void edtRel(QModelIndex index);
 
 public slots:
      void setMenuEnabled(bool value);
-};
-
-class DateEdit : public QDateEdit{
-    Q_OBJECT
-public:
-    DateEdit(QWidget *parent=0);
 };
 
 #endif // DBVIEWER_H

@@ -40,7 +40,7 @@ private:
     DbTableModel *modelSertMechx;
     ModelRo *modelSrcGost;
 
-    DbRelationalModel *modelAdd;
+    QSqlQueryModel *modelAdd;
 
     void loadPrim(int id_part);
     void loadAdd(int id_part);

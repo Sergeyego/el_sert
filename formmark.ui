@@ -13,22 +13,38 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_6">
+  <layout class="QVBoxLayout" name="verticalLayout_10">
    <item>
     <widget class="QSplitter" name="splitter">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
-     <widget class="DbViewer" name="tableViewMark">
-      <property name="editTriggers">
-       <set>QAbstractItemView::NoEditTriggers</set>
-      </property>
-      <property name="selectionMode">
-       <enum>QAbstractItemView::SingleSelection</enum>
-      </property>
-      <property name="selectionBehavior">
-       <enum>QAbstractItemView::SelectRows</enum>
-      </property>
+     <widget class="QWidget" name="verticalLayoutWidget">
+      <layout class="QVBoxLayout" name="verticalLayout_6">
+       <item>
+        <widget class="QPushButton" name="pushButtonUpd">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string>Обновить</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="DbViewer" name="tableViewMark">
+         <property name="selectionMode">
+          <enum>QAbstractItemView::SingleSelection</enum>
+         </property>
+         <property name="selectionBehavior">
+          <enum>QAbstractItemView::SelectRows</enum>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </widget>
      <widget class="QWidget" name="layoutWidget">
       <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -70,21 +86,21 @@
           </widget>
          </item>
          <item row="2" column="1">
-          <widget class="QComboBox" name="comboBoxISO">
+          <widget class="DbComboBox" name="comboBoxISO">
            <property name="editable">
             <bool>true</bool>
            </property>
           </widget>
          </item>
          <item row="1" column="1">
-          <widget class="QComboBox" name="comboBoxVid">
+          <widget class="DbComboBox" name="comboBoxVid">
            <property name="editable">
             <bool>true</bool>
            </property>
           </widget>
          </item>
          <item row="2" column="3">
-          <widget class="QComboBox" name="comboBoxAWS">
+          <widget class="DbComboBox" name="comboBoxAWS">
            <property name="editable">
             <bool>true</bool>
            </property>
@@ -141,7 +157,7 @@
           <widget class="QLineEdit" name="lineEditVl"/>
          </item>
          <item row="0" column="5">
-          <widget class="QComboBox" name="comboBoxGroup">
+          <widget class="DbComboBox" name="comboBoxGroup">
            <property name="editable">
             <bool>true</bool>
            </property>
@@ -155,7 +171,7 @@
           </widget>
          </item>
          <item row="1" column="5">
-          <widget class="QComboBox" name="comboBoxGost">
+          <widget class="DbComboBox" name="comboBoxGost">
            <property name="editable">
             <bool>true</bool>
            </property>
@@ -183,21 +199,21 @@
           </widget>
          </item>
          <item row="1" column="3">
-          <widget class="QComboBox" name="comboBoxProv">
+          <widget class="DbComboBox" name="comboBoxProv">
            <property name="editable">
             <bool>true</bool>
            </property>
           </widget>
          </item>
          <item row="3" column="3" colspan="2">
-          <widget class="QComboBox" name="comboBoxPol">
+          <widget class="DbComboBox" name="comboBoxPol">
            <property name="editable">
             <bool>true</bool>
            </property>
           </widget>
          </item>
          <item row="3" column="1">
-          <widget class="QComboBox" name="comboBoxBukv">
+          <widget class="DbComboBox" name="comboBoxBukv">
            <property name="editable">
             <bool>true</bool>
            </property>
@@ -211,7 +227,7 @@
           </widget>
          </item>
          <item row="2" column="5">
-          <widget class="QComboBox" name="comboBoxZnam">
+          <widget class="DbComboBox" name="comboBoxZnam">
            <property name="editable">
             <bool>true</bool>
            </property>
@@ -352,7 +368,14 @@
              </widget>
             </item>
             <item>
-             <widget class="QComboBox" name="comboBoxVar"/>
+             <widget class="QComboBox" name="comboBoxVar">
+              <property name="minimumSize">
+               <size>
+                <width>200</width>
+                <height>0</height>
+               </size>
+              </property>
+             </widget>
             </item>
             <item>
              <widget class="QPushButton" name="pushButtonCreVar">
@@ -536,7 +559,7 @@
           </widget>
          </item>
          <item>
-          <widget class="DateEdit" name="dateEdit"/>
+          <widget class="DbDateEdit" name="dateEdit"/>
          </item>
          <item>
           <widget class="QLabel" name="label_29">
@@ -628,9 +651,14 @@
    <header>db/dbviewer.h</header>
   </customwidget>
   <customwidget>
-   <class>DateEdit</class>
+   <class>DbDateEdit</class>
    <extends>QDateEdit</extends>
-   <header>db/dbviewer.h</header>
+   <header>db/dbdateedit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>DbComboBox</class>
+   <extends>QComboBox</extends>
+   <header>db/dbcombobox.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>

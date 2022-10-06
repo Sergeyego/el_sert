@@ -20,9 +20,9 @@ FormPart::FormPart(QWidget *parent) :
     ui->comboBoxMar->setEnabled(false);
 
     modelSrcGost = new ModelRo(this);
-    ui->tableViewSrcGost->setModel(modelSrcGost);
+    ui->listViewGost->setModel(modelSrcGost);
 
-    modelAdd = new DbRelationalModel(this);
+    modelAdd = new QSqlQueryModel(this);
     ui->tableViewAdd->verticalHeader()->setDefaultSectionSize(ui->tableViewAdd->verticalHeader()->fontMetrics().height()*1.5);
     ui->tableViewAdd->verticalHeader()->hide();
     ui->tableViewAdd->setModel(modelAdd);
@@ -56,8 +56,8 @@ FormPart::FormPart(QWidget *parent) :
 
     modelSertMechx = new DbTableModel("sert_mechx",this);
     modelSertMechx->addColumn("id_part","id_part");
-    modelSertMechx->addColumn("id_mechx",tr("Параметр"),NULL,Rels::instance()->relMechx);
-    modelSertMechx->addColumn("id_value",tr("Значение"),NULL,Rels::instance()->relMechxVal);
+    modelSertMechx->addColumn("id_mechx",tr("Параметр"),Rels::instance()->relMechx);
+    modelSertMechx->addColumn("id_value",tr("Значение"),Rels::instance()->relMechxVal);
     ui->tableViewSertMechx->setModel(modelSertMechx);
     ui->tableViewSertMechx->setColumnHidden(0,true);
     ui->tableViewSertMechx->setColumnWidth(1,150);
@@ -127,26 +127,32 @@ void FormPart::loadPrim(int id_part)
 
 void FormPart::loadAdd(int id_part)
 {
+    QSqlQuery query;
     QString qu="select s.nom_s, s.dat_vid, p.short, o.massa, o.id from otpusk as o "
             "inner join sertifikat as s on o.id_sert=s.id "
             "inner join poluch as p on s.id_pol=p.id "
             "where o.id_part= "+QString::number(id_part)+" order by s.dat_vid, s.nom_s";
-
-    if (modelAdd->setQuery(qu)){
+    query.prepare(qu);
+    bool ok = query.exec();
+    if (ok){
+        modelAdd->setQuery(query);
         modelAdd->setHeaderData(0,Qt::Horizontal,tr("Номер"));
         modelAdd->setHeaderData(1,Qt::Horizontal,tr("Дата"));
         modelAdd->setHeaderData(2,Qt::Horizontal,tr("Получатель"));
         modelAdd->setHeaderData(3,Qt::Horizontal,tr("Масса"));
+        ui->tableViewAdd->setColumnHidden(4,true);
 
+    } else {
+        modelAdd->clear();
+        QMessageBox::critical(NULL,"Error",query.lastError().text(),QMessageBox::Cancel);
     }
-    ui->tableViewAdd->setColumnHidden(4,true);
     ui->tableViewAdd->resizeColumnsToContents();
 }
 
 void FormPart::loadGost(int id_part)
 {
     QSqlQuery tuQuery;
-    tuQuery.prepare("select id, nam "
+    tuQuery.prepare("select nam "
                     "from zvd_get_tu_var((select dat_part from parti where id = :id1 ), "
                     "(select id_el from parti where id = :id2 ), "
                     "(select d.id from diam as d where d.diam = (select diam from parti where id = :id3 )), "
@@ -156,9 +162,7 @@ void FormPart::loadGost(int id_part)
     tuQuery.bindValue(":id3",id_part);
     tuQuery.bindValue(":id4",id_part);
     if (modelSrcGost->execQuery(tuQuery)){
-        modelSrcGost->setHeaderData(1,Qt::Horizontal,tr("ГОСТ/ТУ"));
-        ui->tableViewSrcGost->setColumnHidden(0,true);
-        ui->tableViewSrcGost->setColumnWidth(1,200);
+        modelSrcGost->setHeaderData(0,Qt::Horizontal,tr("ГОСТ/ТУ"));
     }
 }
 

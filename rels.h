@@ -9,47 +9,35 @@ class Rels : public QObject
     Q_OBJECT
 public:
     static Rels *instance();
-    DbTableModel *modelGrade;
-    DbTableModel *modelListGost;
-    DbTableModel *modelDoc;
-    DbTableModel *modelVed;
-    DbTableModel *modelGost;
-    DbTableModel *modelIso;
-    DbTableModel *modelAws;
-    DbTableModel *modelZnam;
-    DbTableModel *modelBukv;
-    DbTableModel *modelVar;
-
-    DbRelation *relVed;
-    DbRelation *relVedPix;
-    DbRelation *relVidDoc;
-    DbRelation *relElMark;
-    DbRelation *relElDim;
-    DbRelation *relElTypes;
-    DbRelation *relGrade;
-    DbRelation *relGost;
-    DbRelation *relChem;
-    DbRelation *relMech;
-    DbRelation *relMechx;
-    DbRelation *relMechxVal;
-    DbRelation *relProvol;
-    DbRelation *relGrp;
-    DbRelation *relVid;
-    DbRelation *relPol;
-    DbRelation *relGostType;
-    DbRelation *relIso;
-    DbRelation *relAws;
-    DbRelation *relZnam;
-    DbRelation *relBukv;
-    DbRelation *relDiam;
-    DbRelation *relPosPix;
-    DbRelation *relDocType;
-    DbRelation *relPlav;
-    DbRelation *relWireDiam;
-    DbRelation *relChemDev;
-    DbRelation *relPack;
-    DbRelation *relEan;
-    DbRelation *relVar;
+    DbSqlRelation *relVed;
+    //DbSqlRelation *relVedPix;
+    DbSqlRelation *relVidDoc;
+    DbSqlRelation *relElMark;
+    DbSqlRelation *relElDim;
+    DbSqlRelation *relGrade;
+    DbSqlRelation *relGost;
+    DbSqlRelation *relChem;
+    DbSqlRelation *relMech;
+    DbSqlRelation *relMechx;
+    DbSqlRelation *relMechxVal;
+    DbSqlRelation *relProvol;
+    DbSqlRelation *relGrp;
+    DbSqlRelation *relVid;
+    DbSqlRelation *relPol;
+    DbSqlRelation *relGostType;
+    DbSqlRelation *relIso;
+    DbSqlRelation *relAws;
+    DbSqlRelation *relZnam;
+    DbSqlRelation *relBukv;
+    DbSqlRelation *relDiam;
+    DbSqlRelation *relDocType;
+    DbSqlRelation *relPlav;
+    DbSqlRelation *relWireDiam;
+    DbSqlRelation *relChemDev;
+    DbSqlRelation *relPack;
+    DbSqlRelation *relEanEd;
+    DbSqlRelation *relEanGr;
+    DbSqlRelation *relVar;
 
 protected:
     explicit Rels(QObject *parent = nullptr);
@@ -62,6 +50,7 @@ signals:
 
 public slots:
     void refresh();
+    void refreshElDim();
 
 };
 

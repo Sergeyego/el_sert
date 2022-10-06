@@ -141,7 +141,7 @@ void SertBuild::rebuild()
 
     foreach (int id, id_ved){
         QImage img;
-        img.loadFromData(Rels::instance()->relVedPix->data(QString::number(id)).toByteArray());
+        //img.loadFromData(Rels::instance()->relVedPix->data(QString::number(id)).toByteArray());
         if (!img.isNull()) {
             addResource(QTextDocument::ImageResource, QUrl("vedimage"+QString::number(id)), img);
             QTextImageFormat f;

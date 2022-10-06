@@ -20,8 +20,8 @@ ModelDoc::ModelDoc(QObject *parent) : DbTableModel("zvd_sert",parent)
     addColumn("nom_sl",QString::fromUtf8("Номер наклейки"));
     addColumn("txt",QString::fromUtf8("Текст документа"));
     addColumn("gr_tech_ust",QString::fromUtf8("ГТУ"));
-    addColumn("id_ved",QString::fromUtf8("Ведомство"),NULL,Rels::instance()->relVed);
-    addColumn("id_doc",QString::fromUtf8("Тип документа"),NULL,Rels::instance()->relVidDoc);
+    addColumn("id_ved",QString::fromUtf8("Ведомство"),Rels::instance()->relVed);
+    addColumn("id_doc",QString::fromUtf8("Тип документа"),Rels::instance()->relVidDoc);
     addColumn("en",QString::fromUtf8("Включен по умолчанию"));
 
     setDefaultValue(12,true);

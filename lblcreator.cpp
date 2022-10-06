@@ -149,8 +149,7 @@ bool LblCreator::createLbl(int id_el, int id_diam, QString ibco, QDate date, boo
 
     rtfWriter.start_tablerow();
     rtfWriter.start_tablecell(sz1);
-    QImage img;
-    img.loadFromData(Rels::instance()->relPosPix->data(QString::number(data.id_pix)).toByteArray());
+    QImage img(QDir::currentPath()+"/images/"+QString::number(data.id_pix)+".png");
     rtfWriter.insert_image(img,szImg,szImg);
     rtfWriter.end_tablecell();//1
 
@@ -551,7 +550,7 @@ QString LblCreator::getSrtStr(int id_el, int id_diam, QDate date, int id_var)
         if (!srtStr.isEmpty()){
             srtStr+="\n";
         }
-        srtStr+=Rels::instance()->relDocType->data(QString::number(keys.at(i))).toString()+":";
+        //srtStr+=Rels::instance()->relDocType->data(QString::number(keys.at(i))).toString()+":";
         QList<QString> v = srt.values(keys.at(i));
         qSort(v.begin(),v.end());
         for (QString st:v){

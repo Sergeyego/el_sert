@@ -26,7 +26,7 @@
          <item>
           <widget class="QPushButton" name="cmdUpd">
            <property name="text">
-            <string>Обновить список марок</string>
+            <string>Обновить</string>
            </property>
           </widget>
          </item>
@@ -79,7 +79,7 @@
           </widget>
          </item>
          <item row="4" column="1">
-          <widget class="QComboBox" name="comboBoxVid">
+          <widget class="DbComboBox" name="comboBoxVid">
            <property name="editable">
             <bool>true</bool>
            </property>
@@ -124,7 +124,7 @@
           </widget>
          </item>
          <item row="1" column="3">
-          <widget class="CustomDateEdit" name="dateEditEnd"/>
+          <widget class="DbDateEdit" name="dateEditEnd"/>
          </item>
          <item row="0" column="2">
           <widget class="QLabel" name="label_3">
@@ -137,7 +137,7 @@
           <widget class="QLineEdit" name="lineEditGtu"/>
          </item>
          <item row="3" column="1">
-          <widget class="DateEdit" name="dateEditDoc"/>
+          <widget class="DbDateEdit" name="dateEditDoc"/>
          </item>
          <item row="3" column="0">
           <widget class="QLabel" name="label_4">
@@ -215,7 +215,7 @@
           </widget>
          </item>
          <item row="2" column="1">
-          <widget class="QComboBox" name="comboBoxVed">
+          <widget class="DbComboBox" name="comboBoxVed">
            <property name="editable">
             <bool>true</bool>
            </property>
@@ -236,7 +236,7 @@
           </widget>
          </item>
          <item row="0" column="3">
-          <widget class="DateEdit" name="dateEditBeg"/>
+          <widget class="DbDateEdit" name="dateEditBeg"/>
          </item>
          <item row="5" column="2">
           <widget class="QPushButton" name="pushButtonSaveAs">
@@ -371,24 +371,6 @@
            </layout>
           </widget>
          </item>
-         <item>
-          <widget class="QGroupBox" name="groupBox_4">
-           <property name="maximumSize">
-            <size>
-             <width>320</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="title">
-            <string>Справочник категорий</string>
-           </property>
-           <layout class="QVBoxLayout" name="verticalLayout_4">
-            <item>
-             <widget class="DbViewer" name="tableVieewGrade"/>
-            </item>
-           </layout>
-          </widget>
-         </item>
         </layout>
        </item>
        <item>
@@ -416,19 +398,19 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>DateEdit</class>
-   <extends>QDateEdit</extends>
-   <header>db/dbviewer.h</header>
-  </customwidget>
-  <customwidget>
    <class>DbViewer</class>
    <extends>QTableView</extends>
    <header>db/dbviewer.h</header>
   </customwidget>
   <customwidget>
-   <class>CustomDateEdit</class>
+   <class>DbDateEdit</class>
    <extends>QDateEdit</extends>
-   <header>db/dbdelegate.h</header>
+   <header>db/dbdateedit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>DbComboBox</class>
+   <extends>QComboBox</extends>
+   <header>db/dbcombobox.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>
@@ -440,7 +422,6 @@
   <tabstop>dateEditEnd</tabstop>
   <tabstop>tableViewElDim</tabstop>
   <tabstop>tableViewEl</tabstop>
-  <tabstop>tableVieewGrade</tabstop>
  </tabstops>
  <resources>
   <include location="res.qrc"/>

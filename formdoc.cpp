@@ -11,34 +11,29 @@ FormDoc::FormDoc(QWidget *parent) :
 
     modelEl = new DbTableModel("zvd_els",this);
     modelEl->addColumn("id_sert","id_sert");
-    modelEl->addColumn("id_el",QString::fromUtf8("Марка"),NULL,Rels::instance()->relElMark);
-    modelEl->addColumn("id_grade",QString::fromUtf8("Категория"),NULL,Rels::instance()->relGrade);
+    modelEl->addColumn("id_el",QString::fromUtf8("Марка"),Rels::instance()->relElMark);
+    modelEl->addColumn("id_grade",QString::fromUtf8("Категория"),Rels::instance()->relGrade);
     modelEl->setSuffix("inner join elrtr as e on e.id=zvd_els.id_el");
     modelEl->setSort("e.marka");
     ui->tableViewEl->setModel(modelEl);
     ui->tableViewEl->setColumnHidden(0,true);
-    ui->tableViewEl->setColumnWidth(1,110);
+    ui->tableViewEl->setColumnWidth(1,170);
     ui->tableViewEl->setColumnWidth(2,200);
 
     modelElDim = new DbTableModel("zvd_eldim",this);
     modelElDim->addColumn("id_sert","id_sert");
-    modelElDim->addColumn("id_eldr",QString::fromUtf8("Марка / диам."),NULL,Rels::instance()->relElDim);
-    modelElDim->addColumn("id_grade",QString::fromUtf8("Категория"),NULL,Rels::instance()->relGrade);
+    modelElDim->addColumn("id_eldr",QString::fromUtf8("Марка / диам."),Rels::instance()->relElDim);
+    modelElDim->addColumn("id_grade",QString::fromUtf8("Категория"),Rels::instance()->relGrade);
     modelElDim->setSuffix("inner join dry_els as d on d.ide=zvd_eldim.id_eldr");
     modelElDim->setSort("d.fnam");
     ui->tableViewElDim->setModel(modelElDim);
     ui->tableViewElDim->setColumnHidden(0,true);
-    ui->tableViewElDim->setColumnWidth(1,130);
+    ui->tableViewElDim->setColumnWidth(1,190);
     ui->tableViewElDim->setColumnWidth(2,200);
-
-    ui->tableVieewGrade->setModel(Rels::instance()->modelGrade);
-    ui->tableVieewGrade->setColumnHidden(0,true);
-    ui->tableVieewGrade->setColumnWidth(1,250);
 
     modelTu = new DbTableModel("zvd_sert_tu",this);
     modelTu->addColumn("id_sert","id_sert");
-    modelTu->addColumn("id_tu",QString::fromUtf8("ТУ, ОСТ"),NULL,Rels::instance()->relGost);
-    modelTu->setSuffix("inner join gost_new on gost_new.id = zvd_sert_tu.id_tu");
+    modelTu->addColumn("id_tu",QString::fromUtf8("ТУ, ОСТ"),Rels::instance()->relGost);
     modelTu->setSort("gost_new.nam");
 
     ui->tableViewTu->setModel(modelTu);
@@ -51,29 +46,29 @@ FormDoc::FormDoc(QWidget *parent) :
     modelWireDiam = new DbTableModel("zvd_wire_diam_sert");
     modelWireDiam->addColumn("id","id");
     modelWireDiam->addColumn("id_sert","id_sert");
-    modelWireDiam->addColumn("id_provol",QString::fromUtf8("Проволока"),NULL,Rels::instance()->relProvol);
-    modelWireDiam->addColumn("id_diam",QString::fromUtf8("Диам."),NULL,Rels::instance()->relWireDiam);
-    modelWireDiam->addColumn("id_grade",QString::fromUtf8("Категория"),NULL,Rels::instance()->relGrade);
+    modelWireDiam->addColumn("id_provol",QString::fromUtf8("Проволока"),Rels::instance()->relProvol);
+    modelWireDiam->addColumn("id_diam",QString::fromUtf8("Диам."),Rels::instance()->relWireDiam);
+    modelWireDiam->addColumn("id_grade",QString::fromUtf8("Категория"),Rels::instance()->relGrade);
     modelWireDiam->setSuffix("inner join provol as p on p.id=zvd_wire_diam_sert.id_provol "
                          "inner join diam as d on d.id=zvd_wire_diam_sert.id_diam");
     modelWireDiam->setSort("p.nam, d.diam");
     ui->tableViewWireDiam->setModel(modelWireDiam);
     ui->tableViewWireDiam->setColumnHidden(0,true);
     ui->tableViewWireDiam->setColumnHidden(1,true);
-    ui->tableViewWireDiam->setColumnWidth(2,120);
+    ui->tableViewWireDiam->setColumnWidth(2,150);
     ui->tableViewWireDiam->setColumnWidth(3,60);
-    ui->tableViewWireDiam->setColumnWidth(4,100);
+    ui->tableViewWireDiam->setColumnWidth(4,220);
 
     modelWire = new DbTableModel("zvd_wire_sert");
     modelWire->addColumn("id_sert","id_sert");
-    modelWire->addColumn("id_provol",QString::fromUtf8("Проволока"),NULL,Rels::instance()->relProvol);
-    modelWire->addColumn("id_grade",QString::fromUtf8("Категория"),NULL,Rels::instance()->relGrade);
+    modelWire->addColumn("id_provol",QString::fromUtf8("Проволока"),Rels::instance()->relProvol);
+    modelWire->addColumn("id_grade",QString::fromUtf8("Категория"),Rels::instance()->relGrade);
     modelWire->setSuffix("inner join provol as p on p.id=zvd_wire_sert.id_provol");
     modelWire->setSort("p.nam");
     ui->tableViewWire->setModel(modelWire);
     ui->tableViewWire->setColumnHidden(0,true);
     ui->tableViewWire->setColumnWidth(1,150);
-    ui->tableViewWire->setColumnWidth(2,100);
+    ui->tableViewWire->setColumnWidth(2,220);
 
     modelDoc = new ModelDoc(this);
     modelDoc->refresh(ui->checkBoxActive->isChecked());
@@ -198,13 +193,14 @@ void FormDoc::refreshData(int index)
 
 void FormDoc::updElDim()
 {
-    QSqlQuery query;
-    query.prepare("select * from rx_els()");
-    if (query.exec()){
-        Rels::instance()->relElDim->refreshModel();
-    } else {
-        QMessageBox::critical(this,tr("Error"),query.lastError().text(),QMessageBox::Ok);
-    }
+    modelDoc->refreshRelsModel();
+    Rels::instance()->refreshElDim();
+    Rels::instance()->relGost->refreshModel();
+    Rels::instance()->relElMark->refreshModel();
+    Rels::instance()->relGrade->refreshModel();
+    Rels::instance()->relProvol->refreshModel();
+    Rels::instance()->relWireDiam->refreshModel();
+    modelDoc->select();
 }
 
 void FormDoc::upload()

@@ -31,6 +31,7 @@ private slots:
     void copyTu();
     void pasteTu();
     void updElDim();
+    void updateFinished();
 };
 
 #endif // FORMNORMDOC_H

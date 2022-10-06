@@ -29,6 +29,6 @@ void DbLogin::dBconnect()
     db.setUserName(ui->edtUser->text());
     db.setPassword(ui->edtPasswd->text());
     if (!db.open()) {
-        QMessageBox::critical(NULL,"Error",db.lastError().text(),QMessageBox::Ok);
+        QMessageBox::critical(nullptr,"Error",db.lastError().text(),QMessageBox::Ok);
     } else this->accept();
 }

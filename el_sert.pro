@@ -44,7 +44,12 @@ SOURCES += main.cpp\
     models.cpp \
     glabels/glabelslbl.cpp \
     dialogcopy.cpp \
-    modelro.cpp
+    modelro.cpp \
+    db/executor.cpp \
+    db/dbcombobox.cpp \
+    db/dbdateedit.cpp \
+    db/dbrelationeditdialog.cpp \
+    db/tablemodel.cpp
 
 HEADERS  += formpart.h \
     pgdialog.h \
@@ -79,7 +84,12 @@ HEADERS  += formpart.h \
     models.h \
     glabels/glabelslbl.h \
     dialogcopy.h \
-    modelro.h
+    modelro.h \
+    db/executor.h \
+    db/dbcombobox.h \
+    db/dbdateedit.h \
+    db/dbrelationeditdialog.h \
+    db/tablemodel.h
 
 FORMS    += formpart.ui \
     pgdialog.ui \
@@ -94,7 +104,8 @@ FORMS    += formpart.ui \
     formmark.ui \
     formtypes.ui \
     formpos.ui \
-    dialogcopy.ui
+    dialogcopy.ui \
+    db/dbrelationeditdialog.ui
 
 RESOURCES += \
     res.qrc
