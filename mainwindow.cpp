@@ -13,7 +13,6 @@ MainWindow::MainWindow(bool readOnly, QWidget *parent) :
         actAction(ui->actionVed,&MainWindow::ved);
         actAction(ui->actionDoc,&MainWindow::doc);
         actAction(ui->actionMark,&MainWindow::mark);
-        actAction(ui->actionType,&MainWindow::types);
         actAction(ui->actionPos,&MainWindow::pos);
     }
     actAction(ui->actionSert,&MainWindow::ship);
@@ -21,7 +20,6 @@ MainWindow::MainWindow(bool readOnly, QWidget *parent) :
     loadSettings();
 
     connect(ui->tabWidget,SIGNAL(tabCloseRequested(int)),this,SLOT(closeTab(int)));
-    connect(ui->actionUpd,SIGNAL(triggered(bool)),Rels::instance(),SLOT(refresh()));
 }
 
 MainWindow::~MainWindow()
@@ -116,13 +114,6 @@ void MainWindow::mark()
 {
     if (!exist(sender())){
         addSubWindow(new FormMark(),sender());
-    }
-}
-
-void MainWindow::types()
-{
-    if (!exist(sender())){
-        addSubWindow(new FormTypes(),sender());
     }
 }
 

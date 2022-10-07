@@ -58,6 +58,7 @@ private:
     QString adres;
     QString otk;
     QString kach;
+    QMap<int,QString> mapDocTypes;
     void sysCommand(QString fname);
     QString getTuList(int id_el, int id_diam, QDate date, int id_var=1);
     QString getSrtStr(int id_el, int id_diam, QDate date, int id_var=1);

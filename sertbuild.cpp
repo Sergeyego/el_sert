@@ -141,7 +141,7 @@ void SertBuild::rebuild()
 
     foreach (int id, id_ved){
         QImage img;
-        //img.loadFromData(Rels::instance()->relVedPix->data(QString::number(id)).toByteArray());
+        img.loadFromData(Rels::instance()->mapVedPix.value(id));
         if (!img.isNull()) {
             addResource(QTextDocument::ImageResource, QUrl("vedimage"+QString::number(id)), img);
             QTextImageFormat f;
@@ -602,24 +602,14 @@ void SertBuild::setDefaultDoc()
     this->build(current_id,current_is_ship);
 }
 
+void SertBuild::refreshGenData()
+{
+    data->refreshGeneralData();
+}
+
 DataSert::DataSert(QObject *parent) : QObject(parent)
 {
-    refreshMechCategory();
-    QSqlQuery query;
-    query.prepare("select adr, telboss||', '||telfax||', '||teldop||' '||site||' '||email, otk, adr_en, otk_en from hoz where id=1");
-    if (query.exec()){
-        while(query.next()){
-            gData.adres.rus=query.value(0).toString();
-            gData.contact=query.value(1).toString();
-            gData.otk.rus=query.value(2).toString();
-            gData.adres.eng=query.value(3).toString();
-            gData.otk.eng=query.value(4).toString();
-        }
-    } else {
-        QMessageBox::critical(NULL,tr("Error"),query.lastError().text(),QMessageBox::Ok);
-    }
-    gData.logo.load("images/logo2.png");
-    gData.sign.load("images/otk.png");
+    refreshGeneralData();
 }
 
 void DataSert::refresh(int id, bool is_ship, bool sample)
@@ -951,5 +941,25 @@ void DataSert::refreshMechCategory()
     } else {
         QMessageBox::critical(NULL,"Error",query.lastError().text(),QMessageBox::Ok);
     }
+}
+
+void DataSert::refreshGeneralData()
+{
+    refreshMechCategory();
+    QSqlQuery query;
+    query.prepare("select adr, telboss||', '||telfax||', '||teldop||' '||site||' '||email, otk, adr_en, otk_en from hoz where id=1");
+    if (query.exec()){
+        while(query.next()){
+            gData.adres.rus=query.value(0).toString();
+            gData.contact=query.value(1).toString();
+            gData.otk.rus=query.value(2).toString();
+            gData.adres.eng=query.value(3).toString();
+            gData.otk.eng=query.value(4).toString();
+        }
+    } else {
+        QMessageBox::critical(NULL,tr("Error"),query.lastError().text(),QMessageBox::Ok);
+    }
+    gData.logo.load("images/logo2.png");
+    gData.sign.load("images/otk.png");
 }
 

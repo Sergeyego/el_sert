@@ -57,5 +57,9 @@ void DbRelationEditDialog::createModel(DbSqlRelation *r)
     ui->tableView->setColumnWidth(1,430);
 
     connect(model,SIGNAL(sigUpd()),r,SLOT(refreshModel()));
+
+    if (ui->tableView->model()->rowCount()){
+        ui->tableView->setCurrentIndex(ui->tableView->model()->index(ui->tableView->model()->rowCount()-1,1));
+    }
 }
 

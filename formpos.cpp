@@ -21,7 +21,8 @@ FormPos::FormPos(QWidget *parent) :
     connect(ui->tableViewPos->selectionModel(),SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),this,SLOT(loadImg(QModelIndex)));
     connect(ui->cmdLoad,SIGNAL(clicked(bool)),this,SLOT(newImg()));
     connect(ui->cmdDel,SIGNAL(clicked(bool)),this,SLOT(delImg()));
-    //connect(modelPos,SIGNAL(sigUpd()),Rels::instance()->relPosPix,SLOT(refreshModel()));
+    connect(modelPos,SIGNAL(sigUpd()),Rels::instance(),SLOT(refreshPolPix()));
+    connect(ui->pushButtonUpd,SIGNAL(clicked(bool)),this,SLOT(upd()));
 
     if (ui->tableViewPos->model()->rowCount()){
         ui->tableViewPos->selectRow(0);
@@ -47,10 +48,11 @@ void FormPos::loadImg(QModelIndex index)
     ui->labelPos->setPixmap(QPixmap());
     int id=ui->tableViewPos->model()->data(ui->tableViewPos->model()->index(index.row(),0),Qt::EditRole).toInt();
     QPixmap pix;
-    //pix.loadFromData(Rels::instance()->relPosPix->data(QString::number(id)).toByteArray());
+    pix.loadFromData(Rels::instance()->mapPolPix.value(id));
     if (!pix.isNull()){
         viewPix(pix);
     }
+    ui->cmdDel->setEnabled(!pix.isNull());
 }
 
 void FormPos::newImg()
@@ -75,7 +77,8 @@ void FormPos::newImg()
         query.bindValue(":data",arr);
         if (query.exec()){
             viewPix(QPixmap::fromImage(img));
-            //Rels::instance()->relPosPix->refreshModel();
+            ui->cmdDel->setEnabled(!img.isNull());
+            Rels::instance()->refreshPolPix();
         } else {
             QMessageBox::critical(this,"Error",query.lastError().text(),QMessageBox::Cancel);
         }
@@ -91,8 +94,17 @@ void FormPos::delImg()
     query.bindValue(":id",id);
     if (query.exec()){
         viewPix(QPixmap());
-        //Rels::instance()->relPosPix->refreshModel();
+        Rels::instance()->refreshPolPix();
     } else {
         QMessageBox::critical(this,"Error",query.lastError().text(),QMessageBox::Cancel);
+    }
+}
+
+void FormPos::upd()
+{
+    Rels::instance()->refreshPolPix();
+    modelPos->select();
+    if (ui->tableViewPos->model()->rowCount()){
+        ui->tableViewPos->selectRow(0);
     }
 }

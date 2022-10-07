@@ -12,7 +12,6 @@ Rels *Rels::instance()
 Rels::Rels(QObject *parent) : QObject(parent)
 {
     relVed = new DbSqlRelation("zvd_ved","id","nam",this);
-    //relVedPix = new DbRelation(QString("select id, simb from zvd_ved"),0,1,this);
     relVidDoc = new DbSqlRelation("zvd_doc","id","nam",this);
     relElMark = new DbSqlRelation("elrtr","id","marka",this);
     relElMark->setFilter("elrtr.id<>0");
@@ -48,21 +47,22 @@ Rels::Rels(QObject *parent) : QObject(parent)
     relWireDiam = new DbSqlRelation("diam","id","sdim",this);
     relWireDiam->setFilter("diam.id<>0");
     relChemDev = new DbSqlRelation("chem_dev","id","short",this);
-    relPack = new DbSqlRelation("el_pack","id","pack_ed",this);
-    relEanEd = new DbSqlRelation("eans","ean","ean",this);
+    relPack = new DbSqlRelation("el_pack_view","id","nam",this);
+    relEanEd = new DbSqlRelation("ean_free","ean","ean",this);
+    relEanEd->model()->setAsync(false);
     relEanEd->setAlias("eansEd");
-    relEanGr = new DbSqlRelation("eans","ean","ean",this);
+    relEanEd->setFilter("eansEd.ean_free = true");
+    relEanGr = new DbSqlRelation("ean_free","ean","ean",this);
+    relEanGr->model()->setAsync(false);
     relEanGr->setAlias("eansGr");
+    relEanGr->setFilter("eansGr.ean_free = true");
     relVar = new DbSqlRelation("elrtr_vars","id","nam",this);
     relVar->setSort("elrtr_vars.id");
     relVar->setEditable(true);
     relDocType = new DbSqlRelation("zvd_doc_type","id","nam",this);
     relDocType->setEditable(true);
-}
-
-void Rels::refresh()
-{
-    emit sigRefresh();
+    refreshVedPix();
+    refreshPolPix();
 }
 
 void Rels::refreshElDim()
@@ -71,6 +71,34 @@ void Rels::refreshElDim()
     query.prepare("select * from rx_els()");
     if (query.exec()){
         relElDim->refreshModel();
+    } else {
+        QMessageBox::critical(nullptr,tr("Error"),query.lastError().text(),QMessageBox::Ok);
+    }
+}
+
+void Rels::refreshVedPix()
+{
+    QSqlQuery query;
+    query.prepare("select id, simb from zvd_ved");
+    if (query.exec()){
+        mapVedPix.clear();
+        while (query.next()){
+            mapVedPix.insert(query.value(0).toInt(),query.value(1).toByteArray());
+        }
+    } else {
+        QMessageBox::critical(nullptr,tr("Error"),query.lastError().text(),QMessageBox::Ok);
+    }
+}
+
+void Rels::refreshPolPix()
+{
+    QSqlQuery query;
+    query.prepare("select id, data from pics");
+    if (query.exec()){
+        mapPolPix.clear();
+        while (query.next()){
+            mapPolPix.insert(query.value(0).toInt(),query.value(1).toByteArray());
+        }
     } else {
         QMessageBox::critical(nullptr,tr("Error"),query.lastError().text(),QMessageBox::Ok);
     }

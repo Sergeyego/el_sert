@@ -33,13 +33,6 @@ FormShip::FormShip(QWidget *parent) :
     modelDataShip = new ModelDataShip(this);
     ui->tableViewShipData->setModel(modelDataShip);
 
-    refresh();
-
-    ui->tableViewShip->setColumnHidden(0,true);
-    ui->tableViewShip->setColumnWidth(1,55);
-    ui->tableViewShip->setColumnWidth(2,70);
-    ui->tableViewShip->setColumnWidth(3,200);
-
     connect(ui->tableViewShip->selectionModel(),SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),this,SLOT(refreshDataShip(QModelIndex)));
     connect(ui->tableViewShipData->selectionModel(),SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),this,SLOT(refreshShipSert(QModelIndex)));
 
@@ -47,6 +40,8 @@ FormShip::FormShip(QWidget *parent) :
     connect(ui->cmdSaveAll,SIGNAL(clicked()),this,SLOT(pdfAll()));
     connect(ui->cmdUpd,SIGNAL(clicked()),this,SLOT(refresh()));
     connect(ui->cmdMultipagePdf,SIGNAL(clicked(bool)),this,SLOT(multipagePdf()));
+
+    refresh();
 }
 
 FormShip::~FormShip()
@@ -72,12 +67,13 @@ void FormShip::refreshDataShip(QModelIndex index)
     int id_ship=modelShip->data(modelShip->index(index.row(),0),Qt::EditRole).toInt();
     modelDataShip->refresh(id_ship);
     ui->tableViewShipData->setColumnHidden(0,true);
-    ui->tableViewShipData->setColumnHidden(5,true);
-    ui->tableViewShipData->setColumnWidth(1,55);
-    ui->tableViewShipData->setColumnWidth(2,70);
-    ui->tableViewShipData->setColumnWidth(3,150);
-    ui->tableViewShipData->setColumnWidth(4,70);
-    ui->tableViewShipData->selectRow(0);
+    ui->tableViewShipData->setColumnHidden(4,true);
+    ui->tableViewShipData->setColumnWidth(1,75);
+    ui->tableViewShipData->setColumnWidth(2,225);
+    ui->tableViewShipData->setColumnWidth(3,65);
+    if (modelDataShip->rowCount()){
+        ui->tableViewShipData->selectRow(0);
+    }
 }
 
 void FormShip::refreshShipSert(QModelIndex index)
@@ -152,5 +148,16 @@ void FormShip::multipagePdf()
 
 void FormShip::refresh()
 {
+    if (sender()==ui->cmdUpd){
+        Rels::instance()->refreshVedPix();
+        sertificat->refreshGenData();
+    }
     modelShip->refresh(ui->dateEditBeg->date(),ui->dateEditEnd->date());
+    ui->tableViewShip->setColumnHidden(0,true);
+    ui->tableViewShip->setColumnWidth(1,55);
+    ui->tableViewShip->setColumnWidth(2,70);
+    ui->tableViewShip->setColumnWidth(3,200);
+    if (ui->tableViewShip->model()->rowCount()){
+        ui->tableViewShip->selectRow(ui->tableViewShip->model()->rowCount()-1);
+    }
 }

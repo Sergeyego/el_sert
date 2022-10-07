@@ -28,6 +28,7 @@ private slots:
     void loadImg(QModelIndex index);
     void newImg();
     void delImg();
+    void upd();
 };
 
 #endif // FORMPOS_H

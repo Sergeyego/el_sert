@@ -378,6 +378,26 @@
              </widget>
             </item>
             <item>
+             <widget class="QToolButton" name="toolButtonEdtVar">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="toolTip">
+               <string>Редактировать варианты</string>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+              <property name="icon">
+               <iconset resource="res.qrc">
+                <normaloff>:/images/key.png</normaloff>:/images/key.png</iconset>
+              </property>
+             </widget>
+            </item>
+            <item>
              <widget class="QPushButton" name="pushButtonCreVar">
               <property name="text">
                <string>Создать</string>
@@ -679,6 +699,8 @@
   <tabstop>tableViewChem</tabstop>
   <tabstop>tableViewMech</tabstop>
  </tabstops>
- <resources/>
+ <resources>
+  <include location="res.qrc"/>
+ </resources>
  <connections/>
 </ui>

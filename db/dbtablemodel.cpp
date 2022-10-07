@@ -801,6 +801,7 @@ DbSqlLikeModel *DbSqlRelation::model()
 void DbSqlRelation::setAlias(QString a)
 {
     alias=a;
+    sort=getCDisplay();
 }
 
 void DbSqlRelation::setSort(QString s)

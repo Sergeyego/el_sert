@@ -38,7 +38,9 @@ ModelDataShip::ModelDataShip(QObject *parent) :
 
 void ModelDataShip::refresh(int id_ship)
 {
-    setQuery("select o.id, p.n_s, p.dat_part, e.marka||' ф '||p.diam, o.massa, "
+    setQuery("select o.id, p.n_s||'-'||date_part('year',p.dat_part), e.marka||' "+tr("ф")+" '||cast(p.diam as varchar(3))||"
+             "CASE WHEN p.id_var <> 1 THEN (' /'::text || ev.nam::text) || '/'::text ELSE ''::text END AS mark, "
+             "o.massa,  "
               "(select case when exists(select id_chem from sert_chem where id_part=p.id) "
                  "then 1 else 0 end "
                  "+ "
@@ -48,37 +50,33 @@ void ModelDataShip::refresh(int id_ship)
              "from otpusk o inner join parti p on o.id_part=p.id "
              "inner join elrtr e on e.id=p.id_el "
              "inner join istoch i on i.id=p.id_ist "
+             "inner join elrtr_vars ev on ev.id=p.id_var "
              "where o.id_sert ="+QString::number(id_ship)+" order by p.n_s, p.dat_part");
     if (lastError().isValid())
     {
         QMessageBox::critical(NULL,"Error",lastError().text(),QMessageBox::Cancel);
     } else {
         setHeaderData(1, Qt::Horizontal,tr("Партия"));
-        setHeaderData(2, Qt::Horizontal,tr("Дата"));
-        setHeaderData(3, Qt::Horizontal,tr("Марка"));
-        setHeaderData(4, Qt::Horizontal,tr("Масса, кг"));
+        setHeaderData(2, Qt::Horizontal,tr("Марка"));
+        setHeaderData(3, Qt::Horizontal,tr("Масса, кг"));
     }
 }
 
 QVariant ModelDataShip::data(const QModelIndex &index, int role) const
 {
-    if((role == Qt::BackgroundColorRole)&&(this->columnCount()>4)) {
-    int area = record(index.row()).value(5).toInt();
+    if((role == Qt::BackgroundColorRole)&&(this->columnCount()>3)) {
+    int area = record(index.row()).value(4).toInt();
     if(area == 0) return QVariant(QColor(255,170,170)); else
         if(area == 1) return QVariant(QColor(Qt::yellow)); else
             if(area == 2) return QVariant(QColor(Qt::gray)); else
                 if(area == 3) return QVariant(QColor(170,255,170));
     }
     if (role == Qt::TextAlignmentRole){
-        if((index.column() == 4))
+        if((index.column() == 3))
             return int(Qt::AlignRight | Qt::AlignVCenter);
     }
-
     if (role == Qt::DisplayRole){
-        if((index.column() == 2)){
-            return QSqlQueryModel::data(index,role).toDate().toString("dd.MM.yy");
-        }
-        if((index.column() == 4))
+        if((index.column() == 3))
             return QLocale().toString(QSqlQueryModel::data(index,role).toDouble(),'f',1);
     }
     return QSqlQueryModel::data(index, role);
@@ -93,7 +91,7 @@ ModelPart::ModelPart(QObject *parent) :
 void ModelPart::refresh(QDate dbeg, QDate dend, int id_el)
 {
     QString flt= (id_el==-1) ? "" : "and p.id_el= "+QString::number(id_el)+" ";
-    setQuery("select p.id, p.n_s, p.dat_part, e.marka||' "+tr("ф")+" '||p.diam, i.nam as inam, r.nam, ev.nam, "
+    setQuery("select p.id, p.n_s, p.dat_part, e.marka||' "+tr("ф")+" '||cast(p.diam as varchar(3)), i.nam as inam, r.nam, ev.nam, "
              "(select case when exists(select id_chem from sert_chem where id_part=p.id) "
              "then 1 else 0 end "
              "+ "

@@ -34,7 +34,13 @@ FormMark::FormMark(QWidget *parent) :
     ui->comboBoxVar->setModel(Rels::instance()->relVar->model());
     ui->comboBoxVar->setModelColumn(1);
 
-    modelEan = new ModelEan(this);
+    modelEan = new DbTableModel("ean_el",this);
+    modelEan->addColumn("id_el","id_el");
+    modelEan->addColumn("id_diam",tr("Диаметр"),Rels::instance()->relDiam);
+    modelEan->addColumn("id_pack",tr("Упаковка (ед., групп.)"),Rels::instance()->relPack);
+    modelEan->addColumn("ean_ed",tr("Штрих код (ед.)"),Rels::instance()->relEanEd);
+    modelEan->addColumn("ean_group",tr("Штрих код (гр.)"),Rels::instance()->relEanGr);
+    modelEan->setSort("diam.sdim");
     ui->tableViewPack->setModel(modelEan);
     ui->tableViewPack->setColumnHidden(0,true);
     ui->tableViewPack->setColumnWidth(1,70);
@@ -44,7 +50,7 @@ FormMark::FormMark(QWidget *parent) :
 
     DbDelegate *delegate=qobject_cast<DbDelegate *>(ui->tableViewPack->itemDelegate());
     if (delegate){
-        connect(delegate,SIGNAL(createEdt(QModelIndex)),modelEan,SLOT(updRels(QModelIndex)));
+        connect(delegate,SIGNAL(createEdt(QModelIndex)),this,SLOT(updEanRel(QModelIndex)));
     }
 
     modelAmp = new DbTableModel("amp",this);
@@ -196,10 +202,15 @@ FormMark::FormMark(QWidget *parent) :
     connect(Rels::instance()->relDiam->model(),SIGNAL(searchFinished(QString)),this,SLOT(setComboBoxDiam()));
     connect(ui->pushButtonUpd,SIGNAL(clicked(bool)),this,SLOT(upd()));
     connect(ui->comboBoxDiam,SIGNAL(currentIndexChanged(int)),this,SLOT(changeIdDiam()));
+    connect(ui->toolButtonEdtVar,SIGNAL(clicked(bool)),this,SLOT(edtVar()));
+
+    setComboBoxVar();
+    setComboBoxDiam();
 
     if (ui->tableViewMark->model()->rowCount()){
         ui->tableViewMark->selectRow(0);
     }
+
 }
 
 FormMark::~FormMark()
@@ -234,6 +245,15 @@ int FormMark::id_diam()
 int FormMark::id_var()
 {
     return currentIdVar;
+}
+
+void FormMark::updEanRel(QModelIndex index)
+{
+    if (index.column()==3){
+        Rels::instance()->relEanEd->refreshModel();
+    } else if (index.column()==4){
+        Rels::instance()->relEanGr->refreshModel();
+    }
 }
 
 void FormMark::loadVars()
@@ -284,7 +304,9 @@ void FormMark::refreshCont(int index)
     QModelIndex ind=ui->tableViewMark->model()->index(index,0);
     int id_el=ui->tableViewMark->model()->data(ind,Qt::EditRole).toInt();
 
-    //modelEan->refresh(id_el);
+    modelEan->setDefaultValue(0,id_el);
+    modelEan->setFilter("ean_el.id_el = "+QString::number(id_el));
+    modelEan->select();
 
     modelPlav->setDefaultValue(0,id_el);
     modelPlav->setFilter("el_plav.id_el = "+QString::number(id_el));
@@ -298,16 +320,7 @@ void FormMark::updImg()
     QModelIndex ind=ui->tableViewMark->model()->index(mapper->currentIndex(),6);
     int id_pix=ui->tableViewMark->model()->data(ind,Qt::EditRole).toInt();
     QPixmap pix;
-    QSqlQuery query;
-    query.prepare("select data from pics where id = :id_pix");
-    query.bindValue(":id_pix",id_pix);
-    if (query.exec()){
-        if (query.next()){
-            pix.loadFromData(query.value(0).toByteArray());
-        }
-    } else {
-        QMessageBox::critical(this,tr("Ошибка"),query.lastError().text(),QMessageBox::Cancel);
-    }
+    pix.loadFromData(Rels::instance()->mapPolPix.value(id_pix));
     if (pix.isNull()){
         ui->labelPix->setPixmap(pix);
     } else {
@@ -520,13 +533,28 @@ void FormMark::setComboBoxDiam()
 
 void FormMark::upd()
 {
+    Rels::instance()->refreshPolPix();
     modelMark->select();
     modelMark->refreshRelsModel();
     Rels::instance()->relPlav->refreshModel();
-    modelAmp->refreshRelsModel();
+    modelEan->refreshRelsModel();
     modelChemTu->refreshRelsModel();
     modelMechTu->refreshRelsModel();
     Rels::instance()->relVar->refreshModel();
+}
+
+void FormMark::edtVar()
+{
+    DbRelationEditDialog d(Rels::instance()->relVar);
+    if (d.exec()==QDialog::Accepted){
+        colVal c = d.currentData();
+        for (int i=0; i<ui->comboBoxVar->model()->rowCount();i++){
+            if (ui->comboBoxVar->model()->data(ui->comboBoxVar->model()->index(i,0),Qt::EditRole).toInt()==c.val){
+                ui->comboBoxVar->setCurrentIndex(i);
+                break;
+            }
+        }
+    }
 }
 
 CustomDelegate::CustomDelegate(QObject *parent) : DbDelegate(parent)

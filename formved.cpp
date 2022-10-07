@@ -43,6 +43,7 @@ FormVed::FormVed(QWidget *parent) :
     connect(ui->tableViewVed->selectionModel(),SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),this,SLOT(loadImg(QModelIndex)));
     connect(ui->cmdBrowse,SIGNAL(clicked(bool)),this,SLOT(newImg()));
     connect(ui->cmdDel,SIGNAL(clicked(bool)),this,SLOT(delImg()));
+    connect(ui->pushButtonUpd,SIGNAL(clicked(bool)),this,SLOT(upd()));
 
     if (ui->tableViewVed->model()->rowCount()){
         ui->tableViewVed->selectRow(0);
@@ -68,10 +69,11 @@ void FormVed::loadImg(QModelIndex index)
     ui->labelSimb->setPixmap(QPixmap());
     int id=ui->tableViewVed->model()->data(ui->tableViewVed->model()->index(index.row(),0),Qt::EditRole).toInt();
     QPixmap pix;
-    //pix.loadFromData(Rels::instance()->relVedPix->data(QString::number(id)).toByteArray());
+    pix.loadFromData(Rels::instance()->mapVedPix.value(id));
     if (!pix.isNull()){
         viewPix(pix);
     }
+    ui->cmdDel->setEnabled(!pix.isNull());
 }
 
 void FormVed::newImg()
@@ -96,7 +98,8 @@ void FormVed::newImg()
         query.bindValue(":data",arr);
         if (query.exec()){
             viewPix(QPixmap::fromImage(img));
-            //Rels::instance()->relVedPix->refreshModel();
+            ui->cmdDel->setEnabled(!img.isNull());
+            Rels::instance()->refreshVedPix();
         } else {
             QMessageBox::critical(this,"Error",query.lastError().text(),QMessageBox::Cancel);
         }
@@ -112,8 +115,19 @@ void FormVed::delImg()
     query.bindValue(":id",id);
     if (query.exec()){
         viewPix(QPixmap());
-        //Rels::instance()->relVedPix->refreshModel();
+        Rels::instance()->refreshVedPix();
     } else {
         QMessageBox::critical(this,"Error",query.lastError().text(),QMessageBox::Cancel);
+    }
+}
+
+void FormVed::upd()
+{
+    Rels::instance()->refreshVedPix();
+    modelVed->select();
+    modelDoc->select();
+    modelDoc->refreshRelsModel();
+    if (ui->tableViewVed->model()->rowCount()){
+        ui->tableViewVed->selectRow(0);
     }
 }

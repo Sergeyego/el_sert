@@ -12,7 +12,16 @@ LblCreator::LblCreator(QObject *parent) : QObject(parent)
             kach=query.value(3).toString();
         }
     } else {
-        QMessageBox::critical(NULL,tr("Error"),query.lastError().text(),QMessageBox::Ok);
+        QMessageBox::critical(nullptr,tr("Error"),query.lastError().text(),QMessageBox::Ok);
+    }
+    query.clear();
+    query.prepare("select id, nam from zvd_doc_type");
+    if (query.exec()){
+        while(query.next()){
+            mapDocTypes.insert(query.value(0).toInt(),query.value(1).toString());
+        }
+    } else {
+        QMessageBox::critical(nullptr,tr("Error"),query.lastError().text(),QMessageBox::Ok);
     }
 }
 
@@ -502,7 +511,7 @@ QString LblCreator::getTuList(int id_el, int id_diam, QDate date, int id_var)
             tulist+=tuQuery.value(0).toString();
         }
     } else {
-        QMessageBox::critical(NULL,tr("Error"),tuQuery.lastError().text(),QMessageBox::Ok);
+        QMessageBox::critical(nullptr,tr("Error"),tuQuery.lastError().text(),QMessageBox::Ok);
     }
     return tulist;
 }
@@ -541,7 +550,7 @@ QString LblCreator::getSrtStr(int id_el, int id_diam, QDate date, int id_var)
             }
         }
     } else {
-        QMessageBox::critical(NULL,tr("Error"),vedQuery.lastError().text(),QMessageBox::Ok);
+        QMessageBox::critical(nullptr,tr("Error"),vedQuery.lastError().text(),QMessageBox::Ok);
     }
 
     QList<int> keys = srt.uniqueKeys();
@@ -550,7 +559,7 @@ QString LblCreator::getSrtStr(int id_el, int id_diam, QDate date, int id_var)
         if (!srtStr.isEmpty()){
             srtStr+="\n";
         }
-        //srtStr+=Rels::instance()->relDocType->data(QString::number(keys.at(i))).toString()+":";
+        srtStr+=mapDocTypes.value(keys.at(i))+":";
         QList<QString> v = srt.values(keys.at(i));
         qSort(v.begin(),v.end());
         for (QString st:v){
@@ -579,7 +588,7 @@ dataLbl LblCreator::getData(int id_el, int id_diam, int id_var)
     query.bindValue(":id",id_el);
     query.bindValue(":id_var",id_var);
     if (!query.exec()){
-        QMessageBox::critical(NULL,tr("Ошибка"),query.lastError().text(),QMessageBox::Ok);
+        QMessageBox::critical(nullptr,tr("Ошибка"),query.lastError().text(),QMessageBox::Ok);
     }
     while (query.next()){
         data.marka=query.value(0).toString();
@@ -679,7 +688,7 @@ QVector<dataAmp> LblCreator::getAmp(int id_el, int id_diam, bool shortAmp, bool 
             amps.push_back(data);
         }
     } else {
-        QMessageBox::critical(NULL,tr("Ошибка"),queryAmp.lastError().text(),QMessageBox::Ok);
+        QMessageBox::critical(nullptr,tr("Ошибка"),queryAmp.lastError().text(),QMessageBox::Ok);
     }
     return amps;
 }
@@ -701,7 +710,7 @@ dataPart LblCreator::getDataPart(int id_part)
             data.id_var=queryPart.value(4).toInt();
         }
     } else {
-        QMessageBox::critical(NULL,tr("Error"),queryPart.lastError().text(),QMessageBox::Ok);
+        QMessageBox::critical(nullptr,tr("Error"),queryPart.lastError().text(),QMessageBox::Ok);
     }
     return data;
 }

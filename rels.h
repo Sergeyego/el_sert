@@ -10,7 +10,8 @@ class Rels : public QObject
 public:
     static Rels *instance();
     DbSqlRelation *relVed;
-    //DbSqlRelation *relVedPix;
+    QMap<int, QByteArray> mapVedPix;
+    QMap<int, QByteArray> mapPolPix;
     DbSqlRelation *relVidDoc;
     DbSqlRelation *relElMark;
     DbSqlRelation *relElDim;
@@ -45,13 +46,10 @@ protected:
 private:
     static Rels *rels_instance;
 
-signals:
-    void sigRefresh();
-
 public slots:
-    void refresh();
     void refreshElDim();
-
+    void refreshVedPix();
+    void refreshPolPix();
 };
 
 #endif // RELS_H

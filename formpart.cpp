@@ -400,6 +400,13 @@ void FormPart::copyVal()
 
 void FormPart::refresh()
 {
+    if (sender()==ui->cmdUpd){
+        Rels::instance()->refreshVedPix();
+        sertificatPart->refreshGenData();
+        modelSertChem->refreshRelsModel();
+        modelSrcMech->refreshRelsModel();
+        modelSertMechx->refreshRelsModel();
+    }
     int id_el= ui->checkBoxOnly->isChecked()? ui->comboBoxMar->model()->data(ui->comboBoxMar->model()->index(ui->comboBoxMar->currentIndex(),0),Qt::EditRole).toInt() : -1;
     modelPart->refresh(ui->dateEditBeg->date(),ui->dateEditEnd->date(),id_el);
     ui->tableViewPart->setColumnHidden(0,true);

@@ -8,7 +8,6 @@
 #include "formved.h"
 #include "formdoc.h"
 #include "formmark.h"
-#include "formtypes.h"
 #include "formpos.h"
 
 namespace Ui {
@@ -37,7 +36,6 @@ private slots:
     void ved();
     void doc();
     void mark();
-    void types();
     void pos();
 
 private:

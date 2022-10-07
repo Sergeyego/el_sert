@@ -4,11 +4,10 @@
 #include <QWidget>
 #include "db/dbtablemodel.h"
 #include "db/dbmapper.h"
+#include "db/dbrelationeditdialog.h"
 #include "rels.h"
 #include "lblcreator.h"
 #include "export.h"
-//#include "pdftoimg.h"
-#include "models.h"
 
 namespace Ui {
 class FormMark;
@@ -30,7 +29,7 @@ private:
     DbTableModel *modelChemTu;
     DbTableModel *modelMechTu;
     DbTableModel *modelPlav;
-    ModelEan *modelEan;
+    DbTableModel *modelEan;
     int currentIdVar;
     int currentIdDiam;
 
@@ -41,6 +40,7 @@ private:
     int id_var();
 
 private slots:
+    void updEanRel(QModelIndex index);
     void refreshCont(int index);
     void updImg();
     void gelLbl();
@@ -61,6 +61,7 @@ private slots:
     void setComboBoxProv();
     void setComboBoxDiam();
     void upd();
+    void edtVar();
 };
 
 class CustomDelegate : public DbDelegate

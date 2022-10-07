@@ -31,7 +31,6 @@ SOURCES += main.cpp\
     rels.cpp \
     modelstu.cpp \
     formmark.cpp \
-    formtypes.cpp \
     formpos.cpp \
     rtf/rtfcpp.cpp \
     lblcreator.cpp \
@@ -40,8 +39,6 @@ SOURCES += main.cpp\
     qftp/qftp.cpp \
     qftp/qurlinfo.cpp \
     modeldoc.cpp \
-    pdftoimg.cpp \
-    models.cpp \
     glabels/glabelslbl.cpp \
     dialogcopy.cpp \
     modelro.cpp \
@@ -70,7 +67,6 @@ HEADERS  += formpart.h \
     rels.h \
     modelstu.h \
     formmark.h \
-    formtypes.h \
     formpos.h \
     rtf/rtfcpp.h \
     rtf/rtfdefs.h \
@@ -80,8 +76,6 @@ HEADERS  += formpart.h \
     qftp/qftp.h \
     qftp/qurlinfo.h \
     modeldoc.h \
-    pdftoimg.h \
-    models.h \
     glabels/glabelslbl.h \
     dialogcopy.h \
     modelro.h \
@@ -102,7 +96,6 @@ FORMS    += formpart.ui \
     formved.ui \
     formdoc.ui \
     formmark.ui \
-    formtypes.ui \
     formpos.ui \
     dialogcopy.ui \
     db/dbrelationeditdialog.ui
