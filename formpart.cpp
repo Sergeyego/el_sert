@@ -89,6 +89,7 @@ FormPart::FormPart(QWidget *parent) :
     connect(ui->textEditPrimProd,SIGNAL(textChanged()),this,SLOT(enPrimSave()));
     connect(ui->lineEditZnam,SIGNAL(textChanged(QString)),this,SLOT(enZnamSave()));
     connect(ui->pushButtonCopy,SIGNAL(clicked(bool)),this,SLOT(copyVal()));
+    connect(Rels::instance(),SIGNAL(partReq(int)),this,SLOT(findPart(int)));
 
     refresh();
 }
@@ -395,6 +396,21 @@ void FormPart::copyVal()
                 QMessageBox::critical(this,tr("Ошибка"),queryMechx.lastError().text(),QMessageBox::Ok);
             }
         }
+    }
+}
+
+void FormPart::findPart(int id_part)
+{
+    bool ok=false;
+    for (int i=0; i<modelPart->rowCount(); i++){
+        if (id_part==modelPart->data(modelPart->index(i,0),Qt::EditRole).toInt()){
+            ui->tableViewPart->selectRow(i);
+            ok=true;
+            break;
+        }
+    }
+    if (!ok){
+        QMessageBox::information(this,tr("Информация"),tr("Не найдено такой партии за указанный период"),QMessageBox::Ok);
     }
 }
 

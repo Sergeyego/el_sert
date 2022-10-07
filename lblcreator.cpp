@@ -2,6 +2,7 @@
 
 LblCreator::LblCreator(QObject *parent) : QObject(parent)
 {
+    Rels::instance()->refreshPolPix();
     QSqlQuery query;
     query.prepare("select nam_lbl, adr, otk, kach from hoz where id=1");
     if (query.exec()){

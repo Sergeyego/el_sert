@@ -37,6 +37,7 @@ private slots:
     void pdfAll();
     void multipagePdf();
     void refresh();
+    void partReq(QModelIndex index);
 };
 
 #endif // FORMSHIP_H

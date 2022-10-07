@@ -20,6 +20,7 @@ MainWindow::MainWindow(bool readOnly, QWidget *parent) :
     loadSettings();
 
     connect(ui->tabWidget,SIGNAL(tabCloseRequested(int)),this,SLOT(closeTab(int)));
+    connect(Rels::instance(),SIGNAL(partReq(int)),ui->actionPart,SLOT(trigger()));
 }
 
 MainWindow::~MainWindow()

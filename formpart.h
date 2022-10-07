@@ -67,6 +67,7 @@ private slots:
     void enPrimSave();
     void enZnamSave();
     void copyVal();
+    void findPart(int id_part);
 };
 
 #endif // FORMPART_H

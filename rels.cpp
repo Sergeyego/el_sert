@@ -98,8 +98,18 @@ void Rels::refreshPolPix()
         mapPolPix.clear();
         while (query.next()){
             mapPolPix.insert(query.value(0).toInt(),query.value(1).toByteArray());
+            QPixmap pix;
+            pix.loadFromData(query.value(1).toByteArray());
+            if (!pix.isNull()){
+                pix.save("images/"+query.value(0).toString()+".png");
+            }
         }
     } else {
         QMessageBox::critical(nullptr,tr("Error"),query.lastError().text(),QMessageBox::Ok);
     }
+}
+
+void Rels::partSelectReq(int id_part)
+{
+    emit partReq(id_part);
 }

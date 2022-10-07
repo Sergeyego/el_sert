@@ -101,8 +101,6 @@ void DbComboBox::setCurrentData(colVal data)
         this->setCurrentIndex(-1);
         this->lineEdit()->setText(data.disp);
     }
-    //this->lineEdit()->selectAll();
-    //qDebug()<<"set"<<ok<<data.disp<<sender();
 }
 
 CustomCompletter::CustomCompletter(QObject *parent) : QCompleter(parent)
@@ -143,7 +141,6 @@ void CustomCompletter::setWidget(QWidget *widget)
 {
     DbComboBox *combo = qobject_cast<DbComboBox *>(widget);
     if (combo){
-        //qDebug()<<"combo!";
         connect(combo->lineEdit(),SIGNAL(textEdited(QString)),this,SLOT(actComp(QString)));
     }
     return QCompleter::setWidget(widget);

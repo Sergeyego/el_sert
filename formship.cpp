@@ -35,6 +35,7 @@ FormShip::FormShip(QWidget *parent) :
 
     connect(ui->tableViewShip->selectionModel(),SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),this,SLOT(refreshDataShip(QModelIndex)));
     connect(ui->tableViewShipData->selectionModel(),SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),this,SLOT(refreshShipSert(QModelIndex)));
+    connect(ui->tableViewShipData,SIGNAL(doubleClicked(QModelIndex)),this,SLOT(partReq(QModelIndex)));
 
     connect(ui->cmdPrintAll,SIGNAL(clicked()),this,SLOT(printAll()));
     connect(ui->cmdSaveAll,SIGNAL(clicked()),this,SLOT(pdfAll()));
@@ -68,6 +69,7 @@ void FormShip::refreshDataShip(QModelIndex index)
     modelDataShip->refresh(id_ship);
     ui->tableViewShipData->setColumnHidden(0,true);
     ui->tableViewShipData->setColumnHidden(4,true);
+    ui->tableViewShipData->setColumnHidden(5,true);
     ui->tableViewShipData->setColumnWidth(1,75);
     ui->tableViewShipData->setColumnWidth(2,225);
     ui->tableViewShipData->setColumnWidth(3,65);
@@ -160,4 +162,10 @@ void FormShip::refresh()
     if (ui->tableViewShip->model()->rowCount()){
         ui->tableViewShip->selectRow(ui->tableViewShip->model()->rowCount()-1);
     }
+}
+
+void FormShip::partReq(QModelIndex index)
+{
+    int id_part=modelDataShip->data(modelDataShip->index(index.row(),5)).toInt();
+    Rels::instance()->partSelectReq(id_part);
 }

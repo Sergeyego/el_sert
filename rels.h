@@ -50,6 +50,10 @@ public slots:
     void refreshElDim();
     void refreshVedPix();
     void refreshPolPix();
+    void partSelectReq(int id_part);
+
+signals:
+    void partReq(int id_part);
 };
 
 #endif // RELS_H

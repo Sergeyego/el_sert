@@ -46,7 +46,7 @@ void ModelDataShip::refresh(int id_ship)
                  "+ "
                  "case when exists(select id_mech from sert_mech where id_part=p.id) "
                  "then 2 else 0 end "
-                 "as r) "
+                 "as r), p.id "
              "from otpusk o inner join parti p on o.id_part=p.id "
              "inner join elrtr e on e.id=p.id_el "
              "inner join istoch i on i.id=p.id_ist "

@@ -81,7 +81,6 @@ void DbDelegate::setEditorData ( QWidget * editor, const QModelIndex & index ) c
             DbComboBox *combo = qobject_cast<DbComboBox *>(editor);
             if (combo) {
                 if (combo->model()!=sqlModel->sqlRelation(index.column())->model()){
-                    //combo->setModel(sqlModel->sqlRelation(index.column())->model());
                     connect(combo,SIGNAL(sigActionEdtRel(QModelIndex)),this,SIGNAL(sigActionEdtRel(QModelIndex)));
                 }
                 combo->setIndex(index);
@@ -192,7 +191,6 @@ bool DbDelegate::eventFilter(QObject *object, QEvent *event)
 {
     if (event->type()== QEvent::KeyPress){
         QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
-        //qDebug()<<keyEvent;
         if (keyEvent->text()=="\r"){
             QWidget *editor = qobject_cast<QWidget*>(object);
             emit commitData(editor);
