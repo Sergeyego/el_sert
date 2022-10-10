@@ -33,7 +33,6 @@ DbMapper::DbMapper(QAbstractItemView *v, QWidget *parent) :
     mapper->setModel(v->model());
     DbDelegate *delegate = new DbDelegate(this);
     setItemDelegate(delegate);
-    //mapper->setItemDelegate(delegate);
 
     isEdt=false;
     defaultFocus=0;
@@ -92,7 +91,6 @@ void DbMapper::lock(bool val)
 
 void DbMapper::edtRels(QModelIndex index)
 {
-    //qDebug()<<index;
     DbTableModel *sqlModel = qobject_cast<DbTableModel *>(mapper->model());
     if (sqlModel){
         DbRelationEditDialog d(index);

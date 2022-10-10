@@ -36,7 +36,7 @@ colVal DbRelationEditDialog::currentData()
 {
     colVal c;
     QModelIndex ind=ui->tableView->currentIndex();
-    if (ind.isValid()){
+    if (model && ind.isValid()){
         c.val=ui->tableView->model()->data(ui->tableView->model()->index(ind.row(),0),Qt::EditRole);
         c.disp=ui->tableView->model()->data(ui->tableView->model()->index(ind.row(),1),Qt::EditRole).toString();
     }

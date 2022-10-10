@@ -58,6 +58,7 @@ void DbComboBox::setModel(QAbstractItemModel *model)
             this->lineEdit()->addAction(actionEdt,QLineEdit::TrailingPosition);
             connect(actionEdt,SIGNAL(triggered(bool)),this,SLOT(edtRel()));
         }
+        return;
     }
     return QComboBox::setModel(model);
 }
@@ -122,7 +123,8 @@ bool CustomCompletter::eventFilter(QObject *o, QEvent *e)
     if (e->type()==QEvent::KeyPress){
         QKeyEvent *keyEvent = static_cast<QKeyEvent *>(e);
         if (keyEvent->key()==Qt::Key_Tab && this->popup()->isVisible()) {
-            this->activated(this->popup()->model()->index(this->popup()->currentIndex().row(),1));
+            emit activated(this->popup()->model()->index(this->popup()->currentIndex().row(),1));
+            return true;
         }
     }
     return QCompleter::eventFilter(o,e);
