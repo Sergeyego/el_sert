@@ -191,14 +191,8 @@ bool DbDelegate::eventFilter(QObject *object, QEvent *event)
 {
     if (event->type()== QEvent::KeyPress){
         QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
-        if (keyEvent->text()=="\r"){
-            QWidget *editor = qobject_cast<QWidget*>(object);
-            emit commitData(editor);
-            emit closeEditor(editor);
-            return true;
-        }
 
-        if(keyEvent->key()==Qt::Key_Tab || keyEvent->key()==Qt::Key_Down || keyEvent->key()==Qt::Key_Up){
+        if(keyEvent->text()=="\r" || keyEvent->key()==Qt::Key_Tab || keyEvent->key()==Qt::Key_Down || keyEvent->key()==Qt::Key_Up){
             QWidget *editor = qobject_cast<QWidget*>(object);
             emit commitData(editor);
             emit closeEditor(editor);

@@ -63,6 +63,7 @@ void DbComboBox::setModel(QAbstractItemModel *model)
     return QComboBox::setModel(model);
 }
 
+
 void DbComboBox::indexChanged(int n)
 {
     if (n>=0){
@@ -122,8 +123,12 @@ bool CustomCompletter::eventFilter(QObject *o, QEvent *e)
 {
     if (e->type()==QEvent::KeyPress){
         QKeyEvent *keyEvent = static_cast<QKeyEvent *>(e);
-        if (keyEvent->key()==Qt::Key_Tab && this->popup()->isVisible()) {
-            emit activated(this->popup()->model()->index(this->popup()->currentIndex().row(),1));
+        if ((keyEvent->text()=="\r" || keyEvent->key()==Qt::Key_Tab) && this->popup()->isVisible()) {
+            if (this->popup()->currentIndex().isValid()){
+                emit activated(this->popup()->model()->index(this->popup()->currentIndex().row(),1));
+            } else if (this->popup()->model()->rowCount()){
+                emit activated(this->popup()->model()->index(0,1));
+            }
             return true;
         }
     }
