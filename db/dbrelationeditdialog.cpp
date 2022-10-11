@@ -43,6 +43,15 @@ colVal DbRelationEditDialog::currentData()
     return c;
 }
 
+void DbRelationEditDialog::keyPressEvent(QKeyEvent *e)
+{
+    if (e->text()=="\r"){
+        e->ignore();
+    } else {
+        return QDialog::keyPressEvent(e);
+    }
+}
+
 void DbRelationEditDialog::createModel(DbSqlRelation *r)
 {
     model = new DbTableModel(r->getTable(false),this);

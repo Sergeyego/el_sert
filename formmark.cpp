@@ -7,32 +7,24 @@ FormMark::FormMark(QWidget *parent) :
 {
     ui->setupUi(this);
     loadsettings();
-    currentIdVar=1;
-    currentIdDiam=4;
 
     ui->lineEditPr->setInputMask(QString("099±90°C 009 xxxxx"));
     ui->dateEdit->setDate(QDate::currentDate());
 
+    colVal defDim;
+    defDim.val=4;
     ui->comboBoxDiam->setModel(Rels::instance()->relDiam->model());
-    ui->comboBoxDiam->setModelColumn(1);
-
-    if (!Rels::instance()->relProvol->isInital()){
-        Rels::instance()->relProvol->refreshModel();
-    }
-
-    if (!Rels::instance()->relVar->isInital()){
-        Rels::instance()->relVar->refreshModel();
-    }
-
-    if (!Rels::instance()->relDiam->isInital()){
-        Rels::instance()->relDiam->refreshModel();
-    }
+    ui->comboBoxDiam->setCurrentData(defDim);
+    ui->comboBoxDiam->setEditable(false);
 
     ui->comboBoxProvVar->setModel(Rels::instance()->relProvol->model());
     ui->comboBoxProvVar->setModelColumn(1);
 
+    colVal defVar;
+    defVar.val=1;
     ui->comboBoxVar->setModel(Rels::instance()->relVar->model());
-    ui->comboBoxVar->setModelColumn(1);
+    ui->comboBoxVar->setCurrentData(defVar);
+    ui->comboBoxVar->setEditable(false);
 
     modelEan = new DbTableModel("ean_el",this);
     modelEan->addColumn("id_el","id_el");
@@ -190,22 +182,15 @@ FormMark::FormMark(QWidget *parent) :
     connect(ui->cmdExt,SIGNAL(clicked(bool)),this,SLOT(exportXml()));
     connect(ui->pushButtonCreVar,SIGNAL(clicked(bool)),this,SLOT(createVar()));
     connect(ui->pushButtonDelVar,SIGNAL(clicked(bool)),this,SLOT(deleteVar()));
-    connect(ui->comboBoxVar,SIGNAL(currentIndexChanged(int)),this,SLOT(changeIdVar()));
+    connect(ui->comboBoxVar,SIGNAL(currentIndexChanged(int)),this,SLOT(loadVars()));
     connect(ui->plainTextEditDescr,SIGNAL(textChanged()),this,SLOT(varChanged()));
     connect(ui->lineEditVarZnam,SIGNAL(textChanged(QString)),this,SLOT(varChanged()));
     connect(ui->lineEditProcVar,SIGNAL(textChanged(QString)),this,SLOT(varChanged()));
     connect(ui->comboBoxProvVar,SIGNAL(currentIndexChanged(int)),this,SLOT(varChanged()));
     connect(ui->pushButtonSaveVar,SIGNAL(clicked(bool)),this,SLOT(saveVar()));
     connect(ui->pushButtonCopy,SIGNAL(clicked(bool)),this,SLOT(copyTableData()));
-    connect(Rels::instance()->relVar->model(),SIGNAL(searchFinished(QString)),this,SLOT(setComboBoxVar()));
-    connect(Rels::instance()->relProvol->model(),SIGNAL(searchFinished(QString)),this,SLOT(setComboBoxProv()));
-    connect(Rels::instance()->relDiam->model(),SIGNAL(searchFinished(QString)),this,SLOT(setComboBoxDiam()));
     connect(ui->pushButtonUpd,SIGNAL(clicked(bool)),this,SLOT(upd()));
-    connect(ui->comboBoxDiam,SIGNAL(currentIndexChanged(int)),this,SLOT(changeIdDiam()));
     connect(ui->toolButtonEdtVar,SIGNAL(clicked(bool)),this,SLOT(edtVar()));
-
-    setComboBoxVar();
-    setComboBoxDiam();
 
     if (ui->tableViewMark->model()->rowCount()){
         ui->tableViewMark->selectRow(0);
@@ -239,12 +224,12 @@ int FormMark::id_el()
 
 int FormMark::id_diam()
 {
-    return currentIdDiam;
+    return ui->comboBoxDiam->getCurrentData().val.toInt();
 }
 
 int FormMark::id_var()
 {
-    return currentIdVar;
+    return ui->comboBoxVar->getCurrentData().val.toInt();
 }
 
 void FormMark::updEanRel(QModelIndex index)
@@ -258,6 +243,9 @@ void FormMark::updEanRel(QModelIndex index)
 
 void FormMark::loadVars()
 {
+    if (sender()==ui->comboBoxVar && ui->comboBoxVar->currentIndex()<0){
+        return;
+    }
     int id_e=id_el();
     int id_v=id_var();
     bool ok=false;
@@ -272,9 +260,9 @@ void FormMark::loadVars()
             ui->lineEditVarZnam->setText(query.value(0).toString());
             ui->plainTextEditDescr->setPlainText(query.value(1).toString());
             ui->lineEditProcVar->setText(query.value(2).toString());
-            int id_prov=query.value(3).toInt();
-            ui->comboBoxProvVar->setProperty("id_prov",id_prov);
-            setComboBoxProv();
+            colVal id_prov;
+            id_prov.val=query.value(3).toInt();
+            ui->comboBoxProvVar->setCurrentData(id_prov);
         }
     } else {
         QMessageBox::critical(this,tr("Ошибка"),query.lastError().text(),QMessageBox::Cancel);
@@ -401,7 +389,7 @@ void FormMark::saveVar()
     QString znam=ui->lineEditVarZnam->text();
     QString descr=ui->plainTextEditDescr->toPlainText();
 
-    int id_prov=ui->comboBoxProvVar->model()->data(ui->comboBoxProvVar->model()->index(ui->comboBoxProvVar->currentIndex(),0),Qt::EditRole).toInt();
+    int id_prov=ui->comboBoxProvVar->getCurrentData().val.toInt();
 
     QSqlQuery query;
     query.prepare("update el_var set znam = :znam, descr = :descr, proc = :proc, id_prov = :id_prov where id_el = :id_el and id_var = :id_var");
@@ -478,59 +466,6 @@ void FormMark::copyTableData()
     loadVars();
 }
 
-void FormMark::changeIdVar()
-{
-    if (ui->comboBoxVar->currentIndex()>=0){
-        currentIdVar=ui->comboBoxVar->model()->data(ui->comboBoxVar->model()->index(ui->comboBoxVar->currentIndex(),0),Qt::EditRole).toInt();
-    }
-    loadVars();
-}
-
-void FormMark::changeIdDiam()
-{
-    if (ui->comboBoxDiam->currentIndex()>=0){
-        currentIdDiam=ui->comboBoxDiam->model()->data(ui->comboBoxDiam->model()->index(ui->comboBoxDiam->currentIndex(),0),Qt::EditRole).toInt();
-    }
-}
-
-void FormMark::setComboBoxVar()
-{
-    for (int i=0; i<ui->comboBoxVar->model()->rowCount();i++){
-        if (ui->comboBoxVar->model()->data(ui->comboBoxVar->model()->index(i,0),Qt::EditRole).toInt()==currentIdVar){
-            ui->comboBoxVar->blockSignals(true);
-            ui->comboBoxVar->setCurrentIndex(i);
-            ui->comboBoxVar->blockSignals(false);
-            break;
-        }
-    }
-}
-
-void FormMark::setComboBoxProv()
-{
-    int id_prov=ui->comboBoxProvVar->property("id_prov").toInt();
-    for (int i=0; i<ui->comboBoxProvVar->model()->rowCount();i++){
-        int id_p=ui->comboBoxProvVar->model()->data(ui->comboBoxProvVar->model()->index(i,0),Qt::EditRole).toInt();
-        if (id_p==id_prov){
-            ui->comboBoxProvVar->blockSignals(true);
-            ui->comboBoxProvVar->setCurrentIndex(i);
-            ui->comboBoxProvVar->blockSignals(false);
-            break;
-        }
-    }
-}
-
-void FormMark::setComboBoxDiam()
-{
-    for (int i=0; i<ui->comboBoxDiam->model()->rowCount();i++){
-        if (ui->comboBoxDiam->model()->data(ui->comboBoxDiam->model()->index(i,0),Qt::EditRole).toInt()==currentIdDiam){
-            ui->comboBoxDiam->blockSignals(true);
-            ui->comboBoxDiam->setCurrentIndex(i);
-            ui->comboBoxDiam->blockSignals(false);
-            break;
-        }
-    }
-}
-
 void FormMark::upd()
 {
     Rels::instance()->refreshPolPix();
@@ -548,12 +483,7 @@ void FormMark::edtVar()
     DbRelationEditDialog d(Rels::instance()->relVar);
     if (d.exec()==QDialog::Accepted){
         colVal c = d.currentData();
-        for (int i=0; i<ui->comboBoxVar->model()->rowCount();i++){
-            if (ui->comboBoxVar->model()->data(ui->comboBoxVar->model()->index(i,0),Qt::EditRole).toInt()==c.val){
-                ui->comboBoxVar->setCurrentIndex(i);
-                break;
-            }
-        }
+        ui->comboBoxVar->setCurrentData(c);
     }
 }
 

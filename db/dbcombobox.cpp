@@ -44,6 +44,9 @@ void DbComboBox::setModel(QAbstractItemModel *model)
 {
     DbSqlLikeModel *sqlModel = qobject_cast<DbSqlLikeModel *>(model);
     if (sqlModel){
+        if (!sqlModel->isInital()){
+            sqlModel->startSearch("");
+        }
         QComboBox::setModel(sqlModel);
         setModelColumn(1);
 
@@ -54,7 +57,7 @@ void DbComboBox::setModel(QAbstractItemModel *model)
         sqlCompleter->setModel(likeModel);
         sqlCompleter->setCompletionColumn(1);
 
-        if (sqlModel->getRelation()->isEditable()){
+        if (sqlModel->getRelation()->isEditable() && this->isEditable()){
             this->lineEdit()->addAction(actionEdt,QLineEdit::TrailingPosition);
             connect(actionEdt,SIGNAL(triggered(bool)),this,SLOT(edtRel()));
         }
@@ -101,7 +104,9 @@ void DbComboBox::setCurrentData(colVal data)
     }
     if (!ok){
         this->setCurrentIndex(-1);
-        this->lineEdit()->setText(data.disp);
+        if (this->isEditable()){
+            this->lineEdit()->setText(data.disp);
+        }
     }
 }
 
@@ -110,7 +115,6 @@ CustomCompletter::CustomCompletter(QObject *parent) : QCompleter(parent)
     setCompletionMode(QCompleter::PopupCompletion);
     setCaseSensitivity(Qt::CaseInsensitive);
     setWrapAround(false);
-    okSize=1;
     connect(this,SIGNAL(activated(QModelIndex)),this,SLOT(setCurrentKey(QModelIndex)));
 }
 
@@ -157,9 +161,7 @@ void CustomCompletter::actComp(QString s)
 {
     DbSqlLikeModel *mod = qobject_cast<DbSqlLikeModel *>(this->model());
     if (mod){
-        if(!(!mod->rowCount() && s.size()>okSize)){
-            mod->startSearch(s);
-        }
+        mod->startSearch(s);
     }
 }
 
@@ -176,9 +178,6 @@ void CustomCompletter::setCurrentKey(QModelIndex index)
 void CustomCompletter::actFinished(QString s)
 {
     setCompletionPrefix(s);
-    if (this->model()->rowCount()){
-        okSize=s.size();
-    }
     if (s.size()){
         complete();
     } else {

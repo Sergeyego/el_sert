@@ -726,7 +726,6 @@ QVector<colVal> DataEditor::newRow()
 DbSqlRelation::DbSqlRelation(QString tableRel, QString cKey, QString cDisplay, QObject *parent) : table(tableRel), key(cKey), display(cDisplay), QObject(parent)
 {
     editable=false;
-    inital=false;
     alias=table;
     filterColumn=display;
     sort=getCDisplay();
@@ -831,12 +830,11 @@ bool DbSqlRelation::isEditable()
 
 bool DbSqlRelation::isInital()
 {
-    return inital;
+    return limModel->isInital();
 }
 
 void DbSqlRelation::refreshModel()
 {
-    inital=true;
     limModel->startSearch("");
 }
 
@@ -854,6 +852,7 @@ DbSqlLikeModel::DbSqlLikeModel(DbSqlRelation *r, QObject *parent) : QSortFilterP
     header<<"id"<<"name"<<"filter";
     origModel->setHeader(header);
     async=false;
+    inital=false;
     setSourceModel(origModel);
     setFilterKeyColumn(2);
     setFilterRegExp(relation->getCurrentFilterRegExp());
@@ -880,8 +879,14 @@ DbSqlRelation *DbSqlLikeModel::getRelation()
     return relation;
 }
 
+bool DbSqlLikeModel::isInital()
+{
+    return inital;
+}
+
 void DbSqlLikeModel::startSearch(QString s)
 {
+    inital=true;
     QString lim;
     QString srt;
     QString flt;

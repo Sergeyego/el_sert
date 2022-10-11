@@ -17,6 +17,7 @@ public:
     DbRelationEditDialog(DbSqlRelation *r, QWidget *parent = 0);
     ~DbRelationEditDialog();
     colVal currentData();
+    void keyPressEvent(QKeyEvent *e);
 
 private:
     void createModel(DbSqlRelation *r);

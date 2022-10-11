@@ -15,11 +15,10 @@ FormPart::FormPart(QWidget *parent) :
     ui->dateEditBeg->setDate(QDate::currentDate().addDays(-QDate::currentDate().dayOfYear()+1));
     ui->dateEditEnd->setDate(ui->dateEditBeg->date().addYears(1));
 
-    if (!Rels::instance()->relElMark->isInital()){
-        Rels::instance()->relElMark->refreshModel();
-    }
+    colVal cm;
+    cm.val=283;
     ui->comboBoxMar->setModel(Rels::instance()->relElMark->model());
-    ui->comboBoxMar->setModelColumn(1);
+    ui->comboBoxMar->setCurrentData(cm);
     ui->comboBoxMar->setEnabled(false);
 
     modelSrcGost = new ModelRo(this);
@@ -419,14 +418,13 @@ void FormPart::findPart(int id_part)
 
 void FormPart::refresh()
 {
-    if (sender()==ui->cmdUpd){
-        Rels::instance()->refreshVedPix();
-        sertificatPart->refreshGenData();
-        modelSertChem->refreshRelsModel();
-        modelSrcMech->refreshRelsModel();
-        modelSertMechx->refreshRelsModel();
+    if (sender()==ui->comboBoxMar && ui->comboBoxMar->currentIndex()<0){
+        return;
     }
-    int id_el= ui->checkBoxOnly->isChecked()? ui->comboBoxMar->model()->data(ui->comboBoxMar->model()->index(ui->comboBoxMar->currentIndex(),0),Qt::EditRole).toInt() : -1;
+    int id_el=-1;
+    if (ui->checkBoxOnly->isChecked() && ui->comboBoxMar->currentIndex()>=0){
+        id_el=ui->comboBoxMar->getCurrentData().val.toInt();
+    }
     modelPart->refresh(ui->dateEditBeg->date(),ui->dateEditEnd->date(),id_el);
     ui->tableViewPart->setColumnHidden(0,true);
     ui->tableViewPart->setColumnHidden(7,true);
@@ -439,6 +437,14 @@ void FormPart::refresh()
     if (ui->tableViewPart->model()->rowCount()){
         ui->tableViewPart->selectRow(ui->tableViewPart->model()->rowCount()-1);
         ui->tableViewPart->scrollToBottom();
+    }
+    if (sender()==ui->cmdUpd){
+        Rels::instance()->relElMark->refreshModel();
+        Rels::instance()->refreshVedPix();
+        sertificatPart->refreshGenData();
+        modelSertChem->refreshRelsModel();
+        modelSrcMech->refreshRelsModel();
+        modelSertMechx->refreshRelsModel();
     }
 }
 

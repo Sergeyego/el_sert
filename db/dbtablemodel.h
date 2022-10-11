@@ -30,6 +30,7 @@ public:
     void setLimit(int l);
     TableModel *originalModel();
     DbSqlRelation *getRelation();
+    bool isInital();
 
 public slots:
     void startSearch(QString s);
@@ -41,6 +42,7 @@ private:
     DbSqlRelation *relation;
     int limit;
     bool async;
+    bool inital;
     TableModel *origModel;
 signals:
     void searchFinished(QString s);
@@ -79,7 +81,6 @@ private:
     DbSqlLikeModel *limModel;
     QString currentFilterRegExp;
     bool editable;
-    bool inital;
 public slots:
     void refreshModel();
     void setFilterRegExp(QString pattern);

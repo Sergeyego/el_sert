@@ -30,8 +30,6 @@ private:
     DbTableModel *modelMechTu;
     DbTableModel *modelPlav;
     DbTableModel *modelEan;
-    int currentIdVar;
-    int currentIdDiam;
 
     void loadsettings();
     void savesettings();
@@ -55,11 +53,6 @@ private slots:
     void deleteVar();
     void varChanged();
     void copyTableData();
-    void changeIdVar();
-    void changeIdDiam();
-    void setComboBoxVar();
-    void setComboBoxProv();
-    void setComboBoxDiam();
     void upd();
     void edtVar();
 };

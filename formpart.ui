@@ -99,7 +99,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QComboBox" name="comboBoxMar"/>
+          <widget class="DbComboBox" name="comboBoxMar"/>
          </item>
         </layout>
        </item>
@@ -441,6 +441,11 @@
    <class>DbDateEdit</class>
    <extends>QDateEdit</extends>
    <header>db/dbdateedit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>DbComboBox</class>
+   <extends>QComboBox</extends>
+   <header>db/dbcombobox.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

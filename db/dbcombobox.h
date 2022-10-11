@@ -23,8 +23,6 @@ public:
     bool eventFilter(QObject *o, QEvent *e);
     void setModel(QAbstractItemModel *c);
     void setWidget(QWidget *widget);
-private :
-    int okSize;
 private slots:
     void actComp(QString s);
     void setCurrentKey(QModelIndex index);
