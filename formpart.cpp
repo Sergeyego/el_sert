@@ -15,6 +15,9 @@ FormPart::FormPart(QWidget *parent) :
     ui->dateEditBeg->setDate(QDate::currentDate().addDays(-QDate::currentDate().dayOfYear()+1));
     ui->dateEditEnd->setDate(ui->dateEditBeg->date().addYears(1));
 
+    if (!Rels::instance()->relElMark->isInital()){
+        Rels::instance()->relElMark->refreshModel();
+    }
     ui->comboBoxMar->setModel(Rels::instance()->relElMark->model());
     ui->comboBoxMar->setModelColumn(1);
     ui->comboBoxMar->setEnabled(false);
