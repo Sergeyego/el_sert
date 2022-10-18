@@ -61,7 +61,7 @@ public:
     QString getFilter();
     QString getCurrentFilterRegExp();
     QString joinStr(QString tablename, QString tablecol);
-    QString getDisplayValue(QVariant key);
+    QString getDisplayValue(QVariant key, QString column=QString());
     DbSqlLikeModel *model();
     void setAlias(QString a);
     void setSort(QString s);

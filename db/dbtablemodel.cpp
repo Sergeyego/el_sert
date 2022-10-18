@@ -363,7 +363,7 @@ bool DbTableModel::updateDb()
     QVector<colVal> tmpRow=editor->newRow();
 
     for (int i=0; i<modelData->columnCount(); i++){
-        if(newRow[i].val!=oldRow[i].val){
+        if(newRow[i].val!=oldRow[i].val || (newRow[i].val.isNull() && !oldRow[i].val.isNull()) || (!newRow[i].val.isNull() && oldRow[i].val.isNull())){
             if (!sets.isEmpty()){
                 sets+=", ";
             }
@@ -384,7 +384,7 @@ bool DbTableModel::updateDb()
     qu="UPDATE "+tableName+" SET "+sets+" WHERE "+pkeys+" RETURNING "+rets;
     query.prepare(qu);
     for (int i=0; i<modelData->columnCount(); i++){
-        if(newRow[i].val!=oldRow[i].val){
+        if(newRow[i].val!=oldRow[i].val || (newRow[i].val.isNull() && !oldRow[i].val.isNull()) || (!newRow[i].val.isNull() && oldRow[i].val.isNull())){
             query.bindValue(":new"+modelData->column(i)->name,newRow[i].val);
         }
         if (pkList.contains(modelData->column(i)->name)) {
@@ -775,10 +775,11 @@ QString DbSqlRelation::joinStr(QString tablename, QString tablecol)
     return "LEFT JOIN "+getTable()+" ON "+getCKey()+" = "+tablename+"."+tablecol;
 }
 
-QString DbSqlRelation::getDisplayValue(QVariant key)
+QString DbSqlRelation::getDisplayValue(QVariant key, QString column)
 {
     QString s;
-    QString qu="SELECT "+getCDisplay()+" FROM "+getTable()+" WHERE "+getCKey()+" = :key";
+    QString scol = column.isEmpty()? getCDisplay() : getTable()+"."+column;
+    QString qu="SELECT "+scol+" FROM "+getTable()+" WHERE "+getCKey()+" = :key";
     QSqlQuery query;
     query.prepare(qu);
     query.bindValue(":key",key);

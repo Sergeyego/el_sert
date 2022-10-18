@@ -143,6 +143,10 @@ void DbDelegate::setModelData ( QWidget * editor, QAbstractItemModel * model, co
             DbComboBox *combo = qobject_cast<DbComboBox *>(editor);
             if (combo) {
                 colVal data=combo->getCurrentData();
+                if (combo->currentText().isEmpty()){
+                    data.val=sqlModel->nullVal(index.column());
+                    data.disp=QString();
+                }
                 sqlModel->setData(index,data.val,Qt::EditRole);
                 sqlModel->setData(index,data.disp,Qt::DisplayRole);
                 return;

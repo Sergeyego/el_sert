@@ -92,6 +92,9 @@ FormPart::FormPart(QWidget *parent) :
     connect(ui->lineEditZnam,SIGNAL(textChanged(QString)),this,SLOT(enZnamSave()));
     connect(ui->pushButtonCopy,SIGNAL(clicked(bool)),this,SLOT(copyVal()));
     connect(Rels::instance(),SIGNAL(partReq(int)),this,SLOT(findPart(int)));
+    connect(modelSertChem,SIGNAL(sigUpd()),modelPart,SLOT(refreshState()));
+    connect(modelSertMech,SIGNAL(sigUpd()),modelPart,SLOT(refreshState()));
+    connect(ui->checkBoxOk,SIGNAL(clicked(bool)),this,SLOT(saveOk()));
 
     refresh();
 }
@@ -109,7 +112,7 @@ void FormPart::loadPrim(int id_part)
     ui->lineEditZnam->clear();
     ui->lineEditSrcZnam->clear();
     QSqlQuery query;
-    query.prepare("select p.prim, p.ibco, ev.znam, p.prim_prod from parti as p "
+    query.prepare("select p.prim, p.ibco, ev.znam, p.prim_prod, p.ok from parti as p "
                   "inner join elrtr as e on p.id_el=e.id "
                   "left join el_var ev on ev.id_el = p.id_el and ev.id_var = p.id_var "
                   "where p.id = :id");
@@ -120,6 +123,7 @@ void FormPart::loadPrim(int id_part)
             ui->lineEditZnam->setText(query.value(1).toString());
             ui->lineEditSrcZnam->setText(query.value(2).toString());
             ui->textEditPrimProd->setPlainText(query.value(3).toString());
+            ui->checkBoxOk->setChecked(query.value(4).toBool());
         }
         ui->cmdSavePrim->setEnabled(false);
         ui->cmdSaveZnam->setEnabled(false);
@@ -213,6 +217,19 @@ void FormPart::saveZnam()
     } else {
         ui->cmdSaveZnam->setEnabled(false);
     }
+}
+
+void FormPart::saveOk()
+{
+    int id=currentIdPart();
+    QSqlQuery query;
+    query.prepare("update parti set ok=:ok where id=:id");
+    query.bindValue(":ok",ui->checkBoxOk->isChecked());
+    query.bindValue(":id",id);
+    if (!query.exec()){
+        QMessageBox::critical(NULL,"Error",query.lastError().text(),QMessageBox::Cancel);
+    }
+    modelPart->refreshState();
 }
 
 void FormPart::copyChem()

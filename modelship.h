@@ -9,6 +9,7 @@
 #include <QSqlRecord>
 #include <QLocale>
 #include <QPrintDialog>
+#include "db/executor.h"
 
 class ModelShip : public QSqlQueryModel
 {
@@ -45,6 +46,15 @@ public:
     explicit ModelPart (QObject *parent = 0);
     void refresh(QDate dbeg, QDate dend, int id_el);
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+private:
+    QDate dateBeg;
+    QDate dateEnd;
+    QMap <int,int> mapStat;
+    Executor *stateExecutor;
+private slots:
+    void refreshStateFinished();
+public slots:
+    void refreshState();
 };
 
 #endif // MODELSHIP_H

@@ -54,6 +54,7 @@ private slots:
     void refreshPartSert(QModelIndex index);
     void savePrim();
     void saveZnam();
+    void saveOk();
     void copyChem();
     void copyMech();
     void copyMechForward();

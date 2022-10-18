@@ -93,7 +93,7 @@ void DbComboBox::setCurrentData(colVal data)
 {
     currentData=data;
     bool ok=false;
-    if (this->model()){
+    if (this->model() && !currentData.val.isNull()){
         for (int i=0; i<this->model()->rowCount(); i++){
             if (this->model()->data(this->model()->index(i,0),Qt::EditRole)==currentData.val){
                 this->setCurrentIndex(i);
