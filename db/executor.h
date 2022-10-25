@@ -9,8 +9,28 @@
 #include <QSqlRecord>
 #include <QDebug>
 #include <QReadWriteLock>
+#include <QMutex>
+#include <QMutexLocker>
+#include <QApplication>
 
 class ModelPrg;
+
+class GetNamer : public QObject
+{
+    Q_OBJECT
+public:
+    static GetNamer *instance();
+    QString getName();
+    ~GetNamer();
+
+protected:
+    GetNamer(QObject *parent = 0);
+
+private:
+    static GetNamer* get_namer_instance;
+    int n;
+    QMutex mutex;
+};
 
 class Executor : public QThread
 {

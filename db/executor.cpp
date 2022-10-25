@@ -1,5 +1,7 @@
 #include "executor.h"
 
+GetNamer* GetNamer::get_namer_instance = nullptr;
+
 Executor::Executor(QObject *parent) :
     QThread(parent)
 {
@@ -9,6 +11,7 @@ Executor::Executor(QObject *parent) :
     port=db.port();
     userName=db.userName();
     password=db.password();
+    GetNamer::instance();
     connect(this,SIGNAL(sigError(QString)),this,SLOT(showError(QString)));
 }
 
@@ -19,15 +22,9 @@ Executor::~Executor()
 
 void Executor::run()
 {
-    int randInt;
-    QString randomName;
-    for(int i=0; i<5; i++){
-        randInt = rand()%('Z'-'A'+1)+'A';
-        randomName.append(randInt);
-    }
-    //qDebug() << randomName;
+    QString dbName=GetNamer::instance()->getName();
     {
-        QSqlDatabase db=QSqlDatabase::addDatabase("QPSQL",randomName);
+        QSqlDatabase db=QSqlDatabase::addDatabase("QPSQL",dbName);
         db.setDatabaseName(databaseName);
         db.setHostName(hostName);
         db.setPort(port);
@@ -57,7 +54,7 @@ void Executor::run()
         }
         if (db.isOpen()) db.close();
     }
-    QSqlDatabase::removeDatabase(randomName);
+    QSqlDatabase::removeDatabase(dbName);
 }
 
 void Executor::setQuery(QString qu)
@@ -75,4 +72,30 @@ QVector<QVector<QVariant> > Executor::getData()
 void Executor::showError(QString text)
 {
     QMessageBox::critical(nullptr,tr("Ошибка"),text,QMessageBox::Cancel);
+}
+
+GetNamer *GetNamer::instance()
+{
+    if (get_namer_instance == nullptr){
+        get_namer_instance = new GetNamer(/*qApp*/);
+    }
+    return get_namer_instance;
+}
+
+QString GetNamer::getName()
+{
+    QMutexLocker locker(&mutex);
+    n++;
+    return QString("Base")+QString::number(n);
+}
+
+GetNamer::~GetNamer()
+{
+
+}
+
+GetNamer::GetNamer(QObject *parent) : QObject(parent)
+{
+    n=0;
+    connect(qApp, SIGNAL(aboutToQuit()), this,SLOT(deleteLater()));
 }
