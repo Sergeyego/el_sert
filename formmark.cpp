@@ -186,7 +186,7 @@ FormMark::FormMark(QWidget *parent) :
     connect(ui->plainTextEditDescr,SIGNAL(textChanged()),this,SLOT(varChanged()));
     connect(ui->lineEditVarZnam,SIGNAL(textChanged(QString)),this,SLOT(varChanged()));
     connect(ui->lineEditProcVar,SIGNAL(textChanged(QString)),this,SLOT(varChanged()));
-    connect(ui->comboBoxProvVar,SIGNAL(currentIndexChanged(int)),this,SLOT(varChanged()));
+    connect(ui->comboBoxProvVar,SIGNAL(currentTextChanged(QString)),this,SLOT(varChanged()));
     connect(ui->pushButtonSaveVar,SIGNAL(clicked(bool)),this,SLOT(saveVar()));
     connect(ui->pushButtonCopy,SIGNAL(clicked(bool)),this,SLOT(copyTableData()));
     connect(ui->pushButtonUpd,SIGNAL(clicked(bool)),this,SLOT(upd()));
@@ -367,7 +367,6 @@ void FormMark::blockVar(bool b)
 void FormMark::createVar()
 {
     QString znam=ui->comboBoxZnam->currentText();
-    int id_prov=ui->comboBoxProv->model()->data(ui->comboBoxProv->model()->index(ui->comboBoxProv->currentIndex(),0),Qt::EditRole).toInt();
 
     QSqlQuery query;
     query.prepare("insert into el_var (id_el, id_var, znam, descr, proc, id_prov) values (:id_el, :id_var, :znam, (select e.descr from elrtr as e where e.id = :id ), :proc, :id_prov)");
@@ -376,7 +375,7 @@ void FormMark::createVar()
     query.bindValue(":znam",znam);
     query.bindValue(":id",id_el());
     query.bindValue(":proc",ui->lineEditPr->text());
-    query.bindValue(":id_prov",id_prov);
+    query.bindValue(":id_prov",QVariant());
     if (!query.exec()){
         QMessageBox::critical(this,tr("Ошибка"),query.lastError().text(),QMessageBox::Cancel);
     }
@@ -389,7 +388,7 @@ void FormMark::saveVar()
     QString znam=ui->lineEditVarZnam->text();
     QString descr=ui->plainTextEditDescr->toPlainText();
 
-    int id_prov=ui->comboBoxProvVar->getCurrentData().val.toInt();
+    QVariant id_prov = ui->comboBoxProvVar->currentText().isEmpty()? QVariant() : ui->comboBoxProvVar->getCurrentData().val.toInt();
 
     QSqlQuery query;
     query.prepare("update el_var set znam = :znam, descr = :descr, proc = :proc, id_prov = :id_prov where id_el = :id_el and id_var = :id_var");

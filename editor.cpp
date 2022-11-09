@@ -63,6 +63,7 @@ Editor::Editor(QTextDocument *doc, QWidget *parent) :
     connect(ui->radioButtonEn,SIGNAL(clicked(bool)),this,SLOT(setObr()));
     connect(ui->radioButtonMix,SIGNAL(clicked(bool)),this,SLOT(setObr()));
     connect(ui->pushButtonSertDef,SIGNAL(clicked(bool)),this,SLOT(setDefaultDoc()));
+    connect(ui->pushButtonHtml,SIGNAL(clicked(bool)),this,SLOT(exportHtml()));
 }
 
 QTextDocument *Editor::document()
@@ -246,6 +247,28 @@ void Editor::drawDoc(QPainter *painter)
         painter->drawImage(painter->window(),QImage(imBackPath()));
     }
     doc->drawContents(painter);
+}
+
+void Editor::exportHtml()
+{
+    SertBuild *doc = qobject_cast<SertBuild *>(ui->textEdit->document());
+    QString exportname, fname;
+    fname= doc? (doc->getNomPart()+"_"+doc->getYearPart()) : QString("sertificat");
+    if (doc){
+        if (!doc->getNomSert().isEmpty()){
+            fname+="_"+doc->getNomSert();
+        }
+    }
+    QSettings settings("szsm", QApplication::applicationName());
+    QDir dir(settings.value("sertPath",QDir::homePath()).toString());
+    exportname = QFileDialog::getSaveFileName(this,tr("Сохранить HTML"),dir.path()+"/"+fname+".html", "*.html");
+    if (!exportname.isEmpty()) {
+        QFile file(exportname);
+        if (file.open(QIODevice::WriteOnly)){
+            file.write(doc->toHtml().toUtf8());
+            file.close();
+        }
+    }
 }
 
 void Editor::textBold()

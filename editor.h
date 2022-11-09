@@ -85,6 +85,7 @@ public slots:
     void exportPdf(QString filename);
     void print(QPrinter *p);
     void drawDoc(QPainter *painter);
+    void exportHtml();
 
 private slots:
     void textBold();

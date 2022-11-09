@@ -105,6 +105,13 @@
       </widget>
      </item>
      <item>
+      <widget class="QPushButton" name="pushButtonHtml">
+       <property name="text">
+        <string>HTML</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QCheckBox" name="checkBoxObr">
        <property name="text">
         <string>Образец</string>
