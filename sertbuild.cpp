@@ -617,30 +617,28 @@ void DataSert::refresh(int id, bool is_ship, bool sample)
     QSqlQuery query;
     QString sQuery;
     sQuery= is_ship ? QString("select p.id, p.n_s, p.yea, p.dat_part, e.marka_sert, p.diam, "
-                              "gt.nam, pu.nam, coalesce (p.ibco, ev.znam), coalesce(pv.nam, pp.nam, pe.nam), pol.naim, s.nom_s, s.dat_vid, o.massa, pol.naim_en "
+                              "gt.nam, pu.nam, coalesce (p.ibco, ev.znam), coalesce(pp.nam, pe.nam), pol.naim, s.nom_s, s.dat_vid, o.massa, pol.naim_en "
                               "from otpusk as o "
                               "inner join sertifikat as s on o.id_sert=s.id "
                               "inner join parti as p on o.id_part=p.id "
                               "inner join elrtr as e on e.id=p.id_el "
                               "inner join provol as pe on pe.id=e.id_gost "
-                              "left join provol as pp on pp.id=p.id_prfact "
+                              "left join provol as pp on pp.id=p.id_prfact and pp.id in (select ep.id_prov from el_provol as ep where ep.id_el = p.id_el) "
                               "inner join poluch as pol on s.id_pol=pol.id "
                               "inner join gost_types as gt on e.id_gost_type=gt.id "
                               "inner join purpose as pu on e.id_purpose=pu.id "
                               "left join el_var as ev on ev.id_el = p.id_el and ev.id_var = p.id_var "
-                              "left join provol as pv on pv.id = ev.id_prov "
                               "where o.id = :id") :
                   QString("select p.id, p.n_s, p.yea, p.dat_part, e.marka_sert, p.diam, "
-                          "gt.nam, pu.nam, coalesce (p.ibco, ev.znam), coalesce(pv.nam, pp.nam, pe.nam), NULL, NULL, NULL, j.sum, NULL "
+                          "gt.nam, pu.nam, coalesce (p.ibco, ev.znam), coalesce(pp.nam, pe.nam), NULL, NULL, NULL, j.sum, NULL "
                           "from parti as p "
                           "inner join elrtr as e on e.id=p.id_el "
                           "inner join provol as pe on pe.id=e.id_gost "
-                          "left join provol as pp on pp.id=p.id_prfact "
+                          "left join provol as pp on pp.id=p.id_prfact and pp.id in (select ep.id_prov from el_provol as ep where ep.id_el = p.id_el) "
                           "inner join gost_types as gt on e.id_gost_type=gt.id "
                           "inner join purpose as pu on e.id_purpose=pu.id "
                           "left join (select id_part as id, sum(kvo) as sum from part_prod group by id_part) as j on j.id=p.id "
                           "left join el_var as ev on ev.id_el = p.id_el and ev.id_var = p.id_var "
-                          "left join provol as pv on pv.id = ev.id_prov "
                           "where p.id = :id");
     query.prepare(sQuery);
     query.bindValue(":id",id);

@@ -848,7 +848,7 @@ void DbSqlRelation::setFilterRegExp(QString pattern)
 DbSqlLikeModel::DbSqlLikeModel(DbSqlRelation *r, QObject *parent) : QSortFilterProxyModel(parent), relation(r)
 {
     origModel = new TableModel(this);
-    limit=7;
+    limit=50;
     QStringList header;
     header<<"id"<<"name"<<"filter";
     origModel->setHeader(header);

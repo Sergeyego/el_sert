@@ -17,8 +17,13 @@ FormMark::FormMark(QWidget *parent) :
     ui->comboBoxDiam->setCurrentData(defDim);
     ui->comboBoxDiam->setEditable(false);
 
-    ui->comboBoxProvVar->setModel(Rels::instance()->relProvol->model());
-    ui->comboBoxProvVar->setModelColumn(1);
+    modelProvol = new DbTableModel("el_provol",this);
+    modelProvol->addColumn("id_el","id_el");
+    modelProvol->addColumn("id_prov",tr("Проволока"),Rels::instance()->relProvol);
+
+    ui->tableViewProvol->setModel(modelProvol);
+    ui->tableViewProvol->setColumnHidden(0,true);
+    ui->tableViewProvol->setColumnWidth(1,200);
 
     colVal defVar;
     defVar.val=1;
@@ -28,15 +33,15 @@ FormMark::FormMark(QWidget *parent) :
 
     modelEan = new DbTableModel("ean_el",this);
     modelEan->addColumn("id_el","id_el");
-    modelEan->addColumn("id_diam",tr("Диаметр"),Rels::instance()->relDiam);
+    modelEan->addColumn("id_diam",tr("Диам."),Rels::instance()->relDiam);
     modelEan->addColumn("id_pack",tr("Упаковка (ед., групп.)"),Rels::instance()->relPack);
     modelEan->addColumn("ean_ed",tr("Штрих код (ед.)"),Rels::instance()->relEanEd);
     modelEan->addColumn("ean_group",tr("Штрих код (гр.)"),Rels::instance()->relEanGr);
     modelEan->setSort("diam.sdim");
     ui->tableViewPack->setModel(modelEan);
     ui->tableViewPack->setColumnHidden(0,true);
-    ui->tableViewPack->setColumnWidth(1,70);
-    ui->tableViewPack->setColumnWidth(2,200);
+    ui->tableViewPack->setColumnWidth(1,60);
+    ui->tableViewPack->setColumnWidth(2,190);
     ui->tableViewPack->setColumnWidth(3,125);
     ui->tableViewPack->setColumnWidth(4,125);
 
@@ -168,6 +173,7 @@ FormMark::FormMark(QWidget *parent) :
     mapper->addEmptyLock(ui->tableViewMech);
     mapper->addEmptyLock(ui->tableViewPlav);
     mapper->addEmptyLock(ui->groupBoxVar);
+    mapper->addEmptyLock(ui->tableViewProvol);
     mapper->addEmptyLock(ui->cmdExt);
     mapper->addEmptyLock(ui->cmdLbl);
     mapper->addEmptyLock(ui->cmdLblSmall);
@@ -186,7 +192,6 @@ FormMark::FormMark(QWidget *parent) :
     connect(ui->plainTextEditDescr,SIGNAL(textChanged()),this,SLOT(varChanged()));
     connect(ui->lineEditVarZnam,SIGNAL(textChanged(QString)),this,SLOT(varChanged()));
     connect(ui->lineEditProcVar,SIGNAL(textChanged(QString)),this,SLOT(varChanged()));
-    connect(ui->comboBoxProvVar,SIGNAL(currentTextChanged(QString)),this,SLOT(varChanged()));
     connect(ui->pushButtonSaveVar,SIGNAL(clicked(bool)),this,SLOT(saveVar()));
     connect(ui->pushButtonCopy,SIGNAL(clicked(bool)),this,SLOT(copyTableData()));
     connect(ui->pushButtonUpd,SIGNAL(clicked(bool)),this,SLOT(upd()));
@@ -250,7 +255,7 @@ void FormMark::loadVars()
     int id_v=id_var();
     bool ok=false;
     QSqlQuery query;
-    query.prepare("select znam, descr, proc, id_prov from el_var where id_el = :id_el and id_var=:id_var");
+    query.prepare("select znam, descr, proc from el_var where id_el = :id_el and id_var=:id_var");
     query.bindValue(":id_el",id_e);
     query.bindValue(":id_var",id_v);
     if (query.exec()){
@@ -260,9 +265,6 @@ void FormMark::loadVars()
             ui->lineEditVarZnam->setText(query.value(0).toString());
             ui->plainTextEditDescr->setPlainText(query.value(1).toString());
             ui->lineEditProcVar->setText(query.value(2).toString());
-            colVal id_prov;
-            id_prov.val=query.value(3).toInt();
-            ui->comboBoxProvVar->setCurrentData(id_prov);
         }
     } else {
         QMessageBox::critical(this,tr("Ошибка"),query.lastError().text(),QMessageBox::Cancel);
@@ -299,6 +301,11 @@ void FormMark::refreshCont(int index)
     modelPlav->setDefaultValue(0,id_el);
     modelPlav->setFilter("el_plav.id_el = "+QString::number(id_el));
     modelPlav->select();
+
+    modelProvol->setDefaultValue(0,id_el);
+    modelProvol->setFilter("el_provol.id_el = "+QString::number(id_el));
+    modelProvol->select();
+
     updImg();
     loadVars();
 }
@@ -355,12 +362,10 @@ void FormMark::blockVar(bool b)
     ui->lineEditVarZnam->setEnabled(!b);
     ui->plainTextEditDescr->setEnabled(!b);
     ui->lineEditProcVar->setEnabled(!b);
-    ui->comboBoxProvVar->setEnabled(!b);
     if (b){
         ui->lineEditVarZnam->clear();
         ui->plainTextEditDescr->clear();
         ui->lineEditProcVar->clear();
-        ui->comboBoxProvVar->setCurrentIndex(0);
     }
 }
 
@@ -369,13 +374,12 @@ void FormMark::createVar()
     QString znam=ui->comboBoxZnam->currentText();
 
     QSqlQuery query;
-    query.prepare("insert into el_var (id_el, id_var, znam, descr, proc, id_prov) values (:id_el, :id_var, :znam, (select e.descr from elrtr as e where e.id = :id ), :proc, :id_prov)");
+    query.prepare("insert into el_var (id_el, id_var, znam, descr, proc) values (:id_el, :id_var, :znam, (select e.descr from elrtr as e where e.id = :id ), :proc )");
     query.bindValue(":id_el",id_el());
     query.bindValue(":id_var",id_var());
     query.bindValue(":znam",znam);
     query.bindValue(":id",id_el());
     query.bindValue(":proc",ui->lineEditPr->text());
-    query.bindValue(":id_prov",QVariant());
     if (!query.exec()){
         QMessageBox::critical(this,tr("Ошибка"),query.lastError().text(),QMessageBox::Cancel);
     }
@@ -388,16 +392,13 @@ void FormMark::saveVar()
     QString znam=ui->lineEditVarZnam->text();
     QString descr=ui->plainTextEditDescr->toPlainText();
 
-    QVariant id_prov = ui->comboBoxProvVar->currentText().isEmpty()? QVariant() : ui->comboBoxProvVar->getCurrentData().val.toInt();
-
     QSqlQuery query;
-    query.prepare("update el_var set znam = :znam, descr = :descr, proc = :proc, id_prov = :id_prov where id_el = :id_el and id_var = :id_var");
+    query.prepare("update el_var set znam = :znam, descr = :descr, proc = :proc where id_el = :id_el and id_var = :id_var");
     query.bindValue(":id_el",id_el());
     query.bindValue(":id_var",id_var());
     query.bindValue(":znam",znam);
     query.bindValue(":descr",descr);
     query.bindValue(":proc",ui->lineEditProcVar->text());
-    query.bindValue(":id_prov",id_prov);
     if (query.exec()){
         loadVars();
     } else {

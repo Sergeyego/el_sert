@@ -30,6 +30,7 @@ private:
     DbTableModel *modelMechTu;
     DbTableModel *modelPlav;
     DbTableModel *modelEan;
+    DbTableModel *modelProvol;
 
     void loadsettings();
     void savesettings();

@@ -332,7 +332,14 @@
             </widget>
            </item>
            <item>
-            <widget class="DbViewer" name="tableViewPack"/>
+            <widget class="DbViewer" name="tableViewPack">
+             <property name="minimumSize">
+              <size>
+               <width>550</width>
+               <height>0</height>
+              </size>
+             </property>
+            </widget>
            </item>
           </layout>
          </item>
@@ -347,6 +354,20 @@
            </item>
            <item>
             <widget class="DbViewer" name="tableViewPlav"/>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QVBoxLayout" name="verticalLayout_11">
+           <item>
+            <widget class="QLabel" name="label_30">
+             <property name="text">
+              <string>Доп. проволока</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="DbViewer" name="tableViewProvol"/>
            </item>
           </layout>
          </item>
@@ -444,24 +465,7 @@
            <layout class="QHBoxLayout" name="horizontalLayout">
             <item>
              <layout class="QGridLayout" name="gridLayout_2">
-              <item row="0" column="0">
-               <widget class="QLabel" name="label_20">
-                <property name="text">
-                 <string>Проволока</string>
-                </property>
-               </widget>
-              </item>
               <item row="0" column="1">
-               <widget class="DbComboBox" name="comboBoxProvVar"/>
-              </item>
-              <item row="1" column="0">
-               <widget class="QLabel" name="label_26">
-                <property name="text">
-                 <string>Знаменатель</string>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="1">
                <widget class="QLineEdit" name="lineEditVarZnam">
                 <property name="maximumSize">
                  <size>
@@ -471,14 +475,7 @@
                 </property>
                </widget>
               </item>
-              <item row="2" column="0">
-               <widget class="QLabel" name="label_16">
-                <property name="text">
-                 <string>Режим повт. прок.</string>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="1">
+              <item row="1" column="1">
                <widget class="QLineEdit" name="lineEditProcVar">
                 <property name="maximumSize">
                  <size>
@@ -487,6 +484,45 @@
                  </size>
                 </property>
                </widget>
+              </item>
+              <item row="0" column="0">
+               <widget class="QLabel" name="label_26">
+                <property name="maximumSize">
+                 <size>
+                  <width>130</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string>Знаменатель</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="label_16">
+                <property name="maximumSize">
+                 <size>
+                  <width>130</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string>Режим повт. прок.</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0">
+               <spacer name="verticalSpacer">
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>20</width>
+                  <height>40</height>
+                 </size>
+                </property>
+               </spacer>
               </item>
              </layout>
             </item>
