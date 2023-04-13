@@ -4,8 +4,7 @@ SertBuild::SertBuild(QObject *parent) :
     QTextDocument(parent)
 {
     data=new DataSert(this);
-    prn=false;
-    sample=false;
+    sertType=0;
     l_rus=true;
     l_en=false;
     connect(data,SIGNAL(sigRefresh()),this,SIGNAL(sigRefresh()));
@@ -31,9 +30,9 @@ QString SertBuild::getNomSert()
     return data->head()->nomSert;
 }
 
-bool SertBuild::getPrn()
+int SertBuild::getType()
 {
-    return prn;
+    return sertType;
 }
 
 DataSert *SertBuild::sData()
@@ -43,7 +42,7 @@ DataSert *SertBuild::sData()
 
 void SertBuild::build(int id, bool is_ship)
 {
-    data->refresh(id, is_ship,sample);
+    data->refresh(id, is_ship,sertType==1);
     current_id=id;
     current_is_ship=is_ship;
     rebuild();
@@ -55,6 +54,7 @@ void SertBuild::rebuild()
 
     QFont titleFont("Droid Serif",13);
     QFont normalFont("Droid Sans",10);
+    QFont smallFont("Droid Sans",8);
 
     QFont cursiveFont(normalFont);
     cursiveFont.setItalic(true);
@@ -75,6 +75,14 @@ void SertBuild::rebuild()
     QTextCharFormat textNormalFormat;
     textNormalFormat.setFont(normalFont);
     textNormalFormat.setVerticalAlignment(QTextCharFormat::AlignMiddle);
+
+    QTextCharFormat textUnderlineFormat;
+    textUnderlineFormat.setFont(normalFont);
+    textUnderlineFormat.setFontUnderline(true);
+
+    QTextCharFormat textSmallFormat;
+    textSmallFormat.setFont(smallFont);
+    textSmallFormat.setVerticalAlignment(QTextCharFormat::AlignMiddle);
 
     QTextCharFormat textBoldFormat;
     QFont boldFont(normalFont);
@@ -394,7 +402,7 @@ void SertBuild::rebuild()
         insertText(cursor,tr("Грузополучатель"),tr("Consignee"));
         cursor.insertText(":\n",textBoldFormat);
         cursor.setCharFormat(textNormalFormat);
-        if (!sample){
+        if (sertType!=1){
             insertText(cursor,data->head()->poluch.rus,data->head()->poluch.eng,true);
         }
         cursor.insertBlock();
@@ -418,7 +426,7 @@ void SertBuild::rebuild()
     insertText(cursor,tr("Дата выдачи сертификата"),tr("Date of issue of the certificate"),false);
     cursor.insertText(tr(": "),textBoldFormat);
     cursor.setCharFormat(textNormalFormat);
-    if (!sample){
+    if (sertType!=1){
         insertDate(cursor,date,false);
     } else {
         insertDate(cursor,QDate(1111,11,11),false);
@@ -437,7 +445,7 @@ void SertBuild::rebuild()
     QString nach=tr("Начальник ОТК");
     QString nach_en=tr("Head of Quality Department");
     QString line=tr(" ______________ ");
-    if (prn && !sample) {
+    if (sertType==2) { //подпись
         QImage im(data->general()->sign);
         QPainter p(&im);
         QFont f(textNormalFormat.font());
@@ -461,6 +469,73 @@ void SertBuild::rebuild()
         signformat.setName("sign");
         signformat.setHeight(150);
         cursor.insertImage(signformat);
+    } else if (sertType==3 || sertType==4) { //транснефть, авиатехприемка
+        cursor.insertBlock();
+        cursor.setCharFormat(textNormalFormat);
+        QString space="                                              ";
+        if (!(l_en && l_rus)){
+            cursor.insertText(space,textNormalFormat);
+        }
+        insertText(cursor,nach,nach_en);
+        if (!(l_en && l_rus)){
+            cursor.insertText("                                              ",textNormalFormat);
+        } else {
+            cursor.insertText("       ",textNormalFormat);
+        }
+        if (sertType==3){
+            insertText(cursor,tr("Представитель ООО \"Транснефть Надзор\""),tr("Representative of Transneft Nadzor LLC"));
+        } else {
+            insertText(cursor,tr("Представитель АО \"РТ-Техприемка\""),tr("Representative of JSC \"RT-Techpriemka\""));
+        }
+        cursor.insertBlock();
+        cursor.insertBlock();
+        if (!(l_en && l_rus)){
+            cursor.insertText(space,textNormalFormat);
+        }
+        cursor.insertText(line,textNormalFormat);
+        insertText(cursor,data->general()->otk.rus,data->general()->otk.eng);
+        if (!(l_en && l_rus)){
+            cursor.insertText("                        ",textNormalFormat);
+        } else {
+            cursor.insertText("       ",textNormalFormat);
+        }
+        cursor.setCharFormat(textUnderlineFormat);
+        if (sertType==3){
+            insertText(cursor,tr("Ведущий инженер"),tr("Lead Lower"));
+        } else {
+            cursor.insertText("                                ",textUnderlineFormat);
+            if (l_en && l_rus){
+                cursor.insertText("                          ",textUnderlineFormat);
+            }
+        }
+        cursor.insertText("  ",textNormalFormat);
+        cursor.insertText("                                    ",textUnderlineFormat);
+        cursor.insertText("  ",textNormalFormat);
+        cursor.insertText("                                    ",textUnderlineFormat);
+        cursor.insertBlock();
+        if (!(l_en && l_rus)){
+            cursor.insertText("                                                                                                                               ",textNormalFormat);
+        } else {
+            cursor.insertText("                                                                                                    ",textNormalFormat);
+        }
+        cursor.setCharFormat(textSmallFormat);
+        cursor.insertText("(",textSmallFormat);
+        insertText(cursor,tr("должность"),tr("job title"));
+        if (l_en && !l_rus){
+            cursor.insertText(")                        (",textSmallFormat);
+        } else if (!(l_en && l_rus)){
+            cursor.insertText(")                               (",textSmallFormat);
+        } else {
+            cursor.insertText(")                            (",textSmallFormat);
+        }
+        insertText(cursor,tr("подпись"),tr("signature"));
+        if (!(l_en && l_rus)){
+            cursor.insertText(")                               (",textSmallFormat);
+        } else {
+            cursor.insertText(")               (",textSmallFormat);
+        }
+        insertText(cursor,tr("ФИО"),tr("full name"));
+        cursor.insertText(")",textSmallFormat);
     } else {
         cursor.setCharFormat(textNormalFormat);
         if (l_en && !l_rus){
@@ -470,12 +545,18 @@ void SertBuild::rebuild()
         }
         insertText(cursor,nach,nach_en);
         cursor.insertText(line,textNormalFormat);
-        if (!sample){
+        if (sertType!=1){
             insertText(cursor,data->general()->otk.rus,data->general()->otk.eng);
         } else {
             insertText(cursor,tr("[МЕСТО ДЛЯ ПЕЧАТИ, ПОДПИСЬ]"),tr("[LOCUS SIGILLI, SIGNATURE]"));
         }
     }
+}
+
+void SertBuild::setType(int t)
+{
+    sertType=t;
+    this->build(current_id,current_is_ship);
 }
 
 void SertBuild::insertText(QTextCursor &c, const QString &rus, const QString &eng, bool newpar, bool sep, bool html)
@@ -549,18 +630,6 @@ void SertBuild::insertDate(QTextCursor &c, const QDate &date, bool newpar)
         }
         c.insertText(leng.toString(date,"MMM dd, yyyy"));
     }
-}
-
-void SertBuild::setPrn(bool p)
-{
-    prn=p;
-    this->rebuild();
-}
-
-void SertBuild::setSample(bool b)
-{
-    sample=b;
-    this->build(current_id,current_is_ship);
 }
 
 void SertBuild::setLRus(bool b)

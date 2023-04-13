@@ -38,12 +38,15 @@ Editor::Editor(QTextDocument *doc, QWidget *parent) :
     printer->setOrientation(QPrinter::Portrait);
     printer->setPaperSize(QPrinter::A4);
 
+    QStringList lt;
+    lt<<tr("Стандарт")<<tr("Образец")<<tr("Подпись")<<tr("Транснефть")<<tr("Авиатехприемка");
+    ui->comboBoxType->addItems(lt);
+
     ui->textEdit->setDocument(doc);
     SertBuild *s=qobject_cast<SertBuild *>(doc);
     if (s){
-        ui->checkBoxPrn->setChecked(s->getPrn());
-        connect(ui->checkBoxPrn,SIGNAL(clicked(bool)),s,SLOT(setPrn(bool)));
-        connect(ui->checkBoxObr,SIGNAL(clicked(bool)),s,SLOT(setSample(bool)));
+        ui->comboBoxType->setCurrentIndex(s->getType());
+        connect(ui->comboBoxType,SIGNAL(currentIndexChanged(int)),s,SLOT(setType(int)));
         connect(ui->radioButtonRus,SIGNAL(clicked(bool)),s,SLOT(setLRus(bool)));
         connect(ui->radioButtonEn,SIGNAL(clicked(bool)),s,SLOT(setLEn(bool)));
         connect(ui->radioButtonMix,SIGNAL(clicked(bool)),s,SLOT(setLMix(bool)));
@@ -58,7 +61,7 @@ Editor::Editor(QTextDocument *doc, QWidget *parent) :
 
     connect(ui->cmd_print,SIGNAL(clicked()),this,SLOT(filePrint()));
     connect(ui->cmd_pdf,SIGNAL(clicked()),this,SLOT(exportPdf()));
-    connect(ui->checkBoxObr,SIGNAL(clicked(bool)),this,SLOT(setObr()));
+    connect(ui->comboBoxType,SIGNAL(currentIndexChanged(int)),this,SLOT(setObr()));
     connect(ui->radioButtonRus,SIGNAL(clicked(bool)),this,SLOT(setObr()));
     connect(ui->radioButtonEn,SIGNAL(clicked(bool)),this,SLOT(setObr()));
     connect(ui->radioButtonMix,SIGNAL(clicked(bool)),this,SLOT(setObr()));
@@ -243,7 +246,7 @@ void Editor::drawDoc(QPainter *painter)
     QSize size (rect.size());
     size.scale(doc->size().toSize(),Qt::KeepAspectRatioByExpanding);
     painter->setWindow(0,0,size.width(),size.height());
-    if (ui->checkBoxObr->isChecked()){
+    if (ui->comboBoxType->currentIndex()==1){
         painter->drawImage(painter->window(),QImage(imBackPath()));
     }
     doc->drawContents(painter);
@@ -434,7 +437,7 @@ void Editor::textSize(const QString &p)
 
 void Editor::setObr()
 {
-    if (ui->checkBoxObr->isChecked()){
+    if (ui->comboBoxType->currentIndex()==1){
         ui->textEdit->viewport()->setStyleSheet(QString("background-image: url(%1);").arg(imBackPath()));
     } else {
         ui->textEdit->viewport()->setStyleSheet(QString(""));
@@ -517,8 +520,9 @@ void Editor::exportPdf()
 
 void Editor::exportPdf(QString filename)
 {
-    if (QFileInfo(filename).suffix().isEmpty())
+    if (QFileInfo(filename).suffix().isEmpty()){
         filename.append(".pdf");
+    }
     QPrinter p;
     p.setOutputFormat(QPrinter::PdfFormat);
     p.setOutputFileName(filename);

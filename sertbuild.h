@@ -127,13 +127,15 @@ public:
     QString getYearSert();
     QString getYearPart();
     QString getNomSert();
-    bool getPrn();
+    //bool getPrn();
+    int getType();
     DataSert* sData();
 public slots:
     void build(int id, bool is_ship);
     void rebuild();
-    void setPrn(bool p);
-    void setSample(bool b);
+    //void setPrn(bool p);
+    //void setSample(bool b);
+    void setType(int t);
     void setLRus(bool b);
     void setLEn(bool b);
     void setLMix(bool b);
@@ -143,8 +145,9 @@ public slots:
 private:
     QTextCursor* cursor;
     DataSert *data;
-    bool prn;
-    bool sample;
+    //bool prn;
+    //bool sample;
+    int sertType;
     int current_id;
     bool current_is_ship;
     bool l_rus;

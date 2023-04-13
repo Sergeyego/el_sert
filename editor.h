@@ -12,6 +12,7 @@
 #include <QMenu>
 #include <QTextEdit>
 #include <QInputDialog>
+#include <QCheckBox>
 #include "sertbuild.h"
 
 namespace Ui {
