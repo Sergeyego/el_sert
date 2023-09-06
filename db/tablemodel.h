@@ -24,11 +24,14 @@ public:
     QStringList getHeader() const;
     void clear();
     void setDecimal(int dec);
+    void setDecimalForColumn(int section, int dec);
+
 
 protected:
     QVector<QVector<QVariant>> p_d;
     QStringList p_header;
     int decimal;
+    QMap<int,int> mdecimal;
 
 signals:
     void sigUpd();

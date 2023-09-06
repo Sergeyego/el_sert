@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1016</width>
-    <height>722</height>
+    <width>1014</width>
+    <height>720</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -38,8 +38,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1016</width>
-     <height>22</height>
+     <width>1014</width>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu">
@@ -58,7 +58,6 @@
     <property name="title">
      <string>Сертификация</string>
     </property>
-    <addaction name="actionNormDoc"/>
     <addaction name="actionVed"/>
     <addaction name="actionDoc"/>
    </widget>
@@ -93,14 +92,6 @@
     <string>F5</string>
    </property>
   </action>
-  <action name="actionNormDoc">
-   <property name="text">
-    <string>Нормативная документация</string>
-   </property>
-   <property name="shortcut">
-    <string>F3</string>
-   </property>
-  </action>
   <action name="actionVed">
    <property name="text">
     <string>Ведомства и виды документов</string>
@@ -123,19 +114,6 @@
    </property>
    <property name="shortcut">
     <string>F4</string>
-   </property>
-  </action>
-  <action name="actionType">
-   <property name="text">
-    <string>Справочник типов</string>
-   </property>
-   <property name="shortcut">
-    <string>F7</string>
-   </property>
-  </action>
-  <action name="actionUpd">
-   <property name="text">
-    <string>Обновить все данные</string>
    </property>
   </action>
   <action name="actionPos">

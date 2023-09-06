@@ -25,7 +25,6 @@ SOURCES += main.cpp\
     db/dbviewer.cpp \
     mainwindow.cpp \
     formship.cpp \
-    formnormdoc.cpp \
     formved.cpp \
     formdoc.cpp \
     rels.cpp \
@@ -61,7 +60,6 @@ HEADERS  += formpart.h \
     db/dbtablemodel.h \
     mainwindow.h \
     formship.h \
-    formnormdoc.h \
     formved.h \
     formdoc.h \
     rels.h \
@@ -92,7 +90,6 @@ FORMS    += formpart.ui \
     db/dblogin.ui \
     mainwindow.ui \
     formship.ui \
-    formnormdoc.ui \
     formved.ui \
     formdoc.ui \
     formmark.ui \

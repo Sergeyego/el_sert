@@ -9,7 +9,6 @@ MainWindow::MainWindow(bool readOnly, QWidget *parent) :
 
     if (!readOnly){
         actAction(ui->actionPart,&MainWindow::part);
-        actAction(ui->actionNormDoc,&MainWindow::normDoc);
         actAction(ui->actionVed,&MainWindow::ved);
         actAction(ui->actionDoc,&MainWindow::doc);
         actAction(ui->actionMark,&MainWindow::mark);
@@ -87,13 +86,6 @@ void MainWindow::ship()
 {
     if (!exist(sender())){
         addSubWindow(new FormShip(),sender());
-    }
-}
-
-void MainWindow::normDoc()
-{
-    if (!exist(sender())){
-        addSubWindow(new FormNormDoc(),sender());
     }
 }
 

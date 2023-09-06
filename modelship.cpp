@@ -64,7 +64,7 @@ void ModelDataShip::refresh(int id_ship)
 
 QVariant ModelDataShip::data(const QModelIndex &index, int role) const
 {
-    if((role == Qt::BackgroundColorRole)&&(this->columnCount()>3)) {
+    if((role == Qt::BackgroundRole)&&(this->columnCount()>3)) {
     int area = record(index.row()).value(4).toInt();
     if(area == 0) return QVariant(QColor(255,170,170)); else
         if(area == 1) return QVariant(QColor(Qt::yellow)); else
@@ -119,7 +119,7 @@ void ModelPart::refresh(QDate dbeg, QDate dend, int id_el)
 
 QVariant ModelPart::data(const QModelIndex &index, int role) const
 {
-    if (role == Qt::BackgroundColorRole) {
+    if (role == Qt::BackgroundRole) {
         int id_part=this->data(this->index(index.row(),0),Qt::EditRole).toInt();
         int area = mapStat.value(id_part);
         if (area==7 || area==6){

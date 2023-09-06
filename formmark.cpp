@@ -13,6 +13,9 @@ FormMark::FormMark(QWidget *parent) :
 
     colVal defDim;
     defDim.val=4;
+    if (!Rels::instance()->relDiam->model()->isInital()){
+        Rels::instance()->relDiam->refreshModel();
+    }
     ui->comboBoxDiam->setModel(Rels::instance()->relDiam->model());
     ui->comboBoxDiam->setCurrentData(defDim);
     ui->comboBoxDiam->setEditable(false);
@@ -27,6 +30,9 @@ FormMark::FormMark(QWidget *parent) :
 
     colVal defVar;
     defVar.val=1;
+    if (!Rels::instance()->relVar->isInital()){
+        Rels::instance()->relVar->refreshModel();
+    }
     ui->comboBoxVar->setModel(Rels::instance()->relVar->model());
     ui->comboBoxVar->setCurrentData(defVar);
     ui->comboBoxVar->setEditable(false);
@@ -49,6 +55,21 @@ FormMark::FormMark(QWidget *parent) :
     if (delegate){
         connect(delegate,SIGNAL(createEdt(QModelIndex)),this,SLOT(updEanRel(QModelIndex)));
     }
+
+    modelGost = new DbTableModel("gost_el",this);
+    modelGost->addColumn("id_el",tr("Марка"));
+    modelGost->addColumn("id_var",tr("Вариант"));
+    modelGost->addColumn("dat",tr("Дата нач."));
+    modelGost->addColumn("id_gost",tr("Документ"),Rels::instance()->relGost);
+    modelGost->addColumn("dat_end",tr("Дата кон."));
+    modelGost->setSort("gost_el.dat, gost_new.nam");
+    modelGost->setDefaultValue(4,QVariant());
+    ui->tableViewGost->setModel(modelGost);
+    ui->tableViewGost->setColumnHidden(0,true);
+    ui->tableViewGost->setColumnHidden(1,true);
+    ui->tableViewGost->setColumnWidth(2,80);
+    ui->tableViewGost->setColumnWidth(3,200);
+    ui->tableViewGost->setColumnWidth(4,80);
 
     modelAmp = new DbTableModel("amp",this);
     modelAmp->addColumn("id","id");
@@ -179,6 +200,7 @@ FormMark::FormMark(QWidget *parent) :
     mapper->addEmptyLock(ui->cmdLblSmall);
     mapper->addEmptyLock(ui->cmdLblSmall2);
     mapper->addEmptyLock(ui->tableViewPack);
+    mapper->addEmptyLock(ui->tableViewGost);
 
     connect(mapper,SIGNAL(currentIndexChanged(int)),this,SLOT(refreshCont(int)));
     connect(modelMark,SIGNAL(sigUpd()),Rels::instance()->relElMark,SLOT(refreshModel()));
@@ -286,6 +308,11 @@ void FormMark::loadVars()
     modelMechTu->setFilter("mech_tu.id_el = "+QString::number(id_e)+" and mech_tu.id_var = "+QString::number(id_v));
     modelMechTu->select();
 
+    modelGost->setDefaultValue(0,id_e);
+    modelGost->setDefaultValue(1,id_v);
+    modelGost->setFilter("gost_el.id_el = "+QString::number(id_e)+" and gost_el.id_var = "+QString::number(id_v));
+    modelGost->select();
+
     blockVar(!ok);
 }
 
@@ -357,7 +384,7 @@ void FormMark::blockVar(bool b)
 {
     ui->pushButtonCreVar->setEnabled(b);
     ui->pushButtonDelVar->setEnabled(!b);
-    ui->pushButtonCopy->setEnabled(!b && (modelAmp->isEmpty() || modelChemTu->isEmpty() || modelMechTu->isEmpty()) && id_var()!=1);
+    ui->pushButtonCopy->setEnabled(!b && (modelAmp->isEmpty() || modelChemTu->isEmpty() || modelMechTu->isEmpty()|| modelGost->isEmpty()) && id_var()!=1);
 
     ui->lineEditVarZnam->setEnabled(!b);
     ui->plainTextEditDescr->setEnabled(!b);
@@ -460,6 +487,17 @@ void FormMark::copyTableData()
         queryMech.bindValue(":id_var",id_var());
         if (!queryMech.exec()){
             QMessageBox::critical(this,tr("Ошибка"),queryMech.lastError().text(),QMessageBox::Cancel);
+        }
+    }
+
+    if (modelGost->isEmpty()){
+        QSqlQuery queryGost;
+        queryGost.prepare("insert into gost_el (id_el, id_var, id_gost, dat, dat_end) "
+                         "(select id_el, :id_var, id_gost, dat, dat_end from gost_el where id_el = :id_el and id_var = 1)");
+        queryGost.bindValue(":id_el",id_el());
+        queryGost.bindValue(":id_var",id_var());
+        if (!queryGost.exec()){
+            QMessageBox::critical(this,tr("Ошибка"),queryGost.lastError().text(),QMessageBox::Cancel);
         }
     }
 

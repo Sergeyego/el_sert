@@ -50,6 +50,7 @@ signals:
     void sigActionEdtRel(const QModelIndex &index);
 
 private slots:
+    void blockSignal();
     void indexChanged(int n);
     void edtRel();
     void updData();

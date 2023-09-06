@@ -14,47 +14,32 @@ QWidget *DbDelegate::createEditor (QWidget * parent, const QStyleOptionViewItem 
         editor=new DbComboBox(parent);
     } else {
         switch (sqlModel->columnType(index.column())){
-        case QMetaType::Bool:
+        case QVariant::Bool:
         {
             editor=nullptr;
             break;
         }
-        case QMetaType::QString:
+        case QVariant::String:
         {
             editor=new QLineEdit(parent);
             break;
         }
-        case QMetaType::Int:
+        case QVariant::Int:
         {
             editor= sqlModel->data(index,Qt::CheckStateRole).isNull() ? new QLineEdit(parent) : nullptr;
             break;
         }
-        case QMetaType::Short:
+        case QVariant::LongLong:
         {
             editor= new QLineEdit(parent);
             break;
         }
-        case QMetaType::Long:
-        {
-            editor= new QLineEdit(parent);
-            break;
-        }
-        case QMetaType::LongLong:
-        {
-            editor= new QLineEdit(parent);
-            break;
-        }
-        case QMetaType::Double:
+        case QVariant::Double:
         {
             editor=new QLineEdit(parent);
             break;
         }
-        case QMetaType::Float:
-        {
-            editor= new QLineEdit(parent);
-            break;
-        }
-        case QMetaType::QDate:
+        case QVariant::Date:
         {
             editor= new DbDateEdit(parent);
             break;
@@ -160,7 +145,7 @@ void DbDelegate::setModelData ( QWidget * editor, QAbstractItemModel * model, co
                     return;
                 }
             }
-            if (sqlModel->columnType(index.column())==QMetaType::QDate){
+            if (sqlModel->columnType(index.column())==QVariant::Date){
                 DbDateEdit *dateEdit = qobject_cast<DbDateEdit *>(editor);
                 if (dateEdit){
                     if (dateEdit->date()==dateEdit->minimumDate()){
@@ -172,7 +157,7 @@ void DbDelegate::setModelData ( QWidget * editor, QAbstractItemModel * model, co
                 }
             }
             QCheckBox *cb=qobject_cast<QCheckBox *>(editor);
-            if (cb && sqlModel->columnType(index.column())==QMetaType::Int){
+            if (cb && sqlModel->columnType(index.column())==QVariant::Int){
                 sqlModel->setData(index,cb->isChecked() ? 1 : 0,Qt::EditRole);
                 return;
             }

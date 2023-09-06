@@ -31,6 +31,7 @@ private:
     DbTableModel *modelPlav;
     DbTableModel *modelEan;
     DbTableModel *modelProvol;
+    DbTableModel *modelGost;
 
     void loadsettings();
     void savesettings();

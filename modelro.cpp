@@ -10,13 +10,13 @@ QVariant ModelRo::data(const QModelIndex &item, int role) const
     QVariant origData=QSqlQueryModel::data(item,Qt::EditRole);
     QVariant::Type type=origData.type();
     if (role==Qt::DisplayRole){
-        if (type==QMetaType::Double){
-            return (origData.isNull()) ? QString("") : QLocale().toString(origData.toDouble(),'f',dec);
-        } else if (type==QMetaType::QDate){
+        if (type==QVariant::Double){
+            return (origData.isNull()) ? QString("") : QLocale().toString(origData.toDouble(),'f',mdecimal.value(item.column(),dec));
+        } else if (type==QVariant::Date){
             return (origData.isNull()) ? QString("") : origData.toDate().toString("dd.MM.yy");
         }
     } else if (role==Qt::TextAlignmentRole){
-        return (type==QMetaType::Int || type==QMetaType::Double || type==QMetaType::Float || type==QMetaType::LongLong ) ?
+        return (type==QVariant::Int || type==QVariant::Double || type==QVariant::LongLong ) ?
         int(Qt::AlignRight | Qt::AlignVCenter) : int(Qt::AlignLeft | Qt::AlignVCenter);
     }
     return QSqlQueryModel::data(item,role);
@@ -38,6 +38,16 @@ void ModelRo::setQuery(const QSqlQuery &query)
 {
     QSqlQueryModel::setQuery(query);
     emit newQuery();
+}
+
+void ModelRo::setDecimal(int d)
+{
+    dec=d;
+}
+
+void ModelRo::setDecimalForColumn(int section, int d)
+{
+    mdecimal.insert(section,d);
 }
 
 void ModelRo::select()

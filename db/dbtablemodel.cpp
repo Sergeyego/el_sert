@@ -30,20 +30,20 @@ QVariant DbTableModel::data(const QModelIndex &index, int role) const
             if (modelData->column(index.column())->sqlRelation){
                 value = modelData->value(index.row(),index.column()).disp;
             } else {
-                if (type==QMetaType::QDate){
+                if (type==QVariant::Date){
                     value=origVal.toDate().toString("dd.MM.yy");
-                } else if (type==QMetaType::QDateTime){
+                } else if (type==QVariant::DateTime){
                     value=origVal.toDateTime().toString("dd.MM.yy hh:mm");
-                } else if (type==QMetaType::Double || type==QMetaType::Float){
+                } else if (type==QVariant::Double){
                     int dec=3;
                     if (modelData->column(index.column())->validator){
                         QDoubleValidator *doublevalidator = qobject_cast<QDoubleValidator*>(modelData->column(index.column())->validator);
                         if (doublevalidator) dec=doublevalidator->decimals();
                     }
                     value=(origVal.isNull() || origVal.toString().isEmpty())? QString("") : QLocale().toString(origVal.toDouble(),'f',dec);
-                } else if (type==QMetaType::Int) {
+                } else if (type==QVariant::Int) {
                     value=(origVal.isNull() || origVal.toString().isEmpty())? QString("") : QLocale().toString(origVal.toInt());
-                } else if (type==QMetaType::Bool){
+                } else if (type==QVariant::Bool){
                     value=origVal.toBool()? QString(QString::fromUtf8("Да")) : QString(QString::fromUtf8("Нет"));
                 } else {
                     value=origVal;
@@ -56,13 +56,12 @@ QVariant DbTableModel::data(const QModelIndex &index, int role) const
             break;
 
         case Qt::TextAlignmentRole:
-            value=((type==QMetaType::Int || type==QMetaType::Double || type==QMetaType::Float
-                    || type==QMetaType::Short || type==QMetaType::Long || type==QMetaType::LongLong) && !modelData->column(index.column())->sqlRelation)?
+            value=((type==QVariant::Int || type==QVariant::Double || type==QVariant::LongLong) && !modelData->column(index.column())->sqlRelation)?
             int(Qt::AlignRight | Qt::AlignVCenter) : int(Qt::AlignLeft | Qt::AlignVCenter);
             break;
 
         case Qt::CheckStateRole:
-            if (type==QMetaType::Bool){
+            if (type==QVariant::Bool){
                 value=(origVal.toBool())? Qt::Checked :  Qt::Unchecked;
             } else value=QVariant();
             break;
@@ -88,9 +87,9 @@ bool DbTableModel::setData(const QModelIndex &index, const QVariant &value, int 
 {
     if (!(this->flags(index) & Qt::ItemIsEditable)) return false;
     colVal setVal=modelData->value(index.row(),index.column());
-    if (columnType(index.column())==QMetaType::Bool){
+    if (columnType(index.column())==QVariant::Bool){
         setVal.val=value.toBool();
-    } else if(!data(index,Qt::CheckStateRole).isNull() && columnType(index.column())==QMetaType::Int){
+    } else if(!data(index,Qt::CheckStateRole).isNull() && columnType(index.column())==QVariant::Int){
         setVal.val=value.toBool()? 1 : 0;
     } else {
         if (role==Qt::DisplayRole){
@@ -123,9 +122,9 @@ bool DbTableModel::addColumn(QString name, QString display, DbSqlRelation *relat
 {
     QVariant emptyval=defaultRecord.value(name);
     QValidator *validator(nullptr);
-    if (emptyval.type()==QMetaType::Int || emptyval.type()==QMetaType::LongLong){
+    if (emptyval.type()==QVariant::Int || emptyval.type()==QVariant::LongLong){
         validator = new QIntValidator(this);
-    } else if (emptyval.type()==QMetaType::Double){
+    } else if (emptyval.type()==QVariant::Double){
         QDoubleValidator *v = new QDoubleValidator(this);
         v->setDecimals(1);
         validator = v;
@@ -140,7 +139,7 @@ bool DbTableModel::addColumn(QString name, QString display, DbSqlRelation *relat
     tmpColumn.data.resize(rowCount());
     tmpColumn.sqlRelation=relation;
     tmpColumn.flags=Qt::ItemIsEditable | Qt::ItemIsSelectable |Qt::ItemIsUserCheckable | Qt::ItemIsEnabled;
-    tmpColumn.defaultVal.val=emptyval.type()==QMetaType::QDate ? QDate::currentDate() : emptyval;
+    tmpColumn.defaultVal.val=emptyval.type()==QVariant::Date ? QDate::currentDate() : emptyval;
     modelData->addColumn(tmpColumn);
     return true;
 }
@@ -723,7 +722,7 @@ QVector<colVal> DataEditor::newRow()
     return r;
 }
 
-DbSqlRelation::DbSqlRelation(QString tableRel, QString cKey, QString cDisplay, QObject *parent) : table(tableRel), key(cKey), display(cDisplay), QObject(parent)
+DbSqlRelation::DbSqlRelation(QString tableRel, QString cKey, QString cDisplay, QObject *parent) : QObject(parent), table(tableRel), key(cKey), display(cDisplay)
 {
     editable=false;
     alias=table;
@@ -887,7 +886,7 @@ bool DbSqlLikeModel::isInital()
 
 void DbSqlLikeModel::startSearch(QString s)
 {
-    inital=true;
+    emit searchRequested(s);
     QString lim;
     QString srt;
     QString flt;
@@ -916,7 +915,7 @@ void DbSqlLikeModel::startSearch(QString s)
 
     QString query="SELECT "+relation->getCKey()+", "+relation->getCDisplay()+", "+relation->getCFilter()+" FROM "+relation->getTable()+flt+srt+lim;
 
-    if (async){
+    if (async && inital){
         Executor *e = new Executor;
         e->setQuery(query);
         connect(e,SIGNAL(finished()),this,SLOT(queryFinished()));
@@ -937,9 +936,10 @@ void DbSqlLikeModel::startSearch(QString s)
             }
             origModel->setModelData(data);
         } else {
-            clear();
+            invalidate();
             QMessageBox::critical(nullptr,tr("Error"),qu.lastError().text(),QMessageBox::Cancel);
         }
+        inital=true;
         emit searchFinished(s);
     }
 }
@@ -950,6 +950,7 @@ void DbSqlLikeModel::queryFinished()
     if (e){
         origModel->setModelData(e->getData());
         QString s=e->property("path").toString();
+        inital=true;
         emit searchFinished(s);
         e->deleteLater();
     }

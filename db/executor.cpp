@@ -39,6 +39,10 @@ void Executor::run()
                 int colCount=qu.record().count();
                 QWriteLocker locker(&dataLock);
                 data.clear();
+                titles.clear();
+                for (int i=0; i<qu.record().count(); i++){
+                    titles+=qu.record().fieldName(i);
+                }
                 while (qu.next()){
                     QVector<QVariant> dt;
                     for (int i=0; i<colCount; i++){
@@ -67,6 +71,12 @@ QVector<QVector<QVariant> > Executor::getData()
 {
     QReadLocker locker(&dataLock);
     return data;
+}
+
+QStringList Executor::getTitles()
+{
+    QReadLocker locker(&dataLock);
+    return titles;
 }
 
 void Executor::showError(QString text)

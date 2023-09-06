@@ -46,6 +46,7 @@ private:
     TableModel *origModel;
 signals:
     void searchFinished(QString s);
+    void searchRequested(QString s);
 };
 
 class DbSqlRelation : public QObject

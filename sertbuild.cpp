@@ -902,6 +902,7 @@ void DataSert::refreshQR(int id, bool is_ship, bool sample)
 
     memcpy((quint8*)&cod,(quint8*)&id_ship,4);
     memcpy((quint8*)&cod+4,(quint8*)&id_part,4);
+    //qDebug()<<id_ship<<id_part<<cod;
 
     str+="Код подлинности "+QString::number(cod);
 

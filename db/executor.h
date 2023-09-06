@@ -41,10 +41,12 @@ public:
     void run();
     void setQuery(QString qu);
     QVector<QVector<QVariant>> getData();
+    QStringList getTitles();
 
 private:
     QString query;
     QVector<QVector<QVariant>> data;
+    QStringList titles;
     QString databaseName;
     QString hostName;
     int port;

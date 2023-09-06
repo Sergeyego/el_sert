@@ -261,15 +261,16 @@ void Editor::exportHtml()
         if (!doc->getNomSert().isEmpty()){
             fname+="_"+doc->getNomSert();
         }
-    }
-    QSettings settings("szsm", QApplication::applicationName());
-    QDir dir(settings.value("sertPath",QDir::homePath()).toString());
-    exportname = QFileDialog::getSaveFileName(this,tr("Сохранить HTML"),dir.path()+"/"+fname+".html", "*.html");
-    if (!exportname.isEmpty()) {
-        QFile file(exportname);
-        if (file.open(QIODevice::WriteOnly)){
-            file.write(doc->toHtml().toUtf8());
-            file.close();
+
+        QSettings settings("szsm", QApplication::applicationName());
+        QDir dir(settings.value("sertPath",QDir::homePath()).toString());
+        exportname = QFileDialog::getSaveFileName(this,tr("Сохранить HTML"),dir.path()+"/"+fname+".html", "*.html");
+        if (!exportname.isEmpty()) {
+            QFile file(exportname);
+            if (file.open(QIODevice::WriteOnly)){
+                file.write(doc->toHtml().toUtf8());
+                file.close();
+            }
         }
     }
 }

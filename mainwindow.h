@@ -32,7 +32,6 @@ private slots:
 
     void part();
     void ship();
-    void normDoc();
     void ved();
     void doc();
     void mark();

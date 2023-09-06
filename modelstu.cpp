@@ -10,7 +10,7 @@ ModelChem::ModelChem(QString tname, QObject *parent) : DbTableModel(tname,parent
 QVariant ModelChem::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid()) return QVariant();
-    if (role==Qt::BackgroundColorRole){
+    if (role==Qt::BackgroundRole){
         return getColor(index);
     }
     if (role==Qt::ToolTipRole){
