@@ -35,8 +35,8 @@ Editor::Editor(QTextDocument *doc, QWidget *parent) :
     printer = new QPrinter();
     printer->setPageMargins(QMarginsF(30, 30, 30, 30));
     printer->setColorMode(QPrinter::Color);
-    printer->setOrientation(QPrinter::Portrait);
-    printer->setPaperSize(QPrinter::A4);
+    printer->setPageOrientation(QPageLayout::Portrait);
+    printer->setPageSize(QPageSize(QPageSize::A4));
 
     QStringList lt;
     lt<<tr("Стандарт")<<tr("Образец")<<tr("Подпись")<<tr("Транснефть")<<tr("Авиатехприемка");
@@ -67,6 +67,7 @@ Editor::Editor(QTextDocument *doc, QWidget *parent) :
     connect(ui->radioButtonMix,SIGNAL(clicked(bool)),this,SLOT(setObr()));
     connect(ui->pushButtonSertDef,SIGNAL(clicked(bool)),this,SLOT(setDefaultDoc()));
     connect(ui->pushButtonHtml,SIGNAL(clicked(bool)),this,SLOT(exportHtml()));
+    connect(ui->toolButtonLoad,SIGNAL(clicked(bool)),this,SLOT(loadHtml()));
 }
 
 QTextDocument *Editor::document()
@@ -483,6 +484,19 @@ void Editor::setDefaultDoc()
     }
 }
 
+void Editor::loadHtml()
+{
+    QString fileName = QFileDialog::getOpenFileName(this,tr("Open html"),QDir::homePath(), tr("HTML Files (*.html)"));
+    if (!fileName.isEmpty()){
+        QFile file(fileName);
+        if (file.open(QIODevice::ReadOnly | QIODevice::Text)){
+            QString html=file.readAll();
+            this->document()->setHtml(html);
+            file.close();
+        }
+    }
+}
+
 void Editor::filePrint()
 {
     QPrintDialog printDialog(printer, this);
@@ -688,4 +702,3 @@ void TextEdit::addTable()
         }
     }
 }
-

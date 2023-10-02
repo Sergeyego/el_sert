@@ -43,6 +43,7 @@ private slots:
     void updEanRel(QModelIndex index);
     void refreshCont(int index);
     void updImg();
+    void updVarsList();
     void gelLbl();
     void gelLblSmall();
     void gelLblSmall2();

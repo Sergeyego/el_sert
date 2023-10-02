@@ -25,6 +25,7 @@ public:
     void clear();
     void setDecimal(int dec);
     void setDecimalForColumn(int section, int dec);
+    virtual bool insertRow(int row, const QModelIndex &parent=QModelIndex());
 
 
 protected:

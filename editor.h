@@ -106,6 +106,7 @@ private slots:
     void chDoc();
     void setEnDoc(bool en);
     void setDefaultDoc();
+    void loadHtml();
 
 };
 

@@ -334,6 +334,7 @@ void FormMark::refreshCont(int index)
     modelProvol->select();
 
     updImg();
+    updVarsList();
     loadVars();
 }
 
@@ -348,6 +349,26 @@ void FormMark::updImg()
     } else {
         ui->labelPix->setPixmap(pix.scaled(ui->labelPix->size(),Qt::KeepAspectRatio));
     }
+}
+
+void FormMark::updVarsList()
+{
+    QString str = tr("Варианты:");
+    QModelIndex ind=ui->tableViewMark->model()->index(mapper->currentIndex(),0);
+    int id_el=ui->tableViewMark->model()->data(ind,Qt::EditRole).toInt();
+    QSqlQuery query;
+    query.prepare("select ev2.nam  from el_var ev "
+                  "inner join elrtr_vars ev2 on ev2.id = ev.id_var "
+                  "where id_el = :id_el order by ev.id_var");
+    query.bindValue(":id_el",id_el);
+    if (query.exec()){
+        while (query.next()){
+            str+=" "+query.value(0).toString()+";";
+        }
+    } else {
+        QMessageBox::critical(this,tr("Ошибка"),query.lastError().text(),QMessageBox::Cancel);
+    }
+    ui->groupBoxVar->setTitle(str);
 }
 
 void FormMark::gelLbl()
@@ -412,6 +433,7 @@ void FormMark::createVar()
     }
 
     copyTableData();
+    updVarsList();
 }
 
 void FormMark::saveVar()
@@ -443,6 +465,7 @@ void FormMark::deleteVar()
         query.bindValue(":id_var",id_var());
         if (query.exec()){
             loadVars();
+            updVarsList();
         } else {
             QMessageBox::critical(this,tr("Ошибка"),query.lastError().text(),QMessageBox::Cancel);
         }

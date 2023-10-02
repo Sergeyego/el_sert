@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1024</width>
-    <height>750</height>
+    <width>1022</width>
+    <height>748</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -48,8 +48,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>169</width>
-          <height>691</height>
+          <width>168</width>
+          <height>687</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout">
@@ -150,6 +150,13 @@
         </size>
        </property>
       </spacer>
+     </item>
+     <item>
+      <widget class="QToolButton" name="toolButtonLoad">
+       <property name="text">
+        <string>...</string>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>
