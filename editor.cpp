@@ -39,7 +39,7 @@ Editor::Editor(QTextDocument *doc, QWidget *parent) :
     printer->setPageSize(QPageSize(QPageSize::A4));
 
     QStringList lt;
-    lt<<tr("Стандарт")<<tr("Образец")<<tr("Подпись")<<tr("Транснефть")<<tr("Авиатехприемка");
+    lt<<tr("Стандарт")<<tr("Образец")<<tr("Подпись")<<tr("Транснефть")<<tr("РТ-Техприемка");
     ui->comboBoxType->addItems(lt);
 
     ui->textEdit->setDocument(doc);

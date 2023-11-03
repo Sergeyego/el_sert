@@ -442,26 +442,31 @@ void SertBuild::rebuild()
     cursor.insertImage(qrformat);
 
     cursor.insertText("   ",textNormalFormat);
-    QString nach=/*tr("Начальник ОТК")*/data->general()->otk_title.rus;
-    QString nach_en=/*tr("Head of Quality Department")*/data->general()->otk_title.eng;
+    QString nach=data->general()->otk_title.rus;
+    QString nach_en=data->general()->otk_title.eng;
     QString line=tr(" ______________ ");
     if (sertType==2) { //подпись
         QImage im(data->general()->sign);
         QPainter p(&im);
         QFont f(textNormalFormat.font());
-        f.setPointSize(44);
+        f.setPixelSize(44);
         p.setFont(f);
-        int pos=100;
-        QString str;
+        QFontMetrics fm(f);
+        QString str, suf;
         if (l_en && !l_rus){
-            pos=400;
-            str=nach_en+line+data->general()->otk.eng;
+            suf=nach_en;
+            str=data->general()->otk.eng;
         } else if (l_rus && !l_en){
-            pos=630;
-            str=nach+line+data->general()->otk.rus;
+            suf=nach;
+            str=data->general()->otk.rus;
         } else if (l_rus && l_en){
-            pos=50;
-            str=nach+" / "+nach_en+line+data->general()->otk.rus+" / "+data->general()->otk.eng;
+            suf=nach+" / "+nach_en;
+            str=data->general()->otk.rus+" / "+data->general()->otk.eng;
+        }
+        str=suf+line+str;
+        int pos=(im.width()/2-fm.horizontalAdvance(suf));
+        if (pos<0){
+            pos=0;
         }
         p.drawText(pos,150,str);
         addResource(QTextDocument::ImageResource, QUrl("sign"), im);
@@ -469,7 +474,7 @@ void SertBuild::rebuild()
         signformat.setName("sign");
         signformat.setHeight(150);
         cursor.insertImage(signformat);
-    } else if (sertType==3 || sertType==4) { //транснефть, авиатехприемка
+    } else if (sertType==3 || sertType==4) { //транснефть, РТ-Техприемка
         cursor.insertBlock();
         cursor.setCharFormat(textNormalFormat);
         QString space="                                              ";
