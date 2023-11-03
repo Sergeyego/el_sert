@@ -113,7 +113,7 @@ private:
 
 public slots:
     void refreshMechCategory();
-    void refreshGeneralData();
+    void refreshGeneralData(QDate date);
 
 signals:
     void sigRefresh();
@@ -142,7 +142,6 @@ public slots:
     void setLMix(bool b);
     void setDocEn(int id_doc, bool en);
     void setDefaultDoc();
-    void refreshGenData();
 private:
     QTextCursor* cursor;
     DataSert *data;

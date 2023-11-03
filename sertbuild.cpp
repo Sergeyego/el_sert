@@ -671,14 +671,8 @@ void SertBuild::setDefaultDoc()
     this->build(current_id,current_is_ship);
 }
 
-void SertBuild::refreshGenData()
-{
-    data->refreshGeneralData();
-}
-
 DataSert::DataSert(QObject *parent) : QObject(parent)
 {
-    refreshGeneralData();
 }
 
 void DataSert::refresh(int id, bool is_ship, bool sample)
@@ -729,6 +723,7 @@ void DataSert::refresh(int id, bool is_ship, bool sample)
             hData.netto=sample ? 1111 : query.value(13).toDouble();
             hData.poluch.eng=query.value(14).toString();
         }
+        refreshGeneralData(hData.dateVidSert);
         refreshTu();
         refreshChem();
         refreshMech();
@@ -1013,11 +1008,13 @@ void DataSert::refreshMechCategory()
     }
 }
 
-void DataSert::refreshGeneralData()
+void DataSert::refreshGeneralData(QDate date)
 {
     refreshMechCategory();
     QSqlQuery query;
-    query.prepare("select adr, telboss||', '||telfax||', '||teldop||' '||site||' '||email, otk, adr_en, otk_en, otk_title, otk_title_en from hoz where id=1");
+    query.prepare("select adr, telboss||', '||telfax||', '||teldop||' '||site||' '||email, otk, adr_en, otk_en, otk_title, otk_title_en, sign "
+                  "from general_data where dat = (select max(mgd.dat) from general_data mgd where mgd.dat <= :dat )");
+    query.bindValue(":dat",date);
     if (query.exec()){
         while(query.next()){
             gData.adres.rus=query.value(0).toString();
@@ -1027,11 +1024,11 @@ void DataSert::refreshGeneralData()
             gData.otk.eng=query.value(4).toString();
             gData.otk_title.rus=query.value(5).toString();
             gData.otk_title.eng=query.value(6).toString();
+            gData.sign.loadFromData(query.value(7).toByteArray());
         }
     } else {
         QMessageBox::critical(NULL,tr("Error"),query.lastError().text(),QMessageBox::Ok);
     }
     gData.logo.load("images/logo2.png");
-    gData.sign.load("images/otk.png");
 }
 

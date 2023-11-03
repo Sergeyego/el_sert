@@ -458,7 +458,6 @@ void FormPart::refresh()
     if (sender()==ui->cmdUpd){
         Rels::instance()->relElMark->refreshModel();
         Rels::instance()->refreshVedPix();
-        sertificatPart->refreshGenData();
         modelSertChem->refreshRelsModel();
         modelSrcMech->refreshRelsModel();
         modelSertMechx->refreshRelsModel();

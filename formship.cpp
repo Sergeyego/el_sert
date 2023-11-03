@@ -152,7 +152,6 @@ void FormShip::refresh()
 {
     if (sender()==ui->cmdUpd){
         Rels::instance()->refreshVedPix();
-        sertificat->refreshGenData();
     }
     modelShip->refresh(ui->dateEditBeg->date(),ui->dateEditEnd->date());
     ui->tableViewShip->setColumnHidden(0,true);
