@@ -685,7 +685,7 @@ void DataSert::refresh(int id, bool is_ship, bool sample)
     QSqlQuery query;
     QString sQuery;
     sQuery= is_ship ? QString("select p.id, p.n_s, p.yea, p.dat_part, e.marka_sert, p.diam, "
-                              "gt.nam, pu.nam, coalesce (p.ibco, ev.znam), coalesce(pp.nam, pe.nam), pol.naim, s.nom_s, s.dat_vid, o.massa, pol.naim_en "
+                              "gt.nam, pu.nam, coalesce (p.ibco, ev.znam), coalesce(pp.nam, pe.nam), pol.naim, s.nom_s, coalesce(s.dat_vid, :dt ), o.massa, pol.naim_en "
                               "from otpusk as o "
                               "inner join sertifikat as s on o.id_sert=s.id "
                               "inner join parti as p on o.id_part=p.id "
@@ -698,7 +698,7 @@ void DataSert::refresh(int id, bool is_ship, bool sample)
                               "left join el_var as ev on ev.id_el = p.id_el and ev.id_var = p.id_var "
                               "where o.id = :id") :
                   QString("select p.id, p.n_s, p.yea, p.dat_part, e.marka_sert, p.diam, "
-                          "gt.nam, pu.nam, coalesce (p.ibco, ev.znam), coalesce(pp.nam, pe.nam), NULL, NULL, NULL, j.sum, NULL "
+                          "gt.nam, pu.nam, coalesce (p.ibco, ev.znam), coalesce(pp.nam, pe.nam), NULL, NULL, (:dt)::date, j.sum, NULL "
                           "from parti as p "
                           "inner join elrtr as e on e.id=p.id_el "
                           "inner join provol as pe on pe.id=e.id_gost "
@@ -710,6 +710,7 @@ void DataSert::refresh(int id, bool is_ship, bool sample)
                           "where p.id = :id");
     query.prepare(sQuery);
     query.bindValue(":id",id);
+    query.bindValue(":dt",QDate::currentDate());
     if (query.exec()){
         while(query.next()){
             hData.id_parti=query.value(0).toInt();
