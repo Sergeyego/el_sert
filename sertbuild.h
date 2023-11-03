@@ -24,6 +24,7 @@ struct generalData {
     sLang adres;
     QString contact;
     sLang otk;
+    sLang otk_title;
     QImage logo;
     QImage sign;
 };

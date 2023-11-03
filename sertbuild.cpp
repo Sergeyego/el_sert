@@ -442,8 +442,8 @@ void SertBuild::rebuild()
     cursor.insertImage(qrformat);
 
     cursor.insertText("   ",textNormalFormat);
-    QString nach=tr("Начальник ОТК");
-    QString nach_en=tr("Head of Quality Department");
+    QString nach=/*tr("Начальник ОТК")*/data->general()->otk_title.rus;
+    QString nach_en=/*tr("Head of Quality Department")*/data->general()->otk_title.eng;
     QString line=tr(" ______________ ");
     if (sertType==2) { //подпись
         QImage im(data->general()->sign);
@@ -1017,7 +1017,7 @@ void DataSert::refreshGeneralData()
 {
     refreshMechCategory();
     QSqlQuery query;
-    query.prepare("select adr, telboss||', '||telfax||', '||teldop||' '||site||' '||email, otk, adr_en, otk_en from hoz where id=1");
+    query.prepare("select adr, telboss||', '||telfax||', '||teldop||' '||site||' '||email, otk, adr_en, otk_en, otk_title, otk_title_en from hoz where id=1");
     if (query.exec()){
         while(query.next()){
             gData.adres.rus=query.value(0).toString();
@@ -1025,6 +1025,8 @@ void DataSert::refreshGeneralData()
             gData.otk.rus=query.value(2).toString();
             gData.adres.eng=query.value(3).toString();
             gData.otk.eng=query.value(4).toString();
+            gData.otk_title.rus=query.value(5).toString();
+            gData.otk_title.eng=query.value(6).toString();
         }
     } else {
         QMessageBox::critical(NULL,tr("Error"),query.lastError().text(),QMessageBox::Ok);
