@@ -52,6 +52,13 @@ void SertBuild::rebuild()
 {
     this->clear();
 
+    QString nameEN=tr("Испытания: согласно EN 10204 - 3.1. ");
+    QString nameEN_en=tr("Tests: according to EN 10204 - 3.1. ");
+    if (sertType==3 || sertType==4){
+        nameEN=tr("Испытания: согласно EN 10204 - 3.2. ");
+        nameEN_en=tr("Tests: according to EN 10204 - 3.2. ");
+    }
+
     QFont titleFont("Droid Serif",13);
     QFont normalFont("Droid Sans",10);
     QFont smallFont("Droid Sans",8);
@@ -263,7 +270,7 @@ void SertBuild::rebuild()
         cursor=chemTable->cellAt(0,0).firstCursorPosition();
         cursor.setBlockFormat(formatCenter);
         cursor.setCharFormat(textBoldFormat);
-        insertText(cursor,tr("Испытания: согласно EN 10204 - 3.1. Химический состав наплавленного металла, %"),tr("Testing: according to EN 10204 - 3.1. Chemical composition of weld metal, %"),true);
+        insertText(cursor,nameEN+tr("Химический состав наплавленного металла, %"),nameEN_en+tr("Chemical composition of weld metal, %"),true);
         chemTable->mergeCells(0,0,1,row);
         int i=0;
         foreach (chemData c, *data->chem()) {
@@ -299,8 +306,8 @@ void SertBuild::rebuild()
             QString nameCat;
             QString nameCat_en;
             if (pos==0) {
-                nameCat+=tr("Испытания: согласно EN 10204 - 3.1. ");
-                nameCat_en+=tr("Tests: according to EN 10204 - 3.1. ");
+                nameCat+=nameEN;
+                nameCat_en+=nameEN_en;
             }
             nameCat+=data->mechCategory(id_cat).rus;
             nameCat_en+=data->mechCategory(id_cat).eng;
