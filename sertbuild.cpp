@@ -232,11 +232,8 @@ void SertBuild::rebuild()
     cursor=mainTable->cellAt(0,4).firstCursorPosition();
     cursor.setBlockFormat(formatCenter);
     cursor.setBlockCharFormat(textBoldFormat);
-    if (current_is_ship){
-        insertText(cursor,tr("Объем \nотгрузки, кг"),tr("Shipment volume, kg"),true);
-    } else {
-        insertText(cursor,tr("Объем \nвыпуска, кг"),tr("Volume of release, kg"),true);
-    }
+    insertText(cursor,tr("Масса электродов \nнетто, кг"),tr("Net weight, kg"),true);
+
 
     mainTable->insertRows(mainTable->rows(),1);
     cursor=mainTable->cellAt(1,0).firstCursorPosition();
