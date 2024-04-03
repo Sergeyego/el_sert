@@ -420,7 +420,7 @@ void SertBuild::rebuild()
     insertText(cursor,tr("Заключение"),tr("Conclusion"));
     cursor.insertText(tr(":\n"),textBoldFormat);
     cursor.setCharFormat(textNormalFormat);
-    insertText(cursor,tr("соответствует ")+tulist,tr("corresponds to ")+tulist,true);
+    insertText(cursor,tr("соответствует требованиям ")+tulist,tr("meets the requirements of ")+tulist,true);
 
     cursor.insertBlock();
     cursor.setBlockFormat(formatCenter);
