@@ -321,7 +321,7 @@ void FormPart::copyZnam()
 
 void FormPart::showPartSert()
 {
-    sertificatPart->build(currentIdPart(),false);
+    sertificatPart->build(currentIdPart(),-1);
     editorPart->show();
 }
 
@@ -329,7 +329,7 @@ void FormPart::showShipSert(QModelIndex index)
 {
     if (index.isValid()){
         int id_ship=ui->tableViewAdd->model()->data(ui->tableViewAdd->model()->index(index.row(),4),Qt::EditRole).toInt();
-        sertificatPart->build(id_ship, true);
+        sertificatPart->build(currentIdPart(),id_ship);
         editorPart->show();
     }
 }

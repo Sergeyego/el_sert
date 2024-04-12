@@ -47,9 +47,9 @@ Editor::Editor(QTextDocument *doc, QWidget *parent) :
     if (s){
         ui->comboBoxType->setCurrentIndex(s->getType());
         connect(ui->comboBoxType,SIGNAL(currentIndexChanged(int)),s,SLOT(setType(int)));
-        connect(ui->radioButtonRus,SIGNAL(clicked(bool)),s,SLOT(setLRus(bool)));
-        connect(ui->radioButtonEn,SIGNAL(clicked(bool)),s,SLOT(setLEn(bool)));
-        connect(ui->radioButtonMix,SIGNAL(clicked(bool)),s,SLOT(setLMix(bool)));
+        connect(ui->radioButtonRus,SIGNAL(clicked(bool)),this,SLOT(setLang()));
+        connect(ui->radioButtonEn,SIGNAL(clicked(bool)),this,SLOT(setLang()));
+        connect(ui->radioButtonMix,SIGNAL(clicked(bool)),this,SLOT(setLang()));
         connect(s,SIGNAL(sigRefresh()),this,SLOT(chDoc()));
     }
 
@@ -454,14 +454,14 @@ void Editor::chDoc()
             b->deleteLater();
         }
         boxes.clear();
-        foreach (sertData d, *s->sData()->sert()) {
+        /*foreach (sertData d, *s->sData()->sert()) {
             QCheckBox *box = new QCheckBox(d.ved_short.rus+": "+d.nom_doc);
             connect(box,SIGNAL(clicked(bool)),this,SLOT(setEnDoc(bool)));
             box->setChecked(d.en);
             box->setProperty("id",d.id_doc);
             boxes.push_back(box);
             ui->verticalLayoutBox->addWidget(box);
-        }
+        }*/
     }
 }
 
@@ -494,6 +494,20 @@ void Editor::loadHtml()
             this->document()->setHtml(html);
             file.close();
         }
+    }
+}
+
+void Editor::setLang()
+{
+    QString lang="mix";
+    if (ui->radioButtonRus->isChecked()){
+        lang="ru";
+    } else if (ui->radioButtonEn->isChecked()){
+        lang="en";
+    }
+    SertBuild *s=qobject_cast<SertBuild *>(this->document());
+    if (s){
+        s->setLang(lang);
     }
 }
 

@@ -107,7 +107,7 @@ private slots:
     void setEnDoc(bool en);
     void setDefaultDoc();
     void loadHtml();
-
+    void setLang();
 };
 
 #endif // EDITOR_H

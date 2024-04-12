@@ -80,8 +80,9 @@ void FormShip::refreshDataShip(QModelIndex index)
 
 void FormShip::refreshShipSert(QModelIndex index)
 {
-    int id=modelDataShip->data(modelDataShip->index(index.row(),0)).toInt();
-    sertificat->build(id,true);
+    int id_part=modelDataShip->data(modelDataShip->index(index.row(),5),Qt::EditRole).toInt();
+    int id_ship=modelDataShip->data(modelDataShip->index(index.row(),0),Qt::EditRole).toInt();
+    sertificat->build(id_part,id_ship);
 }
 
 void FormShip::printAll()
@@ -151,7 +152,7 @@ void FormShip::multipagePdf()
 void FormShip::refresh()
 {
     if (sender()==ui->cmdUpd){
-        Rels::instance()->refreshVedPix();
+        sertificat->clearCache();
     }
     modelShip->refresh(ui->dateEditBeg->date(),ui->dateEditEnd->date());
     ui->tableViewShip->setColumnHidden(0,true);
