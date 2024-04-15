@@ -39,6 +39,7 @@ public:
     DbSqlRelation *relEanEd;
     DbSqlRelation *relEanGr;
     DbSqlRelation *relVar;
+    DbSqlRelation *relSertType;
 
 protected:
     explicit Rels(QObject *parent = nullptr);

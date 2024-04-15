@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1020</width>
-    <height>850</height>
+    <width>1018</width>
+    <height>848</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -48,8 +48,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>166</width>
-          <height>789</height>
+          <width>164</width>
+          <height>787</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout">
@@ -112,7 +112,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QComboBox" name="comboBoxType"/>
+      <widget class="DbComboBox" name="comboBoxType"/>
      </item>
      <item>
       <widget class="QRadioButton" name="radioButtonRus">
@@ -172,6 +172,11 @@
    <class>TextEdit</class>
    <extends>QTextEdit</extends>
    <header>editor.h</header>
+  </customwidget>
+  <customwidget>
+   <class>DbComboBox</class>
+   <extends>QComboBox</extends>
+   <header>db/dbcombobox.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

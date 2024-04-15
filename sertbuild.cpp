@@ -9,26 +9,6 @@ SertBuild::SertBuild(QObject *parent) :
     lang="ru";
 }
 
-QString SertBuild::getNomPart()
-{
-    return "1111";
-}
-
-QString SertBuild::getYearSert()
-{
-    return "2024";
-}
-
-QString SertBuild::getYearPart()
-{
-    return "2024";
-}
-
-QString SertBuild::getNomSert()
-{
-    return "2222";
-}
-
 int SertBuild::getType()
 {
     return sertType;
@@ -39,46 +19,66 @@ svData SertBuild::getSData()
     return sdata;
 }
 
-void SertBuild::build(int id_part, int id_ship)
+void SertBuild::build(int id_part, int id_ship, QString name)
 {
     current_id_part=id_part;
     current_id_ship=id_ship;
+    sname=name;
     rebuild();
+}
+
+QString SertBuild::getName()
+{
+    return sname;
 }
 
 void SertBuild::rebuild()
 {
+    updSData();
+    QString docs;
+    for (sertData d : sdata){
+        int id_doc=d.id_doc;
+        bool en = mapSert.value(id_doc,d.en);
+        if (en){
+            if (!docs.isEmpty()){
+                docs+="|";
+            }
+            docs+=QString::number(id_doc);
+        }
+    }
     int id = (current_id_ship>=0) ? current_id_ship : current_id_part;
-    QString path=QString("/certificates/elrtr/%1/%2?lang=%3&part=%4").arg(sertType).arg(id).arg(lang).arg((current_id_ship>=0) ? "false" : "true");
+    QString path=QString("/certificates/elrtr/%1/%2?lang=%3&part=%4&docs=%5").arg(sertType).arg(id).arg(lang).arg((current_id_ship>=0) ? "false" : "true").arg(docs);
     QByteArray req, resp;
     if (sendRequest(path,"GET",req,resp)){
         loadDoc(resp);
-        updSData();
     } else {
         this->clear();
     }
+    emit sigRefresh();
 }
 
 void SertBuild::setType(int t)
 {
     sertType=t;
-    this->build(current_id_part,current_id_ship);
+    this->rebuild();
 }
 
 void SertBuild::setLang(QString l)
 {
     lang=l;
-    this->build(current_id_part,current_id_ship);
+    this->rebuild();
 }
 
 void SertBuild::setDocEn(int id_doc, bool en)
 {
-
+    mapSert[id_doc]=en;
+    this->rebuild();
 }
 
 void SertBuild::setDefaultDoc()
 {
-    this->build(current_id_part,current_id_ship);
+    mapSert.clear();
+    this->rebuild();
 }
 
 void SertBuild::clearCache()
@@ -88,7 +88,7 @@ void SertBuild::clearCache()
 
 bool SertBuild::sendRequest(QString path, QString req, const QByteArray &data, QByteArray &respData)
 {
-    QNetworkRequest request(QUrl("http://192.168.1.114:7000"+path));
+    QNetworkRequest request(QUrl("http://192.168.1.10:7000"+path));
     //request.setRawHeader("Accept","application/xml");
     request.setRawHeader("Accept-Charset", "UTF-8");
     //request.setRawHeader("Content-Type", "application/xml");
@@ -107,7 +107,7 @@ bool SertBuild::sendRequest(QString path, QString req, const QByteArray &data, Q
         reply=man.sendCustomRequest(request,req.toUtf8()/*,data*/);
     }
     if (!reply->isFinished()){
-        loop.exec();
+        loop.exec(QEventLoop::ExcludeUserInputEvents);
     }
     respData=reply->readAll();
     bool ok=(reply->error()==QNetworkReply::NoError);
@@ -121,6 +121,7 @@ bool SertBuild::sendRequest(QString path, QString req, const QByteArray &data, Q
 void SertBuild::loadDoc(const QString &html)
 {
     QMap <QString, QByteArray> tmpRes;
+    QStringList resList;
     QTextDocument tmpDoc;
     tmpDoc.setHtml(html);
     QTextBlock bl = tmpDoc.begin();
@@ -132,16 +133,16 @@ void SertBuild::loadDoc(const QString &html)
                 if(currentFragment.charFormat().isImageFormat()){
                     QTextImageFormat imgFmt = currentFragment.charFormat().toImageFormat();
                     QString name=imgFmt.name();
+                    resList.push_back(name);
                     if (!map.contains(name)){
                         QByteArray req, resp;
                         if (sendRequest(name,"GET",req,resp)){
                             if (!name.contains("qrcode")){
                                 map.insert(name,resp);
+                            } else {
+                                tmpRes.insert(name,resp);
                             }
-                            tmpRes.insert(name,resp);
                         }
-                    } else {
-                        tmpRes.insert(name,map.value(name));
                     }
                 }
             }
@@ -149,10 +150,12 @@ void SertBuild::loadDoc(const QString &html)
         bl = bl.next();
     }
     this->clear();
-    QMapIterator<QString, QByteArray> i(tmpRes);
-    while (i.hasNext()) {
-        i.next();
-        this->addResource(QTextDocument::ImageResource,i.key(),i.value());
+    for (QString res : resList){
+        if (map.contains(res)){
+            this->addResource(QTextDocument::ImageResource,res,map.value(res));
+        } else {
+            this->addResource(QTextDocument::ImageResource,res,tmpRes.value(res));
+        }
     }
     this->setHtml(html);
 }
@@ -160,7 +163,18 @@ void SertBuild::loadDoc(const QString &html)
 void SertBuild::updSData()
 {
     QByteArray req, resp;
+    sdata.clear();
     if (sendRequest("/elrtr/sertdata/"+QString::number(current_id_part),"GET",req,resp)){
-        //qDebug()<<resp;
+        QJsonDocument respDoc;
+        respDoc=QJsonDocument::fromJson(resp);
+        QJsonArray json=respDoc.array();
+        for (QJsonValue v : json){
+            sertData s;
+            s.id_doc=v.toObject().value("id_doc").toInt();
+            s.nom_doc=v.toObject().value("nom_doc").toString();
+            s.ved_short=v.toObject().value("ved_short").toString();
+            s.en=mapSert.value(s.id_doc,v.toObject().value("en").toBool());
+            sdata.push_back(s);
+        }
     }
 }

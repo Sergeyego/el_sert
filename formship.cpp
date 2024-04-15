@@ -82,7 +82,11 @@ void FormShip::refreshShipSert(QModelIndex index)
 {
     int id_part=modelDataShip->data(modelDataShip->index(index.row(),5),Qt::EditRole).toInt();
     int id_ship=modelDataShip->data(modelDataShip->index(index.row(),0),Qt::EditRole).toInt();
-    sertificat->build(id_part,id_ship);
+    QString nomSert=ui->tableViewShip->model()->data(ui->tableViewShip->model()->index(ui->tableViewShip->currentIndex().row(),1),Qt::EditRole).toString();
+    QString name = modelDataShip->data(modelDataShip->index(index.row(),1),Qt::EditRole).toString();
+    name+="_"+nomSert;
+    name=name.replace(QRegExp("[^\\w]"), "_");
+    sertificat->build(id_part,id_ship,name);
 }
 
 void FormShip::printAll()
@@ -119,18 +123,19 @@ void FormShip::pdfAll()
     pprd->setCancelButton(0);
     pprd->setMinimumDuration(0);
     pprd->setWindowTitle(tr("Пожалуйста, подождите"));
-
+    int yearSert=ui->tableViewShip->model()->data(ui->tableViewShip->model()->index(ui->tableViewShip->currentIndex().row(),2),Qt::EditRole).toDate().year();
+    QString nomSert=ui->tableViewShip->model()->data(ui->tableViewShip->model()->index(ui->tableViewShip->currentIndex().row(),1),Qt::EditRole).toString();
     for (int i=0; i<modelDataShip->rowCount(); i++){
         QCoreApplication::processEvents();
         pprd->setValue(i);
         refreshShipSert(modelDataShip->index(i,0));
         QDir dir(QDir::homePath()+"/el_sertificat");
         if (!dir.exists()) dir.mkdir(dir.path());
-        dir.setPath(dir.path()+"/"+sertificat->getYearSert());
+        dir.setPath(dir.path()+"/"+QString::number(yearSert));
         if (!dir.exists()) dir.mkdir(dir.path());
-        dir.setPath(dir.path()+"/"+sertificat->getNomSert());
+        dir.setPath(dir.path()+"/"+nomSert);
         if (!dir.exists()) dir.mkdir(dir.path());
-        QFile file(dir.path()+"/"+sertificat->getNomPart()+"_"+sertificat->getYearPart()+"_"+sertificat->getNomSert()+".pdf");
+        QFile file(dir.path()+"/"+sertificat->getName()+".pdf");
         editor->exportPdf(file.fileName());
     }
     delete pprd;
@@ -138,12 +143,12 @@ void FormShip::pdfAll()
 
 void FormShip::multipagePdf()
 {
-    QString f=sertificat->getYearSert()+"_"+sertificat->getNomSert()+".pdf";
+    QString f=sertificat->getName()+".pdf";
     QString fname = QFileDialog::getSaveFileName(this,tr("Сохранить PDF"),QDir::homePath()+"/"+f, "*.pdf");
     if (!fname.isEmpty()){
         QPdfWriter writer(fname);
         writer.setPageOrientation(QPageLayout::Portrait);
-        writer.setPageSize(QPdfWriter::A4);
+        writer.setPageSize(QPageSize(QPageSize::A4));
         writer.setPageMargins(QMarginsF(30, 30, 30, 30));
         printAll(&writer);
     }
@@ -153,6 +158,7 @@ void FormShip::refresh()
 {
     if (sender()==ui->cmdUpd){
         sertificat->clearCache();
+        Rels::instance()->relSertType->refreshModel();
     }
     modelShip->refresh(ui->dateEditBeg->date(),ui->dateEditEnd->date());
     ui->tableViewShip->setColumnHidden(0,true);

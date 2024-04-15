@@ -321,15 +321,22 @@ void FormPart::copyZnam()
 
 void FormPart::showPartSert()
 {
-    sertificatPart->build(currentIdPart(),-1);
+    QString name=modelPart->data(modelPart->index(ui->tableViewPart->currentIndex().row(),1),Qt::EditRole).toString();
+    name+="_"+QString::number(modelPart->data(modelPart->index(ui->tableViewPart->currentIndex().row(),2),Qt::EditRole).toDate().year());
+    name=name.replace(QRegExp("[^\\w]"), "_");
+    sertificatPart->build(currentIdPart(),-1,name);
     editorPart->show();
 }
 
 void FormPart::showShipSert(QModelIndex index)
 {
     if (index.isValid()){
+        QString name=modelPart->data(modelPart->index(ui->tableViewPart->currentIndex().row(),1),Qt::EditRole).toString();
+        name+="_"+QString::number(modelPart->data(modelPart->index(ui->tableViewPart->currentIndex().row(),2),Qt::EditRole).toDate().year());
         int id_ship=ui->tableViewAdd->model()->data(ui->tableViewAdd->model()->index(index.row(),4),Qt::EditRole).toInt();
-        sertificatPart->build(currentIdPart(),id_ship);
+        name+="_"+ui->tableViewAdd->model()->data(ui->tableViewAdd->model()->index(index.row(),0),Qt::EditRole).toString();
+        name=name.replace(QRegExp("[^\\w]"), "_");
+        sertificatPart->build(currentIdPart(),id_ship,name);
         editorPart->show();
     }
 }

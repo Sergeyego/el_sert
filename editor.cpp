@@ -38,15 +38,20 @@ Editor::Editor(QTextDocument *doc, QWidget *parent) :
     printer->setPageOrientation(QPageLayout::Portrait);
     printer->setPageSize(QPageSize(QPageSize::A4));
 
-    QStringList lt;
-    lt<<tr("Стандарт")<<tr("Образец")<<tr("Подпись")<<tr("Транснефть")<<tr("РТ-Техприемка");
-    ui->comboBoxType->addItems(lt);
+    colVal t;
+    t.val=0;
+    if (!Rels::instance()->relSertType->isInital()){
+        Rels::instance()->relSertType->refreshModel();
+    }
+    ui->comboBoxType->setModel(Rels::instance()->relSertType->model());
+    ui->comboBoxType->setEditable(false);
+    ui->comboBoxType->setCurrentData(t);
 
     ui->textEdit->setDocument(doc);
     SertBuild *s=qobject_cast<SertBuild *>(doc);
     if (s){
         ui->comboBoxType->setCurrentIndex(s->getType());
-        connect(ui->comboBoxType,SIGNAL(currentIndexChanged(int)),s,SLOT(setType(int)));
+        connect(ui->comboBoxType,SIGNAL(currentIndexChanged(int)),this,SLOT(setType()));
         connect(ui->radioButtonRus,SIGNAL(clicked(bool)),this,SLOT(setLang()));
         connect(ui->radioButtonEn,SIGNAL(clicked(bool)),this,SLOT(setLang()));
         connect(ui->radioButtonMix,SIGNAL(clicked(bool)),this,SLOT(setLang()));
@@ -257,12 +262,8 @@ void Editor::exportHtml()
 {
     SertBuild *doc = qobject_cast<SertBuild *>(ui->textEdit->document());
     QString exportname, fname;
-    fname= doc? (doc->getNomPart()+"_"+doc->getYearPart()) : QString("sertificat");
+    fname= doc? (doc->getName()) : QString("sertificat");
     if (doc){
-        if (!doc->getNomSert().isEmpty()){
-            fname+="_"+doc->getNomSert();
-        }
-
         QSettings settings("szsm", QApplication::applicationName());
         QDir dir(settings.value("sertPath",QDir::homePath()).toString());
         exportname = QFileDialog::getSaveFileName(this,tr("Сохранить HTML"),dir.path()+"/"+fname+".html", "*.html");
@@ -454,14 +455,14 @@ void Editor::chDoc()
             b->deleteLater();
         }
         boxes.clear();
-        /*foreach (sertData d, *s->sData()->sert()) {
-            QCheckBox *box = new QCheckBox(d.ved_short.rus+": "+d.nom_doc);
+        for (sertData d : s->getSData()){
+            QCheckBox *box = new QCheckBox(d.ved_short+": "+d.nom_doc);
             connect(box,SIGNAL(clicked(bool)),this,SLOT(setEnDoc(bool)));
             box->setChecked(d.en);
             box->setProperty("id",d.id_doc);
             boxes.push_back(box);
             ui->verticalLayoutBox->addWidget(box);
-        }*/
+        }
     }
 }
 
@@ -511,6 +512,14 @@ void Editor::setLang()
     }
 }
 
+void Editor::setType()
+{
+    SertBuild *s=qobject_cast<SertBuild *>(this->document());
+    if (s){
+        s->setType(ui->comboBoxType->getCurrentData().val.toInt());
+    }
+}
+
 void Editor::filePrint()
 {
     QPrintDialog printDialog(printer, this);
@@ -530,12 +539,7 @@ void Editor::exportPdf()
 {
     SertBuild *doc = qobject_cast<SertBuild *>(ui->textEdit->document());
     QString exportname, fname;
-    fname= doc? (doc->getNomPart()+"_"+doc->getYearPart()) : QString("sertificat");
-    if (doc){
-        if (!doc->getNomSert().isEmpty()){
-            fname+="_"+doc->getNomSert();
-        }
-    }
+    fname= doc? (doc->getName()) : QString("sertificat");
     QSettings settings("szsm", QApplication::applicationName());
     QDir dir(settings.value("sertPath",QDir::homePath()).toString());
     exportname = QFileDialog::getSaveFileName(this,tr("Сохранить PDF"),dir.path()+"/"+fname+".pdf", "*.pdf");

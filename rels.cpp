@@ -61,6 +61,8 @@ Rels::Rels(QObject *parent) : QObject(parent)
     relVar->setEditable(true);
     relDocType = new DbSqlRelation("zvd_doc_type","id","nam",this);
     relDocType->setEditable(true);
+    relSertType = new DbSqlRelation("sertifikat_type","id","nam",this);
+    relSertType->setSort("sertifikat_type.id");
     refreshVedPix();
     refreshPolPix();
 }

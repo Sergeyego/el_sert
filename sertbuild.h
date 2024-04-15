@@ -31,17 +31,13 @@ class SertBuild : public QTextDocument
     Q_OBJECT
 public:
     explicit SertBuild(QObject *parent = 0);
-    QString getNomPart();
-    QString getYearSert();
-    QString getYearPart();
-    QString getNomSert();
     int getType();
     svData getSData();
+    void build(int id_part, int id_ship, QString name);
+    QString getName();
 
 public slots:
-    void build(int id_part, int id_ship);
     void rebuild();
-
     void setType(int t);
     void setLang(QString l);
     void setDocEn(int id_doc, bool en);
@@ -58,6 +54,8 @@ private:
     void updSData();
     QMap<QString,QByteArray> map;
     svData sdata;
+    QMap <int, bool> mapSert;
+    QString sname;
 
 signals:
     void sigRefresh();
