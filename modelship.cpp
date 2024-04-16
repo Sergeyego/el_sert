@@ -95,7 +95,7 @@ void ModelPart::refresh(QDate dbeg, QDate dend, int id_el)
     dateBeg = dbeg;
     dateEnd = dend;
     QString flt= (id_el==-1) ? "" : "and p.id_el= "+QString::number(id_el)+" ";
-    setQuery("select p.id, p.n_s, p.dat_part, e.marka||' "+tr("ф")+" '||cast(p.diam as varchar(3)), i.nam as inam, r.nam, ev.nam "
+    setQuery("select p.id, p.n_s, p.dat_part, e.marka||' "+tr("ф")+" '||cast(p.diam as varchar(3)), i.nam as inam, r.nam, ev.nam, p.id_el "
              "from parti p "
              "inner join elrtr e on e.id=p.id_el "
              "inner join istoch i on i.id=p.id_ist "

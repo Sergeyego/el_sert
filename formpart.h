@@ -55,8 +55,8 @@ private slots:
     void savePrim();
     void saveZnam();
     void saveOk();
-    void copyChem();
-    void copyMech();
+    void genChem();
+    void genMech();
     void copyMechForward();
     void copyZnam();
     void showPartSert();

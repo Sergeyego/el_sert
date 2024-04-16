@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1143</width>
-    <height>774</height>
+    <width>1141</width>
+    <height>772</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -293,11 +293,44 @@
                </widget>
               </item>
               <item>
-               <widget class="QToolButton" name="cmdCopyChem">
-                <property name="text">
-                 <string>-&gt;</string>
-                </property>
-               </widget>
+               <layout class="QVBoxLayout" name="verticalLayout_3">
+                <item>
+                 <spacer name="verticalSpacer_3">
+                  <property name="orientation">
+                   <enum>Qt::Vertical</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>20</width>
+                    <height>40</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item>
+                 <widget class="QToolButton" name="toolButtonGenChem">
+                  <property name="toolTip">
+                   <string>Генерировать значения</string>
+                  </property>
+                  <property name="text">
+                   <string>G-&gt;</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <spacer name="verticalSpacer_4">
+                  <property name="orientation">
+                   <enum>Qt::Vertical</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>20</width>
+                    <height>40</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+               </layout>
               </item>
               <item>
                <widget class="DbViewer" name="tableViewSertChem">
@@ -343,14 +376,20 @@
                </spacer>
               </item>
               <item>
-               <widget class="QToolButton" name="cmdCopyMech">
+               <widget class="QToolButton" name="toolButtonGenMech">
+                <property name="toolTip">
+                 <string>Генерировать значения</string>
+                </property>
                 <property name="text">
-                 <string>-&gt;</string>
+                 <string>G-&gt;</string>
                 </property>
                </widget>
               </item>
               <item>
                <widget class="QToolButton" name="cmdCopyMechForward">
+                <property name="toolTip">
+                 <string>Копировать значения</string>
+                </property>
                 <property name="text">
                  <string>&lt;-</string>
                 </property>

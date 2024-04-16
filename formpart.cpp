@@ -17,6 +17,9 @@ FormPart::FormPart(QWidget *parent) :
 
     colVal cm;
     cm.val=283;
+    if (!Rels::instance()->relElMark->model()->isInital()){
+        Rels::instance()->relElMark->refreshModel();
+    }
     ui->comboBoxMar->setModel(Rels::instance()->relElMark->model());
     ui->comboBoxMar->setCurrentData(cm);
     ui->comboBoxMar->setEnabled(false);
@@ -70,11 +73,11 @@ FormPart::FormPart(QWidget *parent) :
     ui->tableViewPart->setModel(modelPart);
     ui->tableViewPart->verticalHeader()->hide();
 
+    ui->cmdCopyMechForward->setVisible(false);
+
     connect(ui->cmdSavePrim,SIGNAL(clicked()),this,SLOT(savePrim()));
     connect(ui->cmdUpd,SIGNAL(clicked()),this,SLOT(refresh()));
     connect(ui->tableViewPart->selectionModel(),SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),this,SLOT(refreshPartSert(QModelIndex)));
-    connect(ui->cmdCopyChem,SIGNAL(clicked()),this,SLOT(copyChem()));
-    connect(ui->cmdCopyMech,SIGNAL(clicked()),this,SLOT(copyMech()));
     connect(ui->cmdCopyMechForward,SIGNAL(clicked()),this,SLOT(copyMechForward()));
     connect(ui->cmdPartSert,SIGNAL(clicked()),this,SLOT(showPartSert()));
     connect(ui->cmdCheck,SIGNAL(clicked()),this,SLOT(showCheckForm()));
@@ -95,6 +98,8 @@ FormPart::FormPart(QWidget *parent) :
     connect(modelSertChem,SIGNAL(sigUpd()),modelPart,SLOT(refreshState()));
     connect(modelSertMech,SIGNAL(sigUpd()),modelPart,SLOT(refreshState()));
     connect(ui->checkBoxOk,SIGNAL(clicked(bool)),this,SLOT(saveOk()));
+    connect(ui->toolButtonGenChem,SIGNAL(clicked(bool)),this,SLOT(genChem()));
+    connect(ui->toolButtonGenMech,SIGNAL(clicked(bool)),this,SLOT(genMech()));
 
     refresh();
 }
@@ -128,7 +133,7 @@ void FormPart::loadPrim(int id_part)
         ui->cmdSavePrim->setEnabled(false);
         ui->cmdSaveZnam->setEnabled(false);
     } else {
-        QMessageBox::critical(NULL,"Error",query.lastError().text(),QMessageBox::Cancel);
+        QMessageBox::critical(this,"Error",query.lastError().text(),QMessageBox::Cancel);
     }
 }
 
@@ -151,7 +156,7 @@ void FormPart::loadAdd(int id_part)
 
     } else {
         modelAdd->clear();
-        QMessageBox::critical(NULL,"Error",query.lastError().text(),QMessageBox::Cancel);
+        QMessageBox::critical(this,"Error",query.lastError().text(),QMessageBox::Cancel);
     }
     ui->tableViewAdd->resizeColumnsToContents();
 }
@@ -199,7 +204,7 @@ void FormPart::savePrim()
     query.bindValue(":primprod",ui->textEditPrimProd->toPlainText());
     query.bindValue(":id",id);
     if (!query.exec()){
-        QMessageBox::critical(NULL,"Error",query.lastError().text(),QMessageBox::Cancel);
+        QMessageBox::critical(this,"Error",query.lastError().text(),QMessageBox::Cancel);
     } else {
         ui->cmdSavePrim->setEnabled(false);
     }
@@ -213,7 +218,7 @@ void FormPart::saveZnam()
     query.bindValue(":ibco",ui->lineEditZnam->text().isEmpty() ? NULL : ui->lineEditZnam->text());
     query.bindValue(":id",id);
     if (!query.exec()){
-        QMessageBox::critical(NULL,"Error",query.lastError().text(),QMessageBox::Cancel);
+        QMessageBox::critical(this,"Error",query.lastError().text(),QMessageBox::Cancel);
     } else {
         ui->cmdSaveZnam->setEnabled(false);
     }
@@ -227,51 +232,46 @@ void FormPart::saveOk()
     query.bindValue(":ok",ui->checkBoxOk->isChecked());
     query.bindValue(":id",id);
     if (!query.exec()){
-        QMessageBox::critical(NULL,"Error",query.lastError().text(),QMessageBox::Cancel);
+        QMessageBox::critical(this,"Error",query.lastError().text(),QMessageBox::Cancel);
     }
     modelPart->refreshState();
 }
 
-void FormPart::copyChem()
+void FormPart::genChem()
 {
-    if (modelSrcChem->rowCount()==1 && modelSrcChem->isAdd()) return;
-    int r=modelSertChem->isAdd()? modelSertChem->rowCount()-1 : modelSertChem->rowCount();
-    if (r){
+    if (!modelSertChem->isEmpty()){
         QMessageBox::information(this,tr("Предупреждение"),tr("Сначала удалите все уже существующие элементы!"),QMessageBox::Ok);
         return;
     }
-    int n=QMessageBox::question(this,tr("Подтвердите действия"),tr("Скопировать средние значения?"),QMessageBox::Yes,QMessageBox::No);
+    int n=QMessageBox::question(this,tr("Подтвердите действия"),tr("Сгенерировать значения на основе испытаний и похожих партий?"),QMessageBox::Yes,QMessageBox::No);
     if (n==QMessageBox::Yes){
         QSqlQuery query;
-        query.prepare("insert into sert_chem (id_part, id_chem, value)"
-                      "(select id_part, id_chem, avg(kvo) from parti_chem where id_part=:id group by id_part, id_chem)");
+        query.prepare("select * from gen_chem(:id)");
         query.bindValue(":id",currentIdPart());
         if (query.exec()){
             modelSertChem->select();
         } else {
-            QMessageBox::critical(NULL,"Error",query.lastError().text(),QMessageBox::Cancel);
+            QMessageBox::critical(this,"Error",query.lastError().text(),QMessageBox::Cancel);
         }
     }
 }
 
-void FormPart::copyMech()
+void FormPart::genMech()
 {
-    if (modelSrcMech->rowCount()==1 && modelSrcMech->isAdd()) return;
-    int r=modelSertMech->isAdd()? modelSertMech->rowCount()-1 : modelSertMech->rowCount();
-    if (r){
+    if (!modelSertMech->isEmpty()){
         QMessageBox::information(this,tr("Предупреждение"),tr("Сначала удалите все уже существующие элементы!"),QMessageBox::Ok);
         return;
     }
-    int n=QMessageBox::question(this,tr("Подтвердите действия"),tr("Скопировать значения?"),QMessageBox::Yes,QMessageBox::No);
+    int n=QMessageBox::question(this,tr("Подтвердите действия"),tr("Сгенерировать значения на основе испытаний и похожих партий?"),QMessageBox::Yes,QMessageBox::No);
     if (n==QMessageBox::Yes){
         QSqlQuery query;
-        query.prepare("insert into sert_mech (id_part, id_mech, value)"
-                      "(select id_part, id_mech, kvo from parti_mech where id_part = :id )");
+        query.prepare("select * from gen_mech(:id)");
         query.bindValue(":id",currentIdPart());
         if (query.exec()){
             modelSertMech->select();
+            modelSertMechx->select();
         } else {
-            QMessageBox::critical(NULL,"Error",query.lastError().text(),QMessageBox::Cancel);
+            QMessageBox::critical(this,"Error",query.lastError().text(),QMessageBox::Cancel);
         }
     }
 }
@@ -296,11 +296,11 @@ void FormPart::copyMechForward()
             qu.prepare("insert into parti_mech (id_part, id_mech, kvo) values (:id, 5, 0)");
             qu.bindValue(":id",currentIdPart());
             if (!qu.exec()){
-                QMessageBox::critical(NULL,"Error",qu.lastError().text(),QMessageBox::Cancel);
+                QMessageBox::critical(this,"Error",qu.lastError().text(),QMessageBox::Cancel);
             }
             modelSrcMech->select();
         } else {
-            QMessageBox::critical(NULL,"Error",query.lastError().text(),QMessageBox::Cancel);
+            QMessageBox::critical(this,"Error",query.lastError().text(),QMessageBox::Cancel);
         }
     }
 }
@@ -313,7 +313,7 @@ void FormPart::copyZnam()
     query.bindValue(":ibco",ui->lineEditSrcZnam->text());
     query.bindValue(":id",id);
     if (!query.exec()){
-        QMessageBox::critical(NULL,"Error",query.lastError().text(),QMessageBox::Cancel);
+        QMessageBox::critical(this,"Error",query.lastError().text(),QMessageBox::Cancel);
     } else {
         loadPrim(id);
     }
@@ -445,6 +445,13 @@ void FormPart::refresh()
     if (sender()==ui->comboBoxMar && ui->comboBoxMar->currentIndex()<0){
         return;
     }
+
+    if (sender()==ui->checkBoxOnly){
+        colVal d;
+        d.val=modelPart->data(modelPart->index(ui->tableViewPart->currentIndex().row(),7),Qt::EditRole).toInt();
+        ui->comboBoxMar->setCurrentData(d);
+     }
+
     int id_el=-1;
     if (ui->checkBoxOnly->isChecked() && ui->comboBoxMar->currentIndex()>=0){
         id_el=ui->comboBoxMar->getCurrentData().val.toInt();
