@@ -40,6 +40,7 @@ public:
     DbSqlRelation *relEanGr;
     DbSqlRelation *relVar;
     DbSqlRelation *relSertType;
+    DbSqlRelation *relIntClass;
 
 protected:
     explicit Rels(QObject *parent = nullptr);

@@ -135,6 +135,17 @@ FormMark::FormMark(QWidget *parent) :
     ui->tableViewPlav->setColumnWidth(1,250);
     ui->tableViewPlav->setColumnWidth(2,80);
 
+    modelIntClass = new DbTableModel("el_int_class",this);
+    modelIntClass->addColumn("id_el","id_el");
+    modelIntClass->addColumn("id_var","id_var");
+    modelIntClass->addColumn("id_class",QString::fromUtf8("Классификация"),Rels::instance()->relIntClass);
+    modelIntClass->addColumn("val",QString::fromUtf8("Обозначение"));
+    ui->tableViewInt->setModel(modelIntClass);
+    ui->tableViewInt->setColumnHidden(0,true);
+    ui->tableViewInt->setColumnHidden(1,true);
+    ui->tableViewInt->setColumnWidth(2,120);
+    ui->tableViewInt->setColumnWidth(3,120);
+
     modelMark = new DbTableModel("elrtr",this);
     modelMark->addColumn("id","id");
     modelMark->addColumn("marka",QString::fromUtf8("Марка"));
@@ -312,6 +323,11 @@ void FormMark::loadVars()
     modelGost->setDefaultValue(1,id_v);
     modelGost->setFilter("gost_el.id_el = "+QString::number(id_e)+" and gost_el.id_var = "+QString::number(id_v));
     modelGost->select();
+
+    modelIntClass->setDefaultValue(0,id_e);
+    modelIntClass->setDefaultValue(1,id_v);
+    modelIntClass->setFilter("el_int_class.id_el = "+QString::number(id_e)+" and el_int_class.id_var = "+QString::number(id_v));
+    modelIntClass->select();
 
     blockVar(!ok);
 }
