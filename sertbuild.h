@@ -56,6 +56,7 @@ private:
     svData sdata;
     QMap <int, bool> mapSert;
     QString sname;
+    QString host;
 
 signals:
     void sigRefresh();

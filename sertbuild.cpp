@@ -6,7 +6,9 @@ SertBuild::SertBuild(QObject *parent) :
     current_id_part=-1;
     current_id_ship=-1;
     sertType=0;
-    lang="ru";
+    lang="ru";    
+    QSqlDatabase db=QSqlDatabase::database();
+    host=db.isValid()? db.hostName() : "127.0.0.1";
 }
 
 int SertBuild::getType()
@@ -88,10 +90,8 @@ void SertBuild::clearCache()
 
 bool SertBuild::sendRequest(QString path, QString req, const QByteArray &data, QByteArray &respData)
 {
-    QNetworkRequest request(QUrl("http://192.168.1.10:7000"+path));
-    //request.setRawHeader("Accept","application/xml");
+    QNetworkRequest request(QUrl("http://"+host+":7000"+path));
     request.setRawHeader("Accept-Charset", "UTF-8");
-    //request.setRawHeader("Content-Type", "application/xml");
     request.setRawHeader("User-Agent", "Appszsm");
     QEventLoop loop;
     QNetworkAccessManager man;
