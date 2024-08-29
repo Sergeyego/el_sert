@@ -27,7 +27,7 @@ FormPart::FormPart(QWidget *parent) :
     modelSrcGost = new ModelRo(this);
     ui->listViewGost->setModel(modelSrcGost);
 
-    modelAdd = new QSqlQueryModel(this);
+    modelAdd = new ModelRo(this);
     ui->tableViewAdd->verticalHeader()->setDefaultSectionSize(ui->tableViewAdd->verticalHeader()->fontMetrics().height()*1.5);
     ui->tableViewAdd->verticalHeader()->hide();
     ui->tableViewAdd->setModel(modelAdd);
@@ -140,23 +140,20 @@ void FormPart::loadPrim(int id_part)
 void FormPart::loadAdd(int id_part)
 {
     QSqlQuery query;
-    QString qu="select s.nom_s, s.dat_vid, p.short, o.massa, o.id from otpusk as o "
+    QString qu="select s.nom_s, s.dat_vid, p.short, o.massa, rp.short, o.id from otpusk as o "
             "inner join sertifikat as s on o.id_sert=s.id "
             "inner join poluch as p on s.id_pol=p.id "
-            "where o.id_part= "+QString::number(id_part)+" order by s.dat_vid, s.nom_s";
+            "inner join poluch as rp on o.id_pol=rp.id "
+            "where o.id_part = :id_part order by s.dat_vid, s.nom_s";
     query.prepare(qu);
-    bool ok = query.exec();
-    if (ok){
-        modelAdd->setQuery(query);
+    query.bindValue(":id_part",id_part);
+    if (modelAdd->execQuery(query)){
         modelAdd->setHeaderData(0,Qt::Horizontal,tr("Номер"));
         modelAdd->setHeaderData(1,Qt::Horizontal,tr("Дата"));
         modelAdd->setHeaderData(2,Qt::Horizontal,tr("Получатель"));
         modelAdd->setHeaderData(3,Qt::Horizontal,tr("Масса"));
-        ui->tableViewAdd->setColumnHidden(4,true);
-
-    } else {
-        modelAdd->clear();
-        QMessageBox::critical(this,"Error",query.lastError().text(),QMessageBox::Cancel);
+        modelAdd->setHeaderData(4,Qt::Horizontal,tr("Реальный получатель"));
+        ui->tableViewAdd->setColumnHidden(5,true);
     }
     ui->tableViewAdd->resizeColumnsToContents();
 }
@@ -333,7 +330,7 @@ void FormPart::showShipSert(QModelIndex index)
     if (index.isValid()){
         QString name=modelPart->data(modelPart->index(ui->tableViewPart->currentIndex().row(),1),Qt::EditRole).toString();
         name+="_"+QString::number(modelPart->data(modelPart->index(ui->tableViewPart->currentIndex().row(),2),Qt::EditRole).toDate().year());
-        int id_ship=ui->tableViewAdd->model()->data(ui->tableViewAdd->model()->index(index.row(),4),Qt::EditRole).toInt();
+        int id_ship=ui->tableViewAdd->model()->data(ui->tableViewAdd->model()->index(index.row(),5),Qt::EditRole).toInt();
         name+="_"+ui->tableViewAdd->model()->data(ui->tableViewAdd->model()->index(index.row(),0),Qt::EditRole).toString();
         name=name.replace(QRegExp("[^\\w]"), "_");
         sertificatPart->build(currentIdPart(),id_ship,name);
