@@ -675,7 +675,7 @@ QDomElement Export::getSpool(int id_diam, QDomDocument *doc)
     QSqlQuery querySpool;
     querySpool.prepare("select distinct k.short from wire_cena as c "
                        "inner join wire_pack_kind as k on c.id_pack=k.id "
-                       "where c.dat=(select max(dat) from wire_cena) and c.id_diam = :id "
+                       "where c.dat=(select max(dat) from wire_cena) and c.id_diam = :id and k.katalog=true "
                        "order by k.short");
     querySpool.bindValue(":id",id_diam);
     if (querySpool.exec()){
