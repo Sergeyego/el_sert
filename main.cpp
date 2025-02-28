@@ -1,6 +1,6 @@
 #include "mainwindow.h"
 #include <QApplication>
-#include "pgdialog.h"
+#include "db/dblogin.h"
 #include <QDir>
 #include <QFileInfo>
 
@@ -14,7 +14,8 @@ int main(int argc, char *argv[])
         key=QString(argv[1]);
     }
 
-    PgDialog d(QString::fromUtf8("Сертификаты качества"),key);
+    QPixmap logo(":/images/simb_labl.png");
+    DbLogin d(QObject::tr("Сертификаты качества"),logo);
     if (d.exec()!=QDialog::Accepted) exit(1);
 
     QDir dir(":fonts");
@@ -23,7 +24,7 @@ int main(int argc, char *argv[])
         QFontDatabase::addApplicationFont(i.absoluteFilePath());
     }
 
-    MainWindow w(d.key()!=QString("srt"));
+    MainWindow w;
     w.show();
 
     return a.exec();

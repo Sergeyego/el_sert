@@ -23,7 +23,8 @@ FormShip::FormShip(QWidget *parent) :
 
     sertificat = new SertBuild(this);
     editor = new Editor(sertificat,this);
-    ui->verticalLayoutSert->addWidget(editor);
+    ui->tab->layout()->addWidget(editor);
+    //ui->verticalLayoutSert->addWidget(editor);
 
     ui->tableViewShip->verticalHeader()->setDefaultSectionSize(ui->tableViewShip->verticalHeader()->fontMetrics().height()*1.5);
     ui->tableViewShip->verticalHeader()->hide();
@@ -68,11 +69,13 @@ void FormShip::refreshDataShip(QModelIndex index)
     int id_ship=modelShip->data(modelShip->index(index.row(),0),Qt::EditRole).toInt();
     modelDataShip->refresh(id_ship);
     ui->tableViewShipData->setColumnHidden(0,true);
-    ui->tableViewShipData->setColumnHidden(4,true);
-    ui->tableViewShipData->setColumnHidden(5,true);
+    ui->tableViewShipData->setColumnHidden(6,true);
+    ui->tableViewShipData->setColumnHidden(7,true);
     ui->tableViewShipData->setColumnWidth(1,75);
     ui->tableViewShipData->setColumnWidth(2,225);
     ui->tableViewShipData->setColumnWidth(3,65);
+    ui->tableViewShipData->setColumnWidth(4,60);
+    ui->tableViewShipData->setColumnWidth(5,60);
     if (modelDataShip->rowCount()){
         ui->tableViewShipData->selectRow(0);
     }
@@ -80,7 +83,7 @@ void FormShip::refreshDataShip(QModelIndex index)
 
 void FormShip::refreshShipSert(QModelIndex index)
 {
-    int id_part=modelDataShip->data(modelDataShip->index(index.row(),5),Qt::EditRole).toInt();
+    int id_part=modelDataShip->data(modelDataShip->index(index.row(),7),Qt::EditRole).toInt();
     int id_ship=modelDataShip->data(modelDataShip->index(index.row(),0),Qt::EditRole).toInt();
     QString nomSert=ui->tableViewShip->model()->data(ui->tableViewShip->model()->index(ui->tableViewShip->currentIndex().row(),1),Qt::EditRole).toString();
     QString name = modelDataShip->data(modelDataShip->index(index.row(),1),Qt::EditRole).toString();

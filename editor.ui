@@ -48,8 +48,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>164</width>
-          <height>787</height>
+          <width>160</width>
+          <height>785</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout">
@@ -108,6 +108,16 @@
       <widget class="QPushButton" name="pushButtonHtml">
        <property name="text">
         <string>HTML</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButtonDS">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="text">
+        <string>Подписать ЭЦП</string>
        </property>
       </widget>
      </item>

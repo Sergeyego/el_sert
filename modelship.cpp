@@ -40,7 +40,7 @@ void ModelDataShip::refresh(int id_ship)
 {
     setQuery("select o.id, p.n_s||'-'||date_part('year',p.dat_part), e.marka||' "+tr("ф")+" '||cast(p.diam as varchar(3))||"
              "CASE WHEN p.id_var <> 1 THEN (' /'::text || ev.nam::text) || '/'::text ELSE ''::text END AS mark, "
-             "o.massa,  "
+             "o.massa, o.ds_status, o.cs_status, "
               "(select case when exists(select id_chem from sert_chem where id_part=p.id) "
                  "then 1 else 0 end "
                  "+ "
@@ -59,13 +59,15 @@ void ModelDataShip::refresh(int id_ship)
         setHeaderData(1, Qt::Horizontal,tr("Партия"));
         setHeaderData(2, Qt::Horizontal,tr("Марка"));
         setHeaderData(3, Qt::Horizontal,tr("Масса, кг"));
+        setHeaderData(4, Qt::Horizontal,tr("ЭЦП"));
+        setHeaderData(5, Qt::Horizontal,tr("Облако"));
     }
 }
 
 QVariant ModelDataShip::data(const QModelIndex &index, int role) const
 {
     if((role == Qt::BackgroundRole)&&(this->columnCount()>3)) {
-    int area = record(index.row()).value(4).toInt();
+    int area = record(index.row()).value(6).toInt();
     if(area == 0) return QVariant(QColor(255,170,170)); else
         if(area == 1) return QVariant(QColor(Qt::yellow)); else
             if(area == 2) return QVariant(QColor(Qt::gray)); else

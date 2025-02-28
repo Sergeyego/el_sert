@@ -12,8 +12,9 @@ TARGET = el_sert
 TEMPLATE = app
 
 SOURCES += main.cpp\
+    dialogsignature.cpp \
         formpart.cpp \
-    pgdialog.cpp \
+    httpsyncmanager.cpp \
     editor.cpp \
     modelship.cpp \
     sertbuild.cpp \
@@ -47,7 +48,8 @@ SOURCES += main.cpp\
     db/tablemodel.cpp
 
 HEADERS  += formpart.h \
-    pgdialog.h \
+    dialogsignature.h \
+    httpsyncmanager.h \
     editor.h \
     modelship.h \
     sertbuild.h \
@@ -82,7 +84,7 @@ HEADERS  += formpart.h \
     db/tablemodel.h
 
 FORMS    += formpart.ui \
-    pgdialog.ui \
+    dialogsignature.ui \
     editor.ui \
     checkform.ui \
     db/dblogin.ui \

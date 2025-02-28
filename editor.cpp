@@ -73,6 +73,7 @@ Editor::Editor(QTextDocument *doc, QWidget *parent) :
     connect(ui->pushButtonSertDef,SIGNAL(clicked(bool)),this,SLOT(setDefaultDoc()));
     connect(ui->pushButtonHtml,SIGNAL(clicked(bool)),this,SLOT(exportHtml()));
     connect(ui->toolButtonLoad,SIGNAL(clicked(bool)),this,SLOT(loadHtml()));
+    connect(ui->pushButtonDS,SIGNAL(clicked(bool)),this,SLOT(signDS()));
 }
 
 QTextDocument *Editor::document()
@@ -514,9 +515,35 @@ void Editor::setLang()
 
 void Editor::setType()
 {
+    int type=ui->comboBoxType->getCurrentData().val.toInt();
     SertBuild *s=qobject_cast<SertBuild *>(this->document());
     if (s){
-        s->setType(ui->comboBoxType->getCurrentData().val.toInt());
+        s->setType(type);
+    }
+    ui->pushButtonDS->setEnabled(type==6);
+}
+
+void Editor::signDS()
+{
+    DialogSignature d;
+    if (d.exec()==QDialog::Accepted){
+        QString filename="tmpUnsignedCert.pdf";
+        exportPdf(filename);
+        QFile file(filename);
+        if (file.open(QIODevice::ReadOnly)){
+            QByteArray data;
+            bool ok = HttpSyncManager::sendRequest("/pdf/"+d.getSN(),"POST",file.readAll(),data);
+            if (ok){
+                QFile file("temp.pdf");
+                if (file.open(QIODevice::WriteOnly)){
+                    file.write(data);
+                    file.close();
+                    QFileInfo fileInfo(file);
+                    QDesktopServices::openUrl((QUrl(QUrl::fromLocalFile(fileInfo.absoluteFilePath()))));
+                }
+            }
+            file.close();
+        }
     }
 }
 

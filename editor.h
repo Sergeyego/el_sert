@@ -13,7 +13,10 @@
 #include <QTextEdit>
 #include <QInputDialog>
 #include <QCheckBox>
+#include <QPdfWriter>
 #include "sertbuild.h"
+#include "httpsyncmanager.h"
+#include "dialogsignature.h"
 
 namespace Ui {
 class Editor;
@@ -109,6 +112,7 @@ private slots:
     void loadHtml();
     void setLang();
     void setType();
+    void signDS();
 };
 
 #endif // EDITOR_H
