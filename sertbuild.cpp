@@ -6,9 +6,7 @@ SertBuild::SertBuild(QObject *parent) :
     current_id_part=-1;
     current_id_ship=-1;
     sertType=0;
-    lang="ru";    
-    QSqlDatabase db=QSqlDatabase::database();
-    host=db.isValid()? db.hostName() : "127.0.0.1";
+    lang="ru";
 }
 
 int SertBuild::getType()
@@ -49,9 +47,10 @@ void SertBuild::rebuild()
         }
     }
     int id = (current_id_ship>=0) ? current_id_ship : current_id_part;
-    QString path=QString("/certificates/elrtr/%1/%2?lang=%3&part=%4&docs=%5").arg(sertType).arg(id).arg(lang).arg((current_id_ship>=0) ? "false" : "true").arg(docs);
+    QString path=QString(Rels::instance()->appServer()+"/certificates/elrtr/%1/%2?lang=%3&part=%4&docs=%5").arg(sertType).arg(id).arg(lang).arg((current_id_ship>=0) ? "false" : "true").arg(docs);
     QByteArray req, resp;
-    if (sendRequest(path,"GET",req,resp)){
+    bool ok=HttpSyncManager::sendGet(path,resp);
+    if (/*sendRequest(path,"GET",req,resp)*/ok){
         loadDoc(resp);
     } else {
         this->clear();
@@ -88,9 +87,19 @@ void SertBuild::clearCache()
     map.clear();
 }
 
-bool SertBuild::sendRequest(QString path, QString req, const QByteArray &data, QByteArray &respData)
+int SertBuild::getIdShip()
 {
-    QNetworkRequest request(QUrl("http://"+host+":7000"+path));
+    return current_id_ship;
+}
+
+QString SertBuild::getLang()
+{
+    return lang;
+}
+
+/*bool SertBuild::sendRequest(QString path, QString req, const QByteArray &data, QByteArray &respData)
+{
+    QNetworkRequest request(QUrl("http://"+Rels::instance()->appServer()+path));
     request.setRawHeader("Accept-Charset", "UTF-8");
     request.setRawHeader("User-Agent", "Appszsm");
     QEventLoop loop;
@@ -104,7 +113,7 @@ bool SertBuild::sendRequest(QString path, QString req, const QByteArray &data, Q
     } else if (req=="DELETE"){
         reply=man.deleteResource(request);
     } else {
-        reply=man.sendCustomRequest(request,req.toUtf8()/*,data*/);
+        reply=man.sendCustomRequest(request,req.toUtf8());
     }
     if (!reply->isFinished()){
         loop.exec(QEventLoop::ExcludeUserInputEvents);
@@ -116,7 +125,7 @@ bool SertBuild::sendRequest(QString path, QString req, const QByteArray &data, Q
     }
     reply->deleteLater();
     return ok;
-}
+}*/
 
 void SertBuild::loadDoc(const QString &html)
 {
@@ -136,7 +145,8 @@ void SertBuild::loadDoc(const QString &html)
                     resList.push_back(name);
                     if (!map.contains(name)){
                         QByteArray req, resp;
-                        if (sendRequest(name,"GET",req,resp)){
+                        bool ok=HttpSyncManager::sendGet(Rels::instance()->appServer()+"/"+name,resp);
+                        if (/*sendRequest(name,"GET",req,resp)*/ok){
                             if (!name.contains("qrcode")){
                                 map.insert(name,resp);
                             } else {
@@ -164,7 +174,8 @@ void SertBuild::updSData()
 {
     QByteArray req, resp;
     sdata.clear();
-    if (sendRequest("/elrtr/sertdata/"+QString::number(current_id_part),"GET",req,resp)){
+    bool ok=HttpSyncManager::sendGet(Rels::instance()->appServer()+"/elrtr/sertdata/"+QString::number(current_id_part),resp);
+    if (/*sendRequest("/elrtr/sertdata/"+QString::number(current_id_part),"GET",req,resp)*/ok){
         QJsonDocument respDoc;
         respDoc=QJsonDocument::fromJson(resp);
         QJsonArray json=respDoc.array();

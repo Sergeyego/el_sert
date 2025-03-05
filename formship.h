@@ -8,6 +8,7 @@
 #include "editor.h"
 #include "sertbuild.h"
 #include "modelship.h"
+#include "reader.h"
 
 namespace Ui {
 class FormShip;
@@ -24,6 +25,7 @@ public:
 private:
     Ui::FormShip *ui;
     Editor *editor;
+    Reader *reader;
     SertBuild *sertificat;
     ModelShip *modelShip;
     ModelDataShip *modelDataShip;
@@ -38,6 +40,8 @@ private slots:
     void multipagePdf();
     void refresh();
     void partReq(QModelIndex index);
+    void signFinished();
+    void reloadDataShip();
 };
 
 #endif // FORMSHIP_H

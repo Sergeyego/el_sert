@@ -31,7 +31,11 @@ class ModelDataShip : public QSqlQueryModel
 public:
     explicit ModelDataShip(QObject *parent = 0);
     void refresh(int id_ship);
+    void refresh();
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+
+private:
+    int current_id_ship;
 
 signals:
 

@@ -1,8 +1,8 @@
 #include "dialogsignature.h"
 #include "ui_dialogsignature.h"
 
-DialogSignature::DialogSignature(QWidget *parent)
-    : QDialog(parent)
+DialogSignature::DialogSignature(QString srv, QWidget *parent)
+    : server(srv), QDialog(parent)
     , ui(new Ui::DialogSignature)
 {
     ui->setupUi(this);
@@ -17,7 +17,7 @@ DialogSignature::~DialogSignature()
 int DialogSignature::exec()
 {
     QByteArray data;
-    bool ok=HttpSyncManager::sendGet("/certificates",data);
+    bool ok=HttpSyncManager::sendGet(server+"/certificates",data);
     if (ok){
         QJsonDocument doc;
         doc=QJsonDocument::fromJson(data);

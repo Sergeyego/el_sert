@@ -8,10 +8,7 @@ HttpSyncManager::HttpSyncManager(QObject *parent)
 
 bool HttpSyncManager::sendRequest(QString path, QString req, const QByteArray &data, QByteArray &respData)
 {
-    //QSqlDatabase db=QSqlDatabase::database();
-    const QString host=/*db.isValid()? db.hostName() : */"127.0.0.1";
-    int port=8000;
-    QNetworkRequest request(QUrl("http://"+host+":"+QString::number(port)+"/"+path));
+    QNetworkRequest request(QUrl("http://"+path));
     request.setRawHeader("Accept-Charset", "UTF-8");
     request.setRawHeader("User-Agent", "Appszsm");
     request.setRawHeader("Content-Type", "application/pdf");

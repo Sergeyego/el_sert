@@ -41,6 +41,8 @@ public:
     DbSqlRelation *relVar;
     DbSqlRelation *relSertType;
     DbSqlRelation *relIntClass;
+    QString signServer();
+    QString appServer();
 
 protected:
     explicit Rels(QObject *parent = nullptr);

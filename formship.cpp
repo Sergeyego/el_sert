@@ -23,8 +23,10 @@ FormShip::FormShip(QWidget *parent) :
 
     sertificat = new SertBuild(this);
     editor = new Editor(sertificat,this);
-    ui->tab->layout()->addWidget(editor);
-    //ui->verticalLayoutSert->addWidget(editor);
+    ui->tab_1->layout()->addWidget(editor);
+
+    reader = new Reader(this);
+    ui->tab_2->layout()->addWidget(reader);
 
     ui->tableViewShip->verticalHeader()->setDefaultSectionSize(ui->tableViewShip->verticalHeader()->fontMetrics().height()*1.5);
     ui->tableViewShip->verticalHeader()->hide();
@@ -42,6 +44,8 @@ FormShip::FormShip(QWidget *parent) :
     connect(ui->cmdSaveAll,SIGNAL(clicked()),this,SLOT(pdfAll()));
     connect(ui->cmdUpd,SIGNAL(clicked()),this,SLOT(refresh()));
     connect(ui->cmdMultipagePdf,SIGNAL(clicked(bool)),this,SLOT(multipagePdf()));
+
+    connect(editor,SIGNAL(signFinished()),this,SLOT(signFinished()));
 
     refresh();
 }
@@ -69,13 +73,12 @@ void FormShip::refreshDataShip(QModelIndex index)
     int id_ship=modelShip->data(modelShip->index(index.row(),0),Qt::EditRole).toInt();
     modelDataShip->refresh(id_ship);
     ui->tableViewShipData->setColumnHidden(0,true);
+    ui->tableViewShipData->setColumnHidden(5,true);
     ui->tableViewShipData->setColumnHidden(6,true);
-    ui->tableViewShipData->setColumnHidden(7,true);
     ui->tableViewShipData->setColumnWidth(1,75);
     ui->tableViewShipData->setColumnWidth(2,225);
     ui->tableViewShipData->setColumnWidth(3,65);
     ui->tableViewShipData->setColumnWidth(4,60);
-    ui->tableViewShipData->setColumnWidth(5,60);
     if (modelDataShip->rowCount()){
         ui->tableViewShipData->selectRow(0);
     }
@@ -83,13 +86,14 @@ void FormShip::refreshDataShip(QModelIndex index)
 
 void FormShip::refreshShipSert(QModelIndex index)
 {
-    int id_part=modelDataShip->data(modelDataShip->index(index.row(),7),Qt::EditRole).toInt();
+    int id_part=modelDataShip->data(modelDataShip->index(index.row(),6),Qt::EditRole).toInt();
     int id_ship=modelDataShip->data(modelDataShip->index(index.row(),0),Qt::EditRole).toInt();
     QString nomSert=ui->tableViewShip->model()->data(ui->tableViewShip->model()->index(ui->tableViewShip->currentIndex().row(),1),Qt::EditRole).toString();
     QString name = modelDataShip->data(modelDataShip->index(index.row(),1),Qt::EditRole).toString();
     name+="_"+nomSert;
     name=name.replace(QRegExp("[^\\w]"), "_");
     sertificat->build(id_part,id_ship,name);
+    reader->setCurrentIdShip(id_ship);
 }
 
 void FormShip::printAll()
@@ -170,6 +174,10 @@ void FormShip::refresh()
     ui->tableViewShip->setColumnWidth(3,200);
     if (ui->tableViewShip->model()->rowCount()){
         ui->tableViewShip->selectRow(ui->tableViewShip->model()->rowCount()-1);
+    } else {
+        modelDataShip->refresh(-1);
+        editor->document()->clear();
+        reader->setCurrentIdShip(-1);
     }
 }
 
@@ -177,4 +185,25 @@ void FormShip::partReq(QModelIndex index)
 {
     int id_part=modelDataShip->data(modelDataShip->index(index.row(),5)).toInt();
     Rels::instance()->partSelectReq(id_part);
+}
+
+void FormShip::signFinished()
+{
+    reloadDataShip();
+    ui->tabWidget->setCurrentIndex(1);
+}
+
+void FormShip::reloadDataShip()
+{
+    int id_ship=modelDataShip->data(modelDataShip->index(ui->tableViewShipData->currentIndex().row(),0),Qt::EditRole).toInt();
+    ui->tableViewShipData->blockSignals(true);
+    modelDataShip->refresh();
+    ui->tableViewShipData->blockSignals(false);
+    for (int i=0; i<modelDataShip->rowCount(); i++){
+        int id=modelDataShip->data(modelDataShip->index(i,0),Qt::EditRole).toInt();
+        if (id==id_ship){
+            ui->tableViewShipData->setCurrentIndex(ui->tableViewShipData->model()->index(i,1));
+            break;
+        }
+    }
 }

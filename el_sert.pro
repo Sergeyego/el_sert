@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui sql printsupport xml network
+QT       += core gui sql printsupport xml network webenginewidgets
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -17,6 +17,7 @@ SOURCES += main.cpp\
     httpsyncmanager.cpp \
     editor.cpp \
     modelship.cpp \
+    reader.cpp \
     sertbuild.cpp \
     checkform.cpp \
     db/dbdelegate.cpp \
@@ -52,6 +53,7 @@ HEADERS  += formpart.h \
     httpsyncmanager.h \
     editor.h \
     modelship.h \
+    reader.h \
     sertbuild.h \
     checkform.h \
     db/dbviewer.h \
@@ -95,7 +97,8 @@ FORMS    += formpart.ui \
     formmark.ui \
     formpos.ui \
     dialogcopy.ui \
-    db/dbrelationeditdialog.ui
+    db/dbrelationeditdialog.ui \
+    reader.ui
 
 RESOURCES += \
     res.qrc

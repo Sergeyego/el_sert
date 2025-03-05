@@ -34,13 +34,15 @@ QVariant ModelShip::data(const QModelIndex &index, int role) const
 ModelDataShip::ModelDataShip(QObject *parent) :
     QSqlQueryModel(parent)
 {
+    current_id_ship=-1;
 }
 
 void ModelDataShip::refresh(int id_ship)
 {
+    current_id_ship=id_ship;
     setQuery("select o.id, p.n_s||'-'||date_part('year',p.dat_part), e.marka||' "+tr("ф")+" '||cast(p.diam as varchar(3))||"
              "CASE WHEN p.id_var <> 1 THEN (' /'::text || ev.nam::text) || '/'::text ELSE ''::text END AS mark, "
-             "o.massa, o.ds_status, o.cs_status, "
+             "o.massa, o.ds_status, "
               "(select case when exists(select id_chem from sert_chem where id_part=p.id) "
                  "then 1 else 0 end "
                  "+ "
@@ -64,10 +66,15 @@ void ModelDataShip::refresh(int id_ship)
     }
 }
 
+void ModelDataShip::refresh()
+{
+    refresh(current_id_ship);
+}
+
 QVariant ModelDataShip::data(const QModelIndex &index, int role) const
 {
     if((role == Qt::BackgroundRole)&&(this->columnCount()>3)) {
-    int area = record(index.row()).value(6).toInt();
+    int area = record(index.row()).value(5).toInt();
     if(area == 0) return QVariant(QColor(255,170,170)); else
         if(area == 1) return QVariant(QColor(Qt::yellow)); else
             if(area == 2) return QVariant(QColor(Qt::gray)); else
@@ -83,7 +90,6 @@ QVariant ModelDataShip::data(const QModelIndex &index, int role) const
     }
     return QSqlQueryModel::data(index, role);
 }
-
 
 ModelPart::ModelPart(QObject *parent) :
     QSqlQueryModel(parent)

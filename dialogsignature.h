@@ -16,7 +16,7 @@ class DialogSignature : public QDialog
     Q_OBJECT
 
 public:
-    explicit DialogSignature(QWidget *parent = nullptr);
+    explicit DialogSignature(QString srv, QWidget *parent = nullptr);
     ~DialogSignature();
     int exec();
     QString getSN();
@@ -24,6 +24,7 @@ public:
 private:
     Ui::DialogSignature *ui;
     QJsonArray certs;
+    QString server;
 
 private slots:
     void setCurrentCert(int i);

@@ -87,6 +87,30 @@ Editor::~Editor()
     delete printer;
 }
 
+bool Editor::signDS(QString sn)
+{
+    QString filename="tmpUnsignedCert.pdf";
+    exportPdf(filename);
+    QFile file(filename);
+    bool ok=false;
+    if (file.open(QIODevice::ReadOnly)){
+        QByteArray data;
+        ok = HttpSyncManager::sendRequest(Rels::instance()->signServer()+"/pdf/"+sn,"POST",file.readAll(),data);
+        if (ok){
+            SertBuild *s=qobject_cast<SertBuild *>(this->document());
+            if (s){
+                QByteArray resp;
+                ok = HttpSyncManager::sendRequest(Rels::instance()->appServer()+"/s3/local/"+QString::number(s->getIdShip())+"/"+s->getLang(),"POST",data,resp);
+                if (ok){
+                    emit signFinished();
+                }
+            }
+        }
+        file.close();
+    }
+    return ok;
+}
+
 void Editor::setupTextActions()
 {
     QString rsrcPath=":/icons";
@@ -464,6 +488,8 @@ void Editor::chDoc()
             boxes.push_back(box);
             ui->verticalLayoutBox->addWidget(box);
         }
+        int type=ui->comboBoxType->getCurrentData().val.toInt();
+        ui->pushButtonDS->setEnabled((type==6) && (s->getIdShip()>0));
     }
 }
 
@@ -516,34 +542,20 @@ void Editor::setLang()
 void Editor::setType()
 {
     int type=ui->comboBoxType->getCurrentData().val.toInt();
+    int id_ship=-1;
     SertBuild *s=qobject_cast<SertBuild *>(this->document());
     if (s){
         s->setType(type);
+        id_ship=s->getIdShip();
     }
-    ui->pushButtonDS->setEnabled(type==6);
+    ui->pushButtonDS->setEnabled((type==6) && (id_ship>0));
 }
 
 void Editor::signDS()
 {
-    DialogSignature d;
+    DialogSignature d(Rels::instance()->signServer());
     if (d.exec()==QDialog::Accepted){
-        QString filename="tmpUnsignedCert.pdf";
-        exportPdf(filename);
-        QFile file(filename);
-        if (file.open(QIODevice::ReadOnly)){
-            QByteArray data;
-            bool ok = HttpSyncManager::sendRequest("/pdf/"+d.getSN(),"POST",file.readAll(),data);
-            if (ok){
-                QFile file("temp.pdf");
-                if (file.open(QIODevice::WriteOnly)){
-                    file.write(data);
-                    file.close();
-                    QFileInfo fileInfo(file);
-                    QDesktopServices::openUrl((QUrl(QUrl::fromLocalFile(fileInfo.absoluteFilePath()))));
-                }
-            }
-            file.close();
-        }
+        this->signDS(d.getSN());
     }
 }
 
