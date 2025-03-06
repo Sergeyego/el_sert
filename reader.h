@@ -38,11 +38,14 @@ private:
     QString name;
     QByteArray data;
     Poppler::Document *doc;
+    QNetworkAccessManager *manager;
 
 private slots:
     void print();
     void save();
     void reRender();
+    void replyFinished();
+    void setLock(bool b);
 };
 
 #endif // READER_H

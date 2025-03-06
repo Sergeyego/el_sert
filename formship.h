@@ -42,6 +42,7 @@ private slots:
     void partReq(QModelIndex index);
     void signFinished();
     void reloadDataShip();
+    void signAll();
 };
 
 #endif // FORMSHIP_H

@@ -9,8 +9,6 @@ FormShip::FormShip(QWidget *parent) :
     loadSettings();
 
     QString rsrcPath=":/icons";
-    const QIcon exportPdfIcon = QIcon::fromTheme("exportpdf", QIcon(rsrcPath + "/exportpdf.png"));
-    ui->cmdMultipagePdf->setIcon(exportPdfIcon);
 
     const QIcon saveIcon = QIcon::fromTheme("document-save", QIcon(rsrcPath + "/filesave.png"));
     ui->cmdSaveAll->setIcon(saveIcon);
@@ -43,9 +41,12 @@ FormShip::FormShip(QWidget *parent) :
     connect(ui->cmdPrintAll,SIGNAL(clicked()),this,SLOT(printAll()));
     connect(ui->cmdSaveAll,SIGNAL(clicked()),this,SLOT(pdfAll()));
     connect(ui->cmdUpd,SIGNAL(clicked()),this,SLOT(refresh()));
-    connect(ui->cmdMultipagePdf,SIGNAL(clicked(bool)),this,SLOT(multipagePdf()));
 
     connect(editor,SIGNAL(signFinished()),this,SLOT(signFinished()));
+    connect(editor,SIGNAL(signEnChanged(bool)),ui->cmdDsAll,SLOT(setEnabled(bool)));
+
+    connect(ui->tabWidget,SIGNAL(currentChanged(int)),ui->stackedWidget,SLOT(setCurrentIndex(int)));
+    connect(ui->cmdDsAll,SIGNAL(clicked(bool)),this,SLOT(signAll()));
 
     refresh();
 }
@@ -122,6 +123,7 @@ void FormShip::printAll(QPagedPaintDevice *printer)
         }
     }
     delete pprd;
+    reloadDataShip();
 }
 
 void FormShip::pdfAll()
@@ -146,6 +148,7 @@ void FormShip::pdfAll()
         editor->exportPdf(file.fileName());
     }
     delete pprd;
+    reloadDataShip();
 }
 
 void FormShip::multipagePdf()
@@ -205,5 +208,26 @@ void FormShip::reloadDataShip()
             ui->tableViewShipData->setCurrentIndex(ui->tableViewShipData->model()->index(i,1));
             break;
         }
+    }
+}
+
+void FormShip::signAll()
+{
+    DialogSignature d;
+    if (d.exec()==QDialog::Accepted){
+        QString sn=d.getSN();
+        QProgressDialog* pprd = new QProgressDialog(tr("Идет подписание документов..."),"", 0, modelDataShip->rowCount(), this);
+        pprd->setCancelButton(0);
+        pprd->setMinimumDuration(0);
+        pprd->setWindowTitle(tr("Пожалуйста, подождите"));
+
+        for (int i=0; i<modelDataShip->rowCount(); i++){
+            QCoreApplication::processEvents();
+            pprd->setValue(i);
+            refreshShipSert(modelDataShip->index(i,0));
+            editor->signDS(sn);
+        }
+        delete pprd;
+        reloadDataShip();
     }
 }

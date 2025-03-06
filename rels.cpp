@@ -11,12 +11,12 @@ Rels *Rels::instance()
 
 QString Rels::signServer()
 {
-    return "127.0.0.1:8000";
+    return "http://127.0.0.1:8000";
 }
 
 QString Rels::appServer()
 {
-    return "127.0.0.1:7000";
+    return "http://127.0.0.1:7000";
 }
 
 Rels::Rels(QObject *parent) : QObject(parent)

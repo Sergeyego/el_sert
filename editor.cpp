@@ -101,9 +101,6 @@ bool Editor::signDS(QString sn)
             if (s){
                 QByteArray resp;
                 ok = HttpSyncManager::sendRequest(Rels::instance()->appServer()+"/s3/local/"+QString::number(s->getIdShip())+"/"+s->getLang(),"POST",data,resp,HttpSyncManager::typePdf);
-                if (ok){
-                    emit signFinished();
-                }
             }
         }
         file.close();
@@ -489,7 +486,9 @@ void Editor::chDoc()
             ui->verticalLayoutBox->addWidget(box);
         }
         int type=ui->comboBoxType->getCurrentData().val.toInt();
-        ui->pushButtonDS->setEnabled((type==6) && (s->getIdShip()>0));
+        bool en=((type==6) && (s->getIdShip()>0));
+        ui->pushButtonDS->setEnabled(en);
+        emit signEnChanged(en);
     }
 }
 
@@ -548,14 +547,19 @@ void Editor::setType()
         s->setType(type);
         id_ship=s->getIdShip();
     }
-    ui->pushButtonDS->setEnabled((type==6) && (id_ship>0));
+    bool en=((type==6) && (id_ship>0));
+    ui->pushButtonDS->setEnabled(en);
+    emit signEnChanged(en);
 }
 
 void Editor::signDS()
 {
     DialogSignature d;
     if (d.exec()==QDialog::Accepted){
-        this->signDS(d.getSN());
+        bool ok=signDS(d.getSN());
+        if (ok){
+            emit signFinished();
+        }
     }
 }
 

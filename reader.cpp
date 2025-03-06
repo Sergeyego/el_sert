@@ -8,6 +8,9 @@ Reader::Reader(QWidget *parent)
     ui->setupUi(this);
     id_ship=-1;
     doc=nullptr;
+    setLock(true);
+
+    manager = new QNetworkAccessManager(this);
 
     connect(ui->radioButtonRus,SIGNAL(clicked(bool)),this,SLOT(reload()));
     connect(ui->radioButtonEng,SIGNAL(clicked(bool)),this,SLOT(reload()));
@@ -48,19 +51,13 @@ QString Reader::getCurrentLang()
 
 void Reader::reload()
 {
-    data.clear();
-    HttpSyncManager::sendGet(Rels::instance()->appServer()+"/s3/local/"+QString::number(id_ship)+"/"+getCurrentLang(),data);
-    if (doc){
-        delete doc;
-        doc=nullptr;
-    }
-    if (data.size()){
-        doc = Poppler::Document::loadFromData(data);
-        if (doc){
-            doc->setRenderHint(Poppler::Document::TextAntialiasing);
-        }
-    }
-    reRender();
+    setLock(true);
+    QNetworkRequest request(QUrl::fromUserInput(Rels::instance()->appServer()+"/s3/local/"+QString::number(id_ship)+"/"+getCurrentLang()));
+    request.setRawHeader("Accept-Charset", "UTF-8");
+    request.setRawHeader("User-Agent", "Appszsm");
+    QNetworkReply *reply;
+    reply=manager->get(request);
+    connect(reply,SIGNAL(finished()),this,SLOT(replyFinished()));
 }
 
 void Reader::print()
@@ -115,4 +112,36 @@ void Reader::reRender()
     } else {
         ui->label->clear();
     }
+}
+
+void Reader::replyFinished()
+{
+    QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+    if (reply){
+        data=reply->readAll();
+        bool ok=(reply->error()==QNetworkReply::NoError);
+        if (!ok){
+            QMessageBox::critical(nullptr,tr("Ошибка"),reply->errorString()+"\n"+data,QMessageBox::Cancel);
+        } else {
+            if (doc){
+                delete doc;
+                doc=nullptr;
+            }
+            if (data.size()){
+                doc = Poppler::Document::loadFromData(data);
+                if (doc){
+                    setLock(false);
+                    doc->setRenderHint(Poppler::Document::TextAntialiasing);
+                }
+            }
+            reRender();
+        }
+        reply->deleteLater();
+    }
+}
+
+void Reader::setLock(bool b)
+{
+    ui->pushButtonPDF->setDisabled(b);
+    ui->pushButtonPrint->setDisabled(b);
 }

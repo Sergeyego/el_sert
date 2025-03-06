@@ -8,7 +8,7 @@ HttpSyncManager::HttpSyncManager(QObject *parent)
 
 bool HttpSyncManager::sendRequest(QString path, QString req, const QByteArray &data, QByteArray &respData, QByteArray contentType)
 {
-    QNetworkRequest request(QUrl("http://"+path));
+    QNetworkRequest request(QUrl::fromUserInput(path));
     request.setRawHeader("Accept-Charset", "UTF-8");
     request.setRawHeader("User-Agent", "Appszsm");
     if (contentType.size()){

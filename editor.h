@@ -117,6 +117,7 @@ private slots:
 
 signals:
     void signFinished();
+    void signEnChanged(bool b);
 };
 
 #endif // EDITOR_H
