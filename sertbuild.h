@@ -13,9 +13,6 @@
 #include <QTextLength>
 #include <QDebug>
 #include "httpsyncmanager.h"
-//#include <QNetworkAccessManager>
-//#include <QNetworkRequest>
-//#include <QNetworkReply>
 #include "rels.h"
 
 struct sertData {
@@ -52,7 +49,6 @@ private:
     int current_id_part;
     int current_id_ship;
     QString lang;
-    //bool sendRequest(QString path, QString req, const QByteArray &data, QByteArray &respData);
     void loadDoc(const QString &html);
     void updSData();
     QMap<QString,QByteArray> map;

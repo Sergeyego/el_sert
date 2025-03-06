@@ -6,12 +6,14 @@ HttpSyncManager::HttpSyncManager(QObject *parent)
 
 }
 
-bool HttpSyncManager::sendRequest(QString path, QString req, const QByteArray &data, QByteArray &respData)
+bool HttpSyncManager::sendRequest(QString path, QString req, const QByteArray &data, QByteArray &respData, QByteArray contentType)
 {
     QNetworkRequest request(QUrl("http://"+path));
     request.setRawHeader("Accept-Charset", "UTF-8");
     request.setRawHeader("User-Agent", "Appszsm");
-    request.setRawHeader("Content-Type", "application/pdf");
+    if (contentType.size()){
+        request.setRawHeader("Content-Type",contentType);
+    }
     QEventLoop loop;
     QNetworkAccessManager man;
     connect(&man,SIGNAL(finished(QNetworkReply*)),&loop,SLOT(quit()));
@@ -23,7 +25,7 @@ bool HttpSyncManager::sendRequest(QString path, QString req, const QByteArray &d
     } else if (req=="DELETE"){
         reply=man.deleteResource(request);
     } else {
-        reply=man.sendCustomRequest(request,req.toUtf8()/*,data*/);
+        reply=man.sendCustomRequest(request,req.toUtf8(),data);
     }
     if (!reply->isFinished()){
         loop.exec(QEventLoop::ExcludeUserInputEvents);

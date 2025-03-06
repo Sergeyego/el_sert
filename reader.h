@@ -2,11 +2,18 @@
 #define READER_H
 
 #include <QWidget>
-#include <QWebEngineView>
-#include <QWebEngineSettings>
 #include <QPrintDialog>
 #include <QPrinter>
+#include <QPainter>
 #include "rels.h"
+#include <poppler/qt5/poppler-qt5.h>
+#include <QApplication>
+#include <QDesktopWidget>
+#include "httpsyncmanager.h"
+#include <QFile>
+#include <QSettings>
+#include <QFileDialog>
+#include <QDir>
 
 namespace Ui {
 class Reader;
@@ -19,7 +26,7 @@ class Reader : public QWidget
 public:
     explicit Reader(QWidget *parent = nullptr);
     ~Reader();
-    void setCurrentIdShip(int id);
+    void setCurrentIdShip(int id, QString fname);
     QString getCurrentLang();
 
 public slots:
@@ -27,11 +34,15 @@ public slots:
 
 private:
     Ui::Reader *ui;
-    QWebEngineView *view;
     int id_ship;
+    QString name;
+    QByteArray data;
+    Poppler::Document *doc;
 
 private slots:
     void print();
+    void save();
+    void reRender();
 };
 
 #endif // READER_H

@@ -93,7 +93,7 @@ void FormShip::refreshShipSert(QModelIndex index)
     name+="_"+nomSert;
     name=name.replace(QRegExp("[^\\w]"), "_");
     sertificat->build(id_part,id_ship,name);
-    reader->setCurrentIdShip(id_ship);
+    reader->setCurrentIdShip(id_ship,name);
 }
 
 void FormShip::printAll()
@@ -177,7 +177,7 @@ void FormShip::refresh()
     } else {
         modelDataShip->refresh(-1);
         editor->document()->clear();
-        reader->setCurrentIdShip(-1);
+        reader->setCurrentIdShip(-1,"");
     }
 }
 

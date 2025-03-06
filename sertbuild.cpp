@@ -48,9 +48,9 @@ void SertBuild::rebuild()
     }
     int id = (current_id_ship>=0) ? current_id_ship : current_id_part;
     QString path=QString(Rels::instance()->appServer()+"/certificates/elrtr/%1/%2?lang=%3&part=%4&docs=%5").arg(sertType).arg(id).arg(lang).arg((current_id_ship>=0) ? "false" : "true").arg(docs);
-    QByteArray req, resp;
+    QByteArray resp;
     bool ok=HttpSyncManager::sendGet(path,resp);
-    if (/*sendRequest(path,"GET",req,resp)*/ok){
+    if (ok){
         loadDoc(resp);
     } else {
         this->clear();
@@ -97,36 +97,6 @@ QString SertBuild::getLang()
     return lang;
 }
 
-/*bool SertBuild::sendRequest(QString path, QString req, const QByteArray &data, QByteArray &respData)
-{
-    QNetworkRequest request(QUrl("http://"+Rels::instance()->appServer()+path));
-    request.setRawHeader("Accept-Charset", "UTF-8");
-    request.setRawHeader("User-Agent", "Appszsm");
-    QEventLoop loop;
-    QNetworkAccessManager man;
-    connect(&man,SIGNAL(finished(QNetworkReply*)),&loop,SLOT(quit()));
-    QNetworkReply *reply;
-    if (req=="GET"){
-        reply=man.get(request);
-    } else if (req=="POST"){
-        reply=man.post(request,data);
-    } else if (req=="DELETE"){
-        reply=man.deleteResource(request);
-    } else {
-        reply=man.sendCustomRequest(request,req.toUtf8());
-    }
-    if (!reply->isFinished()){
-        loop.exec(QEventLoop::ExcludeUserInputEvents);
-    }
-    respData=reply->readAll();
-    bool ok=(reply->error()==QNetworkReply::NoError);
-    if (!ok){
-        QMessageBox::critical(nullptr,tr("Ошибка"),reply->errorString()+"\n"+respData,QMessageBox::Cancel);
-    }
-    reply->deleteLater();
-    return ok;
-}*/
-
 void SertBuild::loadDoc(const QString &html)
 {
     QMap <QString, QByteArray> tmpRes;
@@ -144,9 +114,9 @@ void SertBuild::loadDoc(const QString &html)
                     QString name=imgFmt.name();
                     resList.push_back(name);
                     if (!map.contains(name)){
-                        QByteArray req, resp;
+                        QByteArray resp;
                         bool ok=HttpSyncManager::sendGet(Rels::instance()->appServer()+"/"+name,resp);
-                        if (/*sendRequest(name,"GET",req,resp)*/ok){
+                        if (ok){
                             if (!name.contains("qrcode")){
                                 map.insert(name,resp);
                             } else {
@@ -172,10 +142,10 @@ void SertBuild::loadDoc(const QString &html)
 
 void SertBuild::updSData()
 {
-    QByteArray req, resp;
+    QByteArray resp;
     sdata.clear();
     bool ok=HttpSyncManager::sendGet(Rels::instance()->appServer()+"/elrtr/sertdata/"+QString::number(current_id_part),resp);
-    if (/*sendRequest("/elrtr/sertdata/"+QString::number(current_id_part),"GET",req,resp)*/ok){
+    if (ok){
         QJsonDocument respDoc;
         respDoc=QJsonDocument::fromJson(resp);
         QJsonArray json=respDoc.array();

@@ -95,12 +95,12 @@ bool Editor::signDS(QString sn)
     bool ok=false;
     if (file.open(QIODevice::ReadOnly)){
         QByteArray data;
-        ok = HttpSyncManager::sendRequest(Rels::instance()->signServer()+"/pdf/"+sn,"POST",file.readAll(),data);
+        ok = HttpSyncManager::sendRequest(Rels::instance()->signServer()+"/pdf/"+sn,"POST",file.readAll(),data,HttpSyncManager::typePdf);
         if (ok){
             SertBuild *s=qobject_cast<SertBuild *>(this->document());
             if (s){
                 QByteArray resp;
-                ok = HttpSyncManager::sendRequest(Rels::instance()->appServer()+"/s3/local/"+QString::number(s->getIdShip())+"/"+s->getLang(),"POST",data,resp);
+                ok = HttpSyncManager::sendRequest(Rels::instance()->appServer()+"/s3/local/"+QString::number(s->getIdShip())+"/"+s->getLang(),"POST",data,resp,HttpSyncManager::typePdf);
                 if (ok){
                     emit signFinished();
                 }
@@ -553,7 +553,7 @@ void Editor::setType()
 
 void Editor::signDS()
 {
-    DialogSignature d(Rels::instance()->signServer());
+    DialogSignature d;
     if (d.exec()==QDialog::Accepted){
         this->signDS(d.getSN());
     }
