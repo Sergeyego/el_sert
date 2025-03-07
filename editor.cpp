@@ -87,27 +87,6 @@ Editor::~Editor()
     delete printer;
 }
 
-bool Editor::signDS(QString sn)
-{
-    QString filename="tmpUnsignedCert.pdf";
-    exportPdf(filename);
-    QFile file(filename);
-    bool ok=false;
-    if (file.open(QIODevice::ReadOnly)){
-        QByteArray data;
-        ok = HttpSyncManager::sendRequest(Rels::instance()->signServer()+"/pdf/"+sn,"POST",file.readAll(),data,HttpSyncManager::typePdf);
-        if (ok){
-            SertBuild *s=qobject_cast<SertBuild *>(this->document());
-            if (s){
-                QByteArray resp;
-                ok = HttpSyncManager::sendRequest(Rels::instance()->appServer()+"/s3/local/"+QString::number(s->getIdShip())+"/"+s->getLang(),"POST",data,resp,HttpSyncManager::typePdf);
-            }
-        }
-        file.close();
-    }
-    return ok;
-}
-
 void Editor::setupTextActions()
 {
     QString rsrcPath=":/icons";
@@ -556,11 +535,51 @@ void Editor::signDS()
 {
     DialogSignature d;
     if (d.exec()==QDialog::Accepted){
+        QProgressDialog* pprd = new QProgressDialog(tr("Идет подписание документов..."),"", 0, 2, this);
+        pprd->setCancelButton(0);
+        pprd->setMinimumDuration(0);
+        pprd->setWindowTitle(tr("Пожалуйста, подождите"));
+        pprd->setValue(0);
         bool ok=signDS(d.getSN());
         if (ok){
+            QCoreApplication::processEvents();
+            pprd->setValue(1);
+            pprd->setLabelText("Синхронизация с облачным сервисом...");
+            QByteArray st;
+            HttpSyncManager::sendGet(Rels::instance()->appServer()+"/s3/sync",st);
+            delete pprd;
             emit signFinished();
         }
     }
+}
+
+bool Editor::signDS(QString sn)
+{
+    QByteArray st;
+    bool ok=false;
+    SertBuild *s=qobject_cast<SertBuild *>(this->document());
+    if (s){
+        ok=HttpSyncManager::sendGet(Rels::instance()->appServer()+"/s3/status/"+QString::number(s->getIdShip())+"/"+s->getLang(),st);
+        if (st=="true"){
+            int n = QMessageBox::warning(this,tr("Предупреждение"),tr("Сертификат ")+s->getName()+tr(" уже был подписан. Желаете его переподписать?"),QMessageBox::Yes,QMessageBox::No);
+            if (n==QMessageBox::No){
+                return false;
+            }
+        }
+        QString filename="tmpUnsignedCert.pdf";
+        exportPdf(filename);
+        QFile file(filename);
+        if (ok && file.open(QIODevice::ReadOnly)){
+            QByteArray data;
+            ok = HttpSyncManager::sendRequest(Rels::instance()->signServer()+"/pdf/"+sn,"POST",file.readAll(),data,HttpSyncManager::typePdf);
+            if (ok){
+                QByteArray resp;
+                ok = HttpSyncManager::sendRequest(Rels::instance()->appServer()+"/s3/local/"+QString::number(s->getIdShip())+"/"+s->getLang(),"POST",data,resp,HttpSyncManager::typePdf);
+            }
+            file.close();
+        }
+    }
+    return ok;
 }
 
 void Editor::filePrint()

@@ -2,7 +2,6 @@
 #define FORMSHIP_H
 
 #include <QWidget>
-#include <QPdfWriter>
 #include <QFileDialog>
 #include <QProgressDialog>
 #include "editor.h"
@@ -37,12 +36,13 @@ private slots:
     void printAll();
     void printAll(QPagedPaintDevice *printer);
     void pdfAll();
-    void multipagePdf();
     void refresh();
     void partReq(QModelIndex index);
     void signFinished();
     void reloadDataShip();
     void signAll();
+    void signPdfAll();
+    void signPrintAll();
 };
 
 #endif // FORMSHIP_H

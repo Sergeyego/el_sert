@@ -12,9 +12,11 @@ FormShip::FormShip(QWidget *parent) :
 
     const QIcon saveIcon = QIcon::fromTheme("document-save", QIcon(rsrcPath + "/filesave.png"));
     ui->cmdSaveAll->setIcon(saveIcon);
+    ui->pushButtonSaveDsAll->setIcon(saveIcon);
 
     const QIcon printIcon = QIcon::fromTheme("document-print", QIcon(rsrcPath + "/fileprint.png"));
     ui->cmdPrintAll->setIcon(printIcon);
+    ui->pushButtonPrintDsAll->setIcon(printIcon);
 
     ui->dateEditBeg->setDate(QDate::currentDate().addDays(-QDate::currentDate().dayOfYear()+1));
     ui->dateEditEnd->setDate(ui->dateEditBeg->date().addYears(1));
@@ -47,6 +49,8 @@ FormShip::FormShip(QWidget *parent) :
 
     connect(ui->tabWidget,SIGNAL(currentChanged(int)),ui->stackedWidget,SLOT(setCurrentIndex(int)));
     connect(ui->cmdDsAll,SIGNAL(clicked(bool)),this,SLOT(signAll()));
+    connect(ui->pushButtonSaveDsAll,SIGNAL(clicked(bool)),this,SLOT(signPdfAll()));
+    connect(ui->pushButtonPrintDsAll,SIGNAL(clicked(bool)),this,SLOT(signPrintAll()));
 
     refresh();
 }
@@ -151,19 +155,6 @@ void FormShip::pdfAll()
     reloadDataShip();
 }
 
-void FormShip::multipagePdf()
-{
-    QString f=sertificat->getName()+".pdf";
-    QString fname = QFileDialog::getSaveFileName(this,tr("Сохранить PDF"),QDir::homePath()+"/"+f, "*.pdf");
-    if (!fname.isEmpty()){
-        QPdfWriter writer(fname);
-        writer.setPageOrientation(QPageLayout::Portrait);
-        writer.setPageSize(QPageSize(QPageSize::A4));
-        writer.setPageMargins(QMarginsF(30, 30, 30, 30));
-        printAll(&writer);
-    }
-}
-
 void FormShip::refresh()
 {
     if (sender()==ui->cmdUpd){
@@ -227,7 +218,86 @@ void FormShip::signAll()
             refreshShipSert(modelDataShip->index(i,0));
             editor->signDS(sn);
         }
+        pprd->setLabelText("Синхронизация с облачным сервисом...");
+        QByteArray st;
+        HttpSyncManager::sendGet(Rels::instance()->appServer()+"/s3/sync",st);
         delete pprd;
         reloadDataShip();
+    }
+}
+
+void FormShip::signPdfAll()
+{
+    QProgressDialog* pprd = new QProgressDialog(tr("Идет сохранение документов..."),"", 0, modelDataShip->rowCount(), this);
+    pprd->setCancelButton(0);
+    pprd->setMinimumDuration(0);
+    pprd->setWindowTitle(tr("Пожалуйста, подождите"));
+    int yearSert=ui->tableViewShip->model()->data(ui->tableViewShip->model()->index(ui->tableViewShip->currentIndex().row(),2),Qt::EditRole).toDate().year();
+    QString nomSert=ui->tableViewShip->model()->data(ui->tableViewShip->model()->index(ui->tableViewShip->currentIndex().row(),1),Qt::EditRole).toString();
+    QString lang=reader->getCurrentLang();
+    for (int i=0; i<modelDataShip->rowCount(); i++){
+        QCoreApplication::processEvents();
+        pprd->setValue(i);
+        int id_ship=modelDataShip->data(modelDataShip->index(i,0),Qt::EditRole).toInt();
+        QByteArray data;
+        bool ok = HttpSyncManager::sendGet(Rels::instance()->appServer()+"/s3/local/"+QString::number(id_ship)+"/"+lang,data);
+        if (ok){
+            QString name = modelDataShip->data(modelDataShip->index(i,1),Qt::EditRole).toString();
+            name+="_"+nomSert;
+            name=name.replace(QRegExp("[^\\w]"), "_");
+            QDir dir(QDir::homePath()+"/el_sertificat");
+            if (!dir.exists()) dir.mkdir(dir.path());
+            dir.setPath(dir.path()+"/"+QString::number(yearSert));
+            if (!dir.exists()) dir.mkdir(dir.path());
+            dir.setPath(dir.path()+"/"+nomSert);
+            if (!dir.exists()) dir.mkdir(dir.path());
+            QFile file(dir.path()+"/"+name+"_"+lang+"_sig.pdf");
+            if (file.open(QFile::WriteOnly)){
+                file.write(data);
+                file.close();
+            }
+        }
+    }
+    delete pprd;
+}
+
+void FormShip::signPrintAll()
+{
+    QPrinter printer(QPrinter::HighResolution);
+    QPrintDialog printDialog(&printer, this);
+    if (printDialog.exec()) {
+        QProgressDialog* pprd = new QProgressDialog(tr("Идет формирование документа..."),"", 0, modelDataShip->rowCount(), this);
+        pprd->setCancelButton(0);
+        pprd->setMinimumDuration(0);
+        pprd->setWindowTitle(tr("Пожалуйста, подождите"));
+
+        QPainter painter(&printer);
+        QString lang=reader->getCurrentLang();
+        for (int i=0; i<modelDataShip->rowCount(); i++){
+            QCoreApplication::processEvents();
+            pprd->setValue(i);
+            int id_ship=modelDataShip->data(modelDataShip->index(i,0),Qt::EditRole).toInt();
+            QByteArray data;
+            bool ok = HttpSyncManager::sendGet(Rels::instance()->appServer()+"/s3/local/"+QString::number(id_ship)+"/"+lang,data);
+            if (ok){
+                if (data.size()){
+                    Poppler::Document *doc = Poppler::Document::loadFromData(data);
+                    if (doc){
+                        doc->setRenderHint(Poppler::Document::TextAntialiasing);
+                        Poppler::Page *page = doc->page(0);
+                        if (page){
+                            QImage img = page->renderToImage(300,300);
+                            painter.drawImage(painter.window(),img);
+                            if (i<modelDataShip->rowCount()-1){
+                                printer.newPage();
+                            }
+                            delete page;
+                        }
+                        delete doc;
+                    }
+                }
+            }
+        }
+        delete pprd;
     }
 }

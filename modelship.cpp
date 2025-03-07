@@ -74,19 +74,36 @@ void ModelDataShip::refresh()
 QVariant ModelDataShip::data(const QModelIndex &index, int role) const
 {
     if((role == Qt::BackgroundRole)&&(this->columnCount()>3)) {
-    int area = record(index.row()).value(5).toInt();
-    if(area == 0) return QVariant(QColor(255,170,170)); else
-        if(area == 1) return QVariant(QColor(Qt::yellow)); else
-            if(area == 2) return QVariant(QColor(Qt::gray)); else
-                if(area == 3) return QVariant(QColor(170,255,170));
+        if (index.column()!=4){
+            int area = record(index.row()).value(5).toInt();
+            if(area == 0) return QVariant(QColor(255,170,170)); else
+                if(area == 1) return QVariant(QColor(Qt::yellow)); else
+                    if(area == 2) return QVariant(QColor(Qt::gray)); else
+                        if(area == 3) return QVariant(QColor(170,255,170));
+        } else {
+            int stat = record(index.row()).value(4).toInt();
+            if(stat == 0) return QVariant(QColor(255,170,170)); else
+                if(stat == 1) return QVariant(QColor(Qt::yellow)); else
+                    if(stat == 2) return QVariant(QColor(170,255,170));
+        }
     }
     if (role == Qt::TextAlignmentRole){
         if((index.column() == 3))
             return int(Qt::AlignRight | Qt::AlignVCenter);
     }
     if (role == Qt::DisplayRole){
-        if((index.column() == 3))
+        if((index.column() == 3)){
             return QLocale().toString(QSqlQueryModel::data(index,role).toDouble(),'f',1);
+        } else if (index.column()==4){
+            int stat = record(index.row()).value(4).toInt();
+            if(stat == 1) {
+                return QString("..");
+            } else if(stat == 2) {
+                return QString("OK");
+            } else {
+                return QString("-");
+            }
+        }
     }
     return QSqlQueryModel::data(index, role);
 }

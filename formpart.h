@@ -14,6 +14,7 @@
 #include "lblcreator.h"
 #include "dialogcopy.h"
 #include "modelro.h"
+#include "reader.h"
 
 namespace Ui {
 class FormPart;
@@ -32,6 +33,7 @@ private:
     ModelPart *modelPart;
     SertBuild *sertificatPart;
     Editor *editorPart;
+    Reader *readerPart;
 
     ModelChemSrc *modelSrcChem;
     ModelChemSert *modelSertChem;

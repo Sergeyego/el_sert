@@ -11,6 +11,7 @@ FormPart::FormPart(QWidget *parent) :
 
     sertificatPart = new SertBuild(this);
     editorPart = new Editor(sertificatPart);
+    readerPart = new Reader();
 
     ui->dateEditBeg->setDate(QDate::currentDate().addDays(-QDate::currentDate().dayOfYear()+1));
     ui->dateEditEnd->setDate(ui->dateEditBeg->date().addYears(1));
@@ -100,6 +101,7 @@ FormPart::FormPart(QWidget *parent) :
     connect(ui->checkBoxOk,SIGNAL(clicked(bool)),this,SLOT(saveOk()));
     connect(ui->toolButtonGenChem,SIGNAL(clicked(bool)),this,SLOT(genChem()));
     connect(ui->toolButtonGenMech,SIGNAL(clicked(bool)),this,SLOT(genMech()));
+    connect(editorPart,SIGNAL(signFinished()),modelAdd,SLOT(select()));
 
     refresh();
 }
@@ -108,6 +110,7 @@ FormPart::~FormPart()
 {
     savesettings();
     delete editorPart;
+    delete readerPart;
     delete ui;
 }
 
@@ -140,7 +143,8 @@ void FormPart::loadPrim(int id_part)
 void FormPart::loadAdd(int id_part)
 {
     QSqlQuery query;
-    QString qu="select s.nom_s, s.dat_vid, p.short, o.massa, rp.short, o.id from otpusk as o "
+    QString qu="select s.nom_s, s.dat_vid, p.short, o.massa, rp.short, o.ds_status, o.id "
+            "from otpusk as o "
             "inner join sertifikat as s on o.id_sert=s.id "
             "inner join poluch as p on s.id_pol=p.id "
             "inner join poluch as rp on o.id_pol=rp.id "
@@ -153,7 +157,8 @@ void FormPart::loadAdd(int id_part)
         modelAdd->setHeaderData(2,Qt::Horizontal,tr("Получатель"));
         modelAdd->setHeaderData(3,Qt::Horizontal,tr("Масса"));
         modelAdd->setHeaderData(4,Qt::Horizontal,tr("Реальный получатель"));
-        ui->tableViewAdd->setColumnHidden(5,true);
+        modelAdd->setHeaderData(5,Qt::Horizontal,tr("ЭП"));
+        ui->tableViewAdd->setColumnHidden(6,true);
     }
     ui->tableViewAdd->resizeColumnsToContents();
 }
@@ -330,11 +335,17 @@ void FormPart::showShipSert(QModelIndex index)
     if (index.isValid()){
         QString name=modelPart->data(modelPart->index(ui->tableViewPart->currentIndex().row(),1),Qt::EditRole).toString();
         name+="_"+QString::number(modelPart->data(modelPart->index(ui->tableViewPart->currentIndex().row(),2),Qt::EditRole).toDate().year());
-        int id_ship=ui->tableViewAdd->model()->data(ui->tableViewAdd->model()->index(index.row(),5),Qt::EditRole).toInt();
+        int id_ship=ui->tableViewAdd->model()->data(ui->tableViewAdd->model()->index(index.row(),6),Qt::EditRole).toInt();
         name+="_"+ui->tableViewAdd->model()->data(ui->tableViewAdd->model()->index(index.row(),0),Qt::EditRole).toString();
         name=name.replace(QRegExp("[^\\w]"), "_");
-        sertificatPart->build(currentIdPart(),id_ship,name);
-        editorPart->show();
+        int sign=ui->tableViewAdd->model()->data(ui->tableViewAdd->model()->index(index.row(),5),Qt::EditRole).toInt();
+        if (sign>0){
+            readerPart->setCurrentIdShip(id_ship,name);
+            readerPart->show();
+        } else {
+            sertificatPart->build(currentIdPart(),id_ship,name);
+            editorPart->show();
+        }
     }
 }
 

@@ -17,6 +17,7 @@
 #include "sertbuild.h"
 #include "httpsyncmanager.h"
 #include "dialogsignature.h"
+#include <QProgressDialog>
 
 namespace Ui {
 class Editor;
