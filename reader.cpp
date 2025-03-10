@@ -7,7 +7,6 @@ Reader::Reader(QWidget *parent)
 {
     ui->setupUi(this);
     id_ship=-1;
-    doc=nullptr;
     setLock(true);
 
     manager = new QNetworkAccessManager(this);
@@ -18,14 +17,11 @@ Reader::Reader(QWidget *parent)
 
     connect(ui->pushButtonPrint,SIGNAL(clicked(bool)),this,SLOT(print()));
     connect(ui->pushButtonPDF,SIGNAL(clicked(bool)),this,SLOT(save()));
-    connect(ui->spinBoxScale,SIGNAL(valueChanged(int)),this,SLOT(reRender()));
+    connect(ui->spinBoxScale,SIGNAL(valueChanged(int)),this,SLOT(reload()));
 }
 
 Reader::~Reader()
 {
-    if (doc){
-        delete doc;
-    }
     delete ui;
 }
 
@@ -52,7 +48,9 @@ QString Reader::getCurrentLang()
 void Reader::reload()
 {
     setLock(true);
-    QNetworkRequest request(QUrl::fromUserInput(Rels::instance()->appServer()+"/s3/local/"+QString::number(id_ship)+"/"+getCurrentLang()));
+    double scale=ui->spinBoxScale->value()/100.0;
+    int dpi=QApplication::desktop()->physicalDpiX()*scale;
+    QNetworkRequest request(QUrl::fromUserInput(Rels::instance()->appServer()+"/s3/img/"+QString::number(id_ship)+"/"+getCurrentLang()+"/"+QString::number(dpi)));
     request.setRawHeader("Accept-Charset", "UTF-8");
     request.setRawHeader("User-Agent", "Appszsm");
     QNetworkReply *reply;
@@ -60,27 +58,45 @@ void Reader::reload()
     connect(reply,SIGNAL(finished()),this,SLOT(replyFinished()));
 }
 
+void Reader::setLang(QString lang)
+{
+    if (lang=="ru"){
+        ui->radioButtonRus->setChecked(true);
+    } else if (lang=="en"){
+        ui->radioButtonEng->setChecked(true);
+    } else {
+        ui->radioButtonMix->setChecked(true);
+    }
+}
+
 void Reader::print()
 {
-    if(!doc){
-        return;
-    }
-    QPrinter printer(QPrinter::HighResolution);
-    QPrintDialog printDialog(&printer, this);
-    if (printDialog.exec()) {
-        QPainter painter(&printer);
-        Poppler::Page *page = doc->page(0);
-        if (page){
-            QImage img = page->renderToImage(300,300);
+    QByteArray data;
+    QProgressDialog* pprd = new QProgressDialog(tr("Подготовка к печати..."),"", 0, 1, this);
+    pprd->setCancelButton(0);
+    pprd->setMinimumDuration(0);
+    pprd->setWindowTitle(tr("Пожалуйста, подождите"));
+    pprd->setValue(0);
+    bool ok = HttpSyncManager::sendGet(Rels::instance()->appServer()+"/s3/img/"+QString::number(id_ship)+"/"+getCurrentLang()+"/300",data);
+    QCoreApplication::processEvents();
+    pprd->setValue(1);
+    if (ok && data.size()){
+        QPrinter printer(QPrinter::HighResolution);
+        delete pprd;
+        QPrintDialog printDialog(&printer, this);
+        if (printDialog.exec()) {
+            QPainter painter(&printer);
+            QImage img = QImage::fromData(data,"png");
             painter.drawImage(painter.window(),img);
-            delete page;
         }
     }
 }
 
 void Reader::save()
 {
-    if (!data.size()){
+    QByteArray data;
+    bool ok = HttpSyncManager::sendGet(Rels::instance()->appServer()+"/s3/local/"+QString::number(id_ship)+"/"+getCurrentLang(),data);
+    if (!ok || !data.size()){
         return;
     }
     QSettings settings("szsm", QApplication::applicationName());
@@ -97,45 +113,23 @@ void Reader::save()
     }
 }
 
-void Reader::reRender()
-{
-    if (doc){
-        Poppler::Page *page = doc->page(0);
-        if (page){
-            double scale=ui->spinBoxScale->value()/100.0;
-            QImage img = page->renderToImage(QApplication::desktop()->physicalDpiX()*scale,QApplication::desktop()->physicalDpiY()*scale);
-            ui->label->setPixmap(QPixmap::fromImage(img));
-            delete page;
-        } else {
-            ui->label->clear();
-        }
-    } else {
-        ui->label->clear();
-    }
-}
-
 void Reader::replyFinished()
 {
     QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
     if (reply){
-        data=reply->readAll();
+        QByteArray data=reply->readAll();
         bool ok=(reply->error()==QNetworkReply::NoError);
         if (!ok){
             QMessageBox::critical(nullptr,tr("Ошибка"),reply->errorString()+"\n"+data,QMessageBox::Cancel);
         } else {
-            if (doc){
-                delete doc;
-                doc=nullptr;
-            }
             if (data.size()){
-                doc = Poppler::Document::loadFromData(data);
-                if (doc){
-                    setLock(false);
-                    doc->setRenderHint(Poppler::Document::TextAntialiasing);
-                }
-            }
-            reRender();
-        }
+                QPixmap pixmap;
+                pixmap.loadFromData(data,"png");
+                ui->label->setPixmap(pixmap);
+                setLock(false);
+            } else {
+                ui->label->clear();
+            }}
         reply->deleteLater();
     }
 }

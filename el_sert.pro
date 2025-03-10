@@ -11,8 +11,6 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = el_sert
 TEMPLATE = app
 
-LIBS += -lpoppler-qt5
-
 SOURCES += main.cpp\
     dialogsignature.cpp \
         formpart.cpp \

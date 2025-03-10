@@ -6,7 +6,7 @@
 #include <QPrinter>
 #include <QPainter>
 #include "rels.h"
-#include <poppler/qt5/poppler-qt5.h>
+//#include <poppler/qt5/poppler-qt5.h>
 #include <QApplication>
 #include <QDesktopWidget>
 #include "httpsyncmanager.h"
@@ -14,6 +14,7 @@
 #include <QSettings>
 #include <QFileDialog>
 #include <QDir>
+#include <QProgressDialog>
 
 namespace Ui {
 class Reader;
@@ -31,19 +32,17 @@ public:
 
 public slots:
     void reload();
+    void setLang(QString lang);
 
 private:
     Ui::Reader *ui;
     int id_ship;
     QString name;
-    QByteArray data;
-    Poppler::Document *doc;
     QNetworkAccessManager *manager;
 
 private slots:
     void print();
     void save();
-    void reRender();
     void replyFinished();
     void setLock(bool b);
 };

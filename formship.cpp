@@ -177,12 +177,13 @@ void FormShip::refresh()
 
 void FormShip::partReq(QModelIndex index)
 {
-    int id_part=modelDataShip->data(modelDataShip->index(index.row(),5)).toInt();
+    int id_part=modelDataShip->data(modelDataShip->index(index.row(),6)).toInt();
     Rels::instance()->partSelectReq(id_part);
 }
 
 void FormShip::signFinished()
 {
+    reader->setLang(sertificat->getLang());
     reloadDataShip();
     ui->tabWidget->setCurrentIndex(1);
 }
@@ -278,23 +279,12 @@ void FormShip::signPrintAll()
             pprd->setValue(i);
             int id_ship=modelDataShip->data(modelDataShip->index(i,0),Qt::EditRole).toInt();
             QByteArray data;
-            bool ok = HttpSyncManager::sendGet(Rels::instance()->appServer()+"/s3/local/"+QString::number(id_ship)+"/"+lang,data);
-            if (ok){
-                if (data.size()){
-                    Poppler::Document *doc = Poppler::Document::loadFromData(data);
-                    if (doc){
-                        doc->setRenderHint(Poppler::Document::TextAntialiasing);
-                        Poppler::Page *page = doc->page(0);
-                        if (page){
-                            QImage img = page->renderToImage(300,300);
-                            painter.drawImage(painter.window(),img);
-                            if (i<modelDataShip->rowCount()-1){
-                                printer.newPage();
-                            }
-                            delete page;
-                        }
-                        delete doc;
-                    }
+            bool ok = HttpSyncManager::sendGet(Rels::instance()->appServer()+"/s3/img/"+QString::number(id_ship)+"/"+lang+"/300",data);
+            if (ok && data.size()){
+                QImage img = QImage::fromData(data,"png");
+                painter.drawImage(painter.window(),img);
+                if (i<modelDataShip->rowCount()-1){
+                    printer.newPage();
                 }
             }
         }
