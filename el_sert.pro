@@ -16,7 +16,6 @@ SOURCES += main.cpp\
         formpart.cpp \
     httpsyncmanager.cpp \
     editor.cpp \
-    modelship.cpp \
     reader.cpp \
     sertbuild.cpp \
     checkform.cpp \
@@ -52,7 +51,6 @@ HEADERS  += formpart.h \
     dialogsignature.h \
     httpsyncmanager.h \
     editor.h \
-    modelship.h \
     reader.h \
     sertbuild.h \
     checkform.h \

@@ -78,12 +78,13 @@ void FormShip::refreshDataShip(QModelIndex index)
     int id_ship=modelShip->data(modelShip->index(index.row(),0),Qt::EditRole).toInt();
     modelDataShip->refresh(id_ship);
     ui->tableViewShipData->setColumnHidden(0,true);
-    ui->tableViewShipData->setColumnHidden(5,true);
-    ui->tableViewShipData->setColumnHidden(6,true);
     ui->tableViewShipData->setColumnWidth(1,75);
-    ui->tableViewShipData->setColumnWidth(2,225);
-    ui->tableViewShipData->setColumnWidth(3,65);
-    ui->tableViewShipData->setColumnWidth(4,60);
+    ui->tableViewShipData->setColumnWidth(2,75);
+    ui->tableViewShipData->setColumnWidth(3,225);
+    ui->tableViewShipData->setColumnWidth(4,65);
+    ui->tableViewShipData->setColumnWidth(5,60);
+    ui->tableViewShipData->setColumnHidden(6,true);
+    ui->tableViewShipData->setColumnHidden(7,true);
     if (modelDataShip->rowCount()){
         ui->tableViewShipData->selectRow(0);
     }
@@ -91,13 +92,14 @@ void FormShip::refreshDataShip(QModelIndex index)
 
 void FormShip::refreshShipSert(QModelIndex index)
 {
-    int id_part=modelDataShip->data(modelDataShip->index(index.row(),6),Qt::EditRole).toInt();
+    int id_part=modelDataShip->data(modelDataShip->index(index.row(),7),Qt::EditRole).toInt();
     int id_ship=modelDataShip->data(modelDataShip->index(index.row(),0),Qt::EditRole).toInt();
+    QString prefix=modelDataShip->data(modelDataShip->index(index.row(),1),Qt::EditRole).toString();
     QString nomSert=ui->tableViewShip->model()->data(ui->tableViewShip->model()->index(ui->tableViewShip->currentIndex().row(),1),Qt::EditRole).toString();
-    QString name = modelDataShip->data(modelDataShip->index(index.row(),1),Qt::EditRole).toString();
+    QString name = modelDataShip->data(modelDataShip->index(index.row(),2),Qt::EditRole).toString();
     name+="_"+nomSert;
     name=name.replace(QRegExp("[^\\w]"), "_");
-    sertificat->build(id_part,id_ship,name);
+    sertificat->build(id_part,id_ship,name,prefix);
     reader->setCurrentIdShip(id_ship,name);
 }
 
@@ -192,7 +194,7 @@ void FormShip::reloadDataShip()
 {
     int id_ship=modelDataShip->data(modelDataShip->index(ui->tableViewShipData->currentIndex().row(),0),Qt::EditRole).toInt();
     ui->tableViewShipData->blockSignals(true);
-    modelDataShip->refresh();
+    modelDataShip->select();
     ui->tableViewShipData->blockSignals(false);
     for (int i=0; i<modelDataShip->rowCount(); i++){
         int id=modelDataShip->data(modelDataShip->index(i,0),Qt::EditRole).toInt();
@@ -243,7 +245,7 @@ void FormShip::signPdfAll()
         QByteArray data;
         bool ok = HttpSyncManager::sendGet(Rels::instance()->appServer()+"/s3/local/"+QString::number(id_ship)+"/"+lang,data);
         if (ok){
-            QString name = modelDataShip->data(modelDataShip->index(i,1),Qt::EditRole).toString();
+            QString name = modelDataShip->data(modelDataShip->index(i,2),Qt::EditRole).toString();
             name+="_"+nomSert;
             name=name.replace(QRegExp("[^\\w]"), "_");
             QDir dir(QDir::homePath()+"/el_sertificat");
@@ -290,4 +292,111 @@ void FormShip::signPrintAll()
         }
         delete pprd;
     }
+}
+
+ModelShip::ModelShip(QObject *parent) : ModelRo(parent)
+{
+
+}
+
+void ModelShip::refresh(QDate begDate, QDate endDate)
+{
+    QSqlQuery query;
+    query.prepare("select s.id, s.nom_s, s.dat_vid, p.short from sertifikat as s "
+                  "inner join poluch as p on p.id=s.id_pol "
+                  "where s.dat_vid between :d1 and :d2 order by s.nom_s, s.dat_vid");
+    query.bindValue(":d1",begDate);
+    query.bindValue(":d2",endDate);
+    if (execQuery(query)){
+        setHeaderData(1, Qt::Horizontal,tr("Номер"));
+        setHeaderData(2, Qt::Horizontal,tr("Дата"));
+        setHeaderData(3, Qt::Horizontal,tr("Получатель"));
+    }
+}
+
+ModelDataShip::ModelDataShip(QObject *parent) : ModelRo(parent)
+{
+    setDecimal(1);
+}
+
+void ModelDataShip::refresh(int id_ship)
+{
+    QSqlQuery query;
+    query.prepare("select z.id, z.prefix, z.parti, z.mark, z.massa, z.ds_status, z.r, z.id_part from ( "
+                  "(select o.id, 'elrtr' as prefix, p.n_s||'-'||date_part('year',p.dat_part) as parti, "
+                  "e.marka||' ф '||cast(p.diam as varchar(3))||CASE WHEN p.id_var <> 1 THEN (' /'::text || ev.nam::text) || '/'::text ELSE ''::text END AS mark, "
+                  "o.massa as massa, o.ds_status as ds_status, "
+                  "(select case when exists(select id_chem from sert_chem where id_part=p.id) then 1 else 0 end + "
+                  "case when exists(select id_mech from sert_mech where id_part=p.id) then 2 else 0 end ) as r, p.id as id_part "
+                  "from otpusk o inner join parti p on o.id_part=p.id "
+                  "inner join elrtr e on e.id=p.id_el "
+                  "inner join istoch i on i.id=p.id_ist "
+                  "inner join elrtr_vars ev on ev.id=p.id_var "
+                  "where o.id_sert = :id_ship order by p.n_s, p.dat_part) "
+                  "union "
+                  "(select w.id, 'wire', m.n_s||'-'||date_part('year',m.dat), "
+                  "pr.nam||' ф '|| d.sdim ||' '||k.short ||' '|| CASE WHEN p.id_var <> 1 THEN (' /'::text || ev.nam::text) || '/'::text ELSE ''::text END AS mark, "
+                  "w.m_netto, w.ds_status, "
+                  "(select case when exists(select id from wire_parti_chem where id_part=(select p.id_m from wire_parti as p where p.id = w.id_wparti)) then 1 else 0 end + "
+                  "case when exists(select id from wire_parti_mech where id_part=(select p.id_m from wire_parti as p where p.id = w.id_wparti)) then 2 else 0 end) as r, "
+                  "p.id "
+                  "from wire_shipment_consist w "
+                  "inner join wire_parti p on p.id=w.id_wparti "
+                  "inner join wire_parti_m m on p.id_m=m.id "
+                  "inner join provol pr on pr.id=m.id_provol "
+                  "inner join diam d on d.id=m.id_diam "
+                  "inner join wire_pack_kind k on p.id_pack=k.id "
+                  "inner join elrtr_vars ev on ev.id=p.id_var "
+                  "where w.id_ship= :id_ship "
+                  "order by pr.nam, d.sdim, k.short, m.n_s) "
+                  ") as z order by z.prefix, z.mark, z.parti");
+    query.bindValue(":id_ship",id_ship);
+    if (execQuery(query)){
+        setHeaderData(1, Qt::Horizontal,tr("Продукция"));
+        setHeaderData(2, Qt::Horizontal,tr("Партия"));
+        setHeaderData(3, Qt::Horizontal,tr("Марка"));
+        setHeaderData(4, Qt::Horizontal,tr("Масса, кг"));
+        setHeaderData(5, Qt::Horizontal,tr("ЭЦП"));
+    }
+}
+
+QVariant ModelDataShip::data(const QModelIndex &index, int role) const
+{
+    if((role == Qt::BackgroundRole)&&(this->columnCount()>3)) {
+        if (index.column()!=5){
+            int area = record(index.row()).value(6).toInt();
+            if(area == 0) {
+                return QVariant(QColor(255,170,170));
+            } else if(area == 1) {
+                return QVariant(QColor(Qt::yellow));
+            } else if(area == 2) {
+                return QVariant(QColor(Qt::gray));
+            } else if(area == 3) {
+                return QVariant(QColor(170,255,170));
+            }
+        } else {
+            int stat = record(index.row()).value(5).toInt();
+            if(stat == 0) {
+                return QVariant(QColor(255,170,170));
+            } else if(stat == 1) {
+                return QVariant(QColor(Qt::yellow));
+            } else if(stat == 2) {
+                return QVariant(QColor(170,255,170));
+            }
+        }
+    }
+
+    if (role == Qt::DisplayRole){
+        if (index.column()==5){
+            int stat = record(index.row()).value(5).toInt();
+            if(stat == 1) {
+                return QString("..");
+            } else if(stat == 2) {
+                return QString("OK");
+            } else {
+                return QString("-");
+            }
+        }
+    }
+    return ModelRo::data(index, role);
 }

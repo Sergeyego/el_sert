@@ -31,7 +31,7 @@ public:
     explicit SertBuild(QObject *parent = 0);
     int getType();
     svData getSData();
-    void build(int id_part, int id_ship, QString name);
+    void build(int id_part, int id_ship, QString name, QString prefix);
     QString getName();
 
 public slots:
@@ -55,6 +55,7 @@ private:
     svData sdata;
     QMap <int, bool> mapSert;
     QString sname;
+    QString spref;
 
 signals:
     void sigRefresh();

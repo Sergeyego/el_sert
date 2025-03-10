@@ -2,7 +2,6 @@
 #define FORMPART_H
 
 #include <QWidget>
-#include "modelship.h"
 #include "editor.h"
 #include "sertbuild.h"
 #include "db/dbtablemodel.h"
@@ -15,6 +14,24 @@
 #include "dialogcopy.h"
 #include "modelro.h"
 #include "reader.h"
+
+class ModelPart : public QSqlQueryModel
+{
+    Q_OBJECT
+public:
+    explicit ModelPart (QObject *parent = 0);
+    void refresh(QDate dbeg, QDate dend, int id_el);
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+private:
+    QDate dateBeg;
+    QDate dateEnd;
+    QMap <int,int> mapStat;
+    Executor *stateExecutor;
+private slots:
+    void refreshStateFinished();
+public slots:
+    void refreshState();
+};
 
 namespace Ui {
 class FormPart;

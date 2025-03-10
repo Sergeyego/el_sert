@@ -19,11 +19,12 @@ svData SertBuild::getSData()
     return sdata;
 }
 
-void SertBuild::build(int id_part, int id_ship, QString name)
+void SertBuild::build(int id_part, int id_ship, QString name, QString prefix)
 {
     current_id_part=id_part;
     current_id_ship=id_ship;
     sname=name;
+    spref=prefix;
     rebuild();
 }
 
@@ -47,7 +48,7 @@ void SertBuild::rebuild()
         }
     }
     int id = (current_id_ship>=0) ? current_id_ship : current_id_part;
-    QString path=QString(Rels::instance()->appServer()+"/certificates/elrtr/%1/%2?lang=%3&part=%4&docs=%5").arg(sertType).arg(id).arg(lang).arg((current_id_ship>=0) ? "false" : "true").arg(docs);
+    QString path=QString(Rels::instance()->appServer()+"/certificates/"+spref+"/%1/%2?lang=%3&part=%4&docs=%5").arg(sertType).arg(id).arg(lang).arg((current_id_ship>=0) ? "false" : "true").arg(docs);
     QByteArray resp;
     bool ok=HttpSyncManager::sendGet(path,resp);
     if (ok){
@@ -144,7 +145,7 @@ void SertBuild::updSData()
 {
     QByteArray resp;
     sdata.clear();
-    bool ok=HttpSyncManager::sendGet(Rels::instance()->appServer()+"/elrtr/sertdata/"+QString::number(current_id_part),resp);
+    bool ok=HttpSyncManager::sendGet(Rels::instance()->appServer()+"/"+spref+"/sertdata/"+QString::number(current_id_part),resp);
     if (ok){
         QJsonDocument respDoc;
         respDoc=QJsonDocument::fromJson(resp);

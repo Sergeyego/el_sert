@@ -71,8 +71,8 @@ Editor::Editor(QTextDocument *doc, QWidget *parent) :
     connect(ui->radioButtonEn,SIGNAL(clicked(bool)),this,SLOT(setObr()));
     connect(ui->radioButtonMix,SIGNAL(clicked(bool)),this,SLOT(setObr()));
     connect(ui->pushButtonSertDef,SIGNAL(clicked(bool)),this,SLOT(setDefaultDoc()));
-    connect(ui->pushButtonHtml,SIGNAL(clicked(bool)),this,SLOT(exportHtml()));
-    connect(ui->toolButtonLoad,SIGNAL(clicked(bool)),this,SLOT(loadHtml()));
+    connect(ui->toolButtonHTMLSave,SIGNAL(clicked(bool)),this,SLOT(exportHtml()));
+    connect(ui->toolButtonHTMLLoad,SIGNAL(clicked(bool)),this,SLOT(loadHtml()));
     connect(ui->pushButtonDS,SIGNAL(clicked(bool)),this,SLOT(signDS()));
 }
 

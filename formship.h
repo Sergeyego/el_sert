@@ -6,8 +6,25 @@
 #include <QProgressDialog>
 #include "editor.h"
 #include "sertbuild.h"
-#include "modelship.h"
 #include "reader.h"
+#include "modelro.h"
+
+class ModelShip : public ModelRo
+{
+    Q_OBJECT
+public:
+    ModelShip(QObject *parent);
+    void refresh(QDate begDate, QDate endDate);
+};
+
+class ModelDataShip : public ModelRo
+{
+    Q_OBJECT
+public:
+    ModelDataShip(QObject *parent);
+    void refresh(int id_ship);
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+};
 
 namespace Ui {
 class FormShip;

@@ -105,13 +105,6 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButtonHtml">
-       <property name="text">
-        <string>HTML</string>
-       </property>
-      </widget>
-     </item>
-     <item>
       <widget class="QPushButton" name="pushButtonDS">
        <property name="enabled">
         <bool>false</bool>
@@ -162,9 +155,16 @@
       </spacer>
      </item>
      <item>
-      <widget class="QToolButton" name="toolButtonLoad">
+      <widget class="QToolButton" name="toolButtonHTMLLoad">
        <property name="text">
-        <string>...</string>
+        <string>-&gt;</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="toolButtonHTMLSave">
+       <property name="text">
+        <string>&lt;-</string>
        </property>
       </widget>
      </item>
