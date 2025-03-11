@@ -9,6 +9,7 @@ MainWindow::MainWindow(bool readOnly, QWidget *parent) :
 
     if (!readOnly){
         actAction(ui->actionPartEl,&MainWindow::partEl);
+        actAction(ui->actionPartWire,&MainWindow::partWire);
         actAction(ui->actionVed,&MainWindow::ved);
         actAction(ui->actionDoc,&MainWindow::doc);
         actAction(ui->actionMark,&MainWindow::mark);
@@ -79,6 +80,13 @@ void MainWindow::partEl()
 {
     if (!exist(sender())){
         addSubWindow(new FormPart(),sender());
+    }
+}
+
+void MainWindow::partWire()
+{
+    if (!exist(sender())){
+        addSubWindow(new FormPartWire(),sender());
     }
 }
 

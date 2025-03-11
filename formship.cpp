@@ -250,7 +250,7 @@ void FormShip::signPdfAll()
         QString prefix = modelDataShip->data(modelDataShip->index(i,1),Qt::EditRole).toString();
         QByteArray data;
         bool ok = HttpSyncManager::sendGet(Rels::instance()->appServer()+"/s3/local/"+prefix+"/"+QString::number(id_ship)+"/"+lang,data);
-        if (ok){
+        if (ok && data.size()){
             QString name = prefix+"_"+modelDataShip->data(modelDataShip->index(i,2),Qt::EditRole).toString();
             name+="_"+nomSert;
             name=name.replace(QRegExp("[^\\w]"), "_");

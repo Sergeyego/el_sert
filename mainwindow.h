@@ -8,6 +8,7 @@
 #include "formdoc.h"
 #include "formmark.h"
 #include "formpos.h"
+#include "formpartwire.h"
 
 namespace Ui {
 class MainWindow;
@@ -30,6 +31,7 @@ private slots:
     void closeTab(int index);
 
     void partEl();
+    void partWire();
     void ship();
     void ved();
     void doc();

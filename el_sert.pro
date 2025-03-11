@@ -14,6 +14,7 @@ TEMPLATE = app
 SOURCES += main.cpp\
     dialogsignature.cpp \
         formpart.cpp \
+    formpartwire.cpp \
     httpsyncmanager.cpp \
     editor.cpp \
     reader.cpp \
@@ -45,10 +46,12 @@ SOURCES += main.cpp\
     db/dbcombobox.cpp \
     db/dbdateedit.cpp \
     db/dbrelationeditdialog.cpp \
-    db/tablemodel.cpp
+    db/tablemodel.cpp \
+    tableview.cpp
 
 HEADERS  += formpart.h \
     dialogsignature.h \
+    formpartwire.h \
     httpsyncmanager.h \
     editor.h \
     reader.h \
@@ -81,13 +84,15 @@ HEADERS  += formpart.h \
     db/dbcombobox.h \
     db/dbdateedit.h \
     db/dbrelationeditdialog.h \
-    db/tablemodel.h
+    db/tablemodel.h \
+    tableview.h
 
 FORMS    += formpart.ui \
     dialogsignature.ui \
     editor.ui \
     checkform.ui \
     db/dblogin.ui \
+    formpartwire.ui \
     mainwindow.ui \
     formship.ui \
     formved.ui \
