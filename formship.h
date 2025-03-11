@@ -24,6 +24,8 @@ public:
     ModelDataShip(QObject *parent);
     void refresh(int id_ship);
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+private:
+    QMap <QString, QString> mapProd;
 };
 
 namespace Ui {
@@ -47,6 +49,7 @@ private:
     ModelDataShip *modelDataShip;
     void loadSettings();
     void saveSettings();
+
 private slots:
     void refreshDataShip(QModelIndex index);
     void refreshShipSert(QModelIndex index);

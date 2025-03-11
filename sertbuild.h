@@ -43,6 +43,7 @@ public slots:
     void clearCache();
     int getIdShip();
     QString getLang();
+    QString getPrefix();
 
 private:
     int sertType;

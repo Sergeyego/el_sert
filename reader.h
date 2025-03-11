@@ -27,17 +27,19 @@ class Reader : public QWidget
 public:
     explicit Reader(QWidget *parent = nullptr);
     ~Reader();
-    void setCurrentIdShip(int id, QString fname);
+    void setCurrentIdShip(int id, QString fname, QString prefix);
     QString getCurrentLang();
 
 public slots:
     void reload();
     void setLang(QString lang);
+    void clear();
 
 private:
     Ui::Reader *ui;
     int id_ship;
     QString name;
+    QString spref;
     QNetworkAccessManager *manager;
 
 private slots:

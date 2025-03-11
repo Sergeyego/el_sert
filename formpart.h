@@ -87,7 +87,7 @@ private slots:
     void enPrimSave();
     void enZnamSave();
     void copyVal();
-    void findPart(int id_part);
+    void findPart(int id_part, QString prefix);
 };
 
 #endif // FORMPART_H

@@ -98,6 +98,11 @@ QString SertBuild::getLang()
     return lang;
 }
 
+QString SertBuild::getPrefix()
+{
+    return spref;
+}
+
 void SertBuild::loadDoc(const QString &html)
 {
     QMap <QString, QByteArray> tmpRes;

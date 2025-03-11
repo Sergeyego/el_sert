@@ -29,12 +29,13 @@ public:
 private slots:
     void closeTab(int index);
 
-    void part();
+    void partEl();
     void ship();
     void ved();
     void doc();
     void mark();
     void pos();
+    void partReq(int id_part, QString prefix);
 
 private:
     Ui::MainWindow *ui;

@@ -559,7 +559,7 @@ bool Editor::signDS(QString sn)
     bool ok=false;
     SertBuild *s=qobject_cast<SertBuild *>(this->document());
     if (s){
-        ok=HttpSyncManager::sendGet(Rels::instance()->appServer()+"/s3/status/"+QString::number(s->getIdShip())+"/"+s->getLang(),st);
+        ok=HttpSyncManager::sendGet(Rels::instance()->appServer()+"/s3/status/"+s->getPrefix()+"/"+QString::number(s->getIdShip())+"/"+s->getLang(),st);
         if (st=="true"){
             int n = QMessageBox::warning(this,tr("Предупреждение"),tr("Сертификат ")+s->getName()+tr(" уже был подписан. Желаете его переподписать?"),QMessageBox::Yes,QMessageBox::No);
             if (n==QMessageBox::No){
@@ -574,7 +574,7 @@ bool Editor::signDS(QString sn)
             ok = HttpSyncManager::sendRequest(Rels::instance()->signServer()+"/pdf/"+sn,"POST",file.readAll(),data,HttpSyncManager::typePdf);
             if (ok){
                 QByteArray resp;
-                ok = HttpSyncManager::sendRequest(Rels::instance()->appServer()+"/s3/local/"+QString::number(s->getIdShip())+"/"+s->getLang(),"POST",data,resp,HttpSyncManager::typePdf);
+                ok = HttpSyncManager::sendRequest(Rels::instance()->appServer()+"/s3/local/"+s->getPrefix()+"/"+QString::number(s->getIdShip())+"/"+s->getLang(),"POST",data,resp,HttpSyncManager::typePdf);
             }
             file.close();
         }

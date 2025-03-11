@@ -95,7 +95,7 @@ FormPart::FormPart(QWidget *parent) :
     connect(ui->textEditPrimProd,SIGNAL(textChanged()),this,SLOT(enPrimSave()));
     connect(ui->lineEditZnam,SIGNAL(textChanged(QString)),this,SLOT(enZnamSave()));
     connect(ui->pushButtonCopy,SIGNAL(clicked(bool)),this,SLOT(copyVal()));
-    connect(Rels::instance(),SIGNAL(partReq(int)),this,SLOT(findPart(int)));
+    connect(Rels::instance(),SIGNAL(partReq(int,QString)),this,SLOT(findPart(int,QString)));
     connect(modelSertChem,SIGNAL(sigUpd()),modelPart,SLOT(refreshState()));
     connect(modelSertMech,SIGNAL(sigUpd()),modelPart,SLOT(refreshState()));
     connect(ui->checkBoxOk,SIGNAL(clicked(bool)),this,SLOT(saveOk()));
@@ -157,7 +157,7 @@ void FormPart::loadAdd(int id_part)
         modelAdd->setHeaderData(2,Qt::Horizontal,tr("Получатель"));
         modelAdd->setHeaderData(3,Qt::Horizontal,tr("Масса"));
         modelAdd->setHeaderData(4,Qt::Horizontal,tr("Реальный получатель"));
-        modelAdd->setHeaderData(5,Qt::Horizontal,tr("ЭП"));
+        modelAdd->setHeaderData(5,Qt::Horizontal,tr("ЭЦП"));
         ui->tableViewAdd->setColumnHidden(6,true);
     }
     ui->tableViewAdd->resizeColumnsToContents();
@@ -340,7 +340,7 @@ void FormPart::showShipSert(QModelIndex index)
         name=name.replace(QRegExp("[^\\w]"), "_");
         int sign=ui->tableViewAdd->model()->data(ui->tableViewAdd->model()->index(index.row(),5),Qt::EditRole).toInt();
         if (sign>0){
-            readerPart->setCurrentIdShip(id_ship,name);
+            readerPart->setCurrentIdShip(id_ship,name,"elrtr");
             readerPart->show();
         } else {
             sertificatPart->build(currentIdPart(),id_ship,name,"elrtr");
@@ -433,8 +433,11 @@ void FormPart::copyVal()
     }
 }
 
-void FormPart::findPart(int id_part)
+void FormPart::findPart(int id_part, QString prefix)
 {
+    if (prefix!="elrtr"){
+        return;
+    }
     bool ok=false;
     for (int i=0; i<modelPart->rowCount(); i++){
         if (id_part==modelPart->data(modelPart->index(i,0),Qt::EditRole).toInt()){

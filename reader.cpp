@@ -27,10 +27,11 @@ Reader::~Reader()
 
 
 
-void Reader::setCurrentIdShip(int id, QString fname)
+void Reader::setCurrentIdShip(int id, QString fname, QString prefix)
 {
     id_ship=id;
     name=fname;
+    spref=prefix;
     reload();
 }
 
@@ -50,7 +51,7 @@ void Reader::reload()
     setLock(true);
     double scale=ui->spinBoxScale->value()/100.0;
     int dpi=QApplication::desktop()->physicalDpiX()*scale;
-    QNetworkRequest request(QUrl::fromUserInput(Rels::instance()->appServer()+"/s3/img/"+QString::number(id_ship)+"/"+getCurrentLang()+"/"+QString::number(dpi)));
+    QNetworkRequest request(QUrl::fromUserInput(Rels::instance()->appServer()+"/s3/img/"+spref+"/"+QString::number(id_ship)+"/"+getCurrentLang()+"/"+QString::number(dpi)));
     request.setRawHeader("Accept-Charset", "UTF-8");
     request.setRawHeader("User-Agent", "Appszsm");
     QNetworkReply *reply;
@@ -69,6 +70,12 @@ void Reader::setLang(QString lang)
     }
 }
 
+void Reader::clear()
+{
+    ui->label->clear();
+    id_ship=-1;
+}
+
 void Reader::print()
 {
     QByteArray data;
@@ -77,7 +84,7 @@ void Reader::print()
     pprd->setMinimumDuration(0);
     pprd->setWindowTitle(tr("Пожалуйста, подождите"));
     pprd->setValue(0);
-    bool ok = HttpSyncManager::sendGet(Rels::instance()->appServer()+"/s3/img/"+QString::number(id_ship)+"/"+getCurrentLang()+"/300",data);
+    bool ok = HttpSyncManager::sendGet(Rels::instance()->appServer()+"/s3/img/"+spref+"/"+QString::number(id_ship)+"/"+getCurrentLang()+"/300",data);
     QCoreApplication::processEvents();
     pprd->setValue(1);
     if (ok && data.size()){
@@ -95,7 +102,7 @@ void Reader::print()
 void Reader::save()
 {
     QByteArray data;
-    bool ok = HttpSyncManager::sendGet(Rels::instance()->appServer()+"/s3/local/"+QString::number(id_ship)+"/"+getCurrentLang(),data);
+    bool ok = HttpSyncManager::sendGet(Rels::instance()->appServer()+"/s3/local/"+spref+"/"+QString::number(id_ship)+"/"+getCurrentLang(),data);
     if (!ok || !data.size()){
         return;
     }

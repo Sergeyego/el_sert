@@ -2,6 +2,7 @@
 #define RELS_H
 
 #include <QObject>
+#include <QSettings>
 #include "db/dbtablemodel.h"
 
 class Rels : public QObject
@@ -54,10 +55,10 @@ public slots:
     void refreshElDim();
     void refreshVedPix();
     void refreshPolPix();
-    void partSelectReq(int id_part);
+    void partSelectReq(int id_part, QString prefix);
 
 signals:
-    void partReq(int id_part);
+    void partReq(int id_part, QString prefix);
 };
 
 #endif // RELS_H

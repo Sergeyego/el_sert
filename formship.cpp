@@ -78,15 +78,19 @@ void FormShip::refreshDataShip(QModelIndex index)
     int id_ship=modelShip->data(modelShip->index(index.row(),0),Qt::EditRole).toInt();
     modelDataShip->refresh(id_ship);
     ui->tableViewShipData->setColumnHidden(0,true);
-    ui->tableViewShipData->setColumnWidth(1,75);
+    ui->tableViewShipData->setColumnWidth(1,65);
     ui->tableViewShipData->setColumnWidth(2,75);
-    ui->tableViewShipData->setColumnWidth(3,225);
+    ui->tableViewShipData->setColumnWidth(3,250);
     ui->tableViewShipData->setColumnWidth(4,65);
-    ui->tableViewShipData->setColumnWidth(5,60);
+    ui->tableViewShipData->setColumnWidth(5,45);
     ui->tableViewShipData->setColumnHidden(6,true);
     ui->tableViewShipData->setColumnHidden(7,true);
     if (modelDataShip->rowCount()){
         ui->tableViewShipData->selectRow(0);
+    } else {
+        modelDataShip->refresh(-1);
+        editor->document()->clear();
+        reader->clear();
     }
 }
 
@@ -96,11 +100,11 @@ void FormShip::refreshShipSert(QModelIndex index)
     int id_ship=modelDataShip->data(modelDataShip->index(index.row(),0),Qt::EditRole).toInt();
     QString prefix=modelDataShip->data(modelDataShip->index(index.row(),1),Qt::EditRole).toString();
     QString nomSert=ui->tableViewShip->model()->data(ui->tableViewShip->model()->index(ui->tableViewShip->currentIndex().row(),1),Qt::EditRole).toString();
-    QString name = modelDataShip->data(modelDataShip->index(index.row(),2),Qt::EditRole).toString();
+    QString name = prefix+"_"+modelDataShip->data(modelDataShip->index(index.row(),2),Qt::EditRole).toString();
     name+="_"+nomSert;
     name=name.replace(QRegExp("[^\\w]"), "_");
     sertificat->build(id_part,id_ship,name,prefix);
-    reader->setCurrentIdShip(id_ship,name);
+    reader->setCurrentIdShip(id_ship,name,prefix);
 }
 
 void FormShip::printAll()
@@ -144,7 +148,7 @@ void FormShip::pdfAll()
         QCoreApplication::processEvents();
         pprd->setValue(i);
         refreshShipSert(modelDataShip->index(i,0));
-        QDir dir(QDir::homePath()+"/el_sertificat");
+        QDir dir(QDir::homePath()+"/sertificat");
         if (!dir.exists()) dir.mkdir(dir.path());
         dir.setPath(dir.path()+"/"+QString::number(yearSert));
         if (!dir.exists()) dir.mkdir(dir.path());
@@ -173,14 +177,15 @@ void FormShip::refresh()
     } else {
         modelDataShip->refresh(-1);
         editor->document()->clear();
-        reader->setCurrentIdShip(-1,"");
+        reader->setCurrentIdShip(-1,"","elrtr");
     }
 }
 
 void FormShip::partReq(QModelIndex index)
 {
-    int id_part=modelDataShip->data(modelDataShip->index(index.row(),6)).toInt();
-    Rels::instance()->partSelectReq(id_part);
+    int id_part=modelDataShip->data(modelDataShip->index(index.row(),7),Qt::EditRole).toInt();
+    QString prefix=modelDataShip->data(modelDataShip->index(index.row(),1),Qt::EditRole).toString();
+    Rels::instance()->partSelectReq(id_part,prefix);
 }
 
 void FormShip::signFinished()
@@ -242,13 +247,14 @@ void FormShip::signPdfAll()
         QCoreApplication::processEvents();
         pprd->setValue(i);
         int id_ship=modelDataShip->data(modelDataShip->index(i,0),Qt::EditRole).toInt();
+        QString prefix = modelDataShip->data(modelDataShip->index(i,1),Qt::EditRole).toString();
         QByteArray data;
-        bool ok = HttpSyncManager::sendGet(Rels::instance()->appServer()+"/s3/local/"+QString::number(id_ship)+"/"+lang,data);
+        bool ok = HttpSyncManager::sendGet(Rels::instance()->appServer()+"/s3/local/"+prefix+"/"+QString::number(id_ship)+"/"+lang,data);
         if (ok){
-            QString name = modelDataShip->data(modelDataShip->index(i,2),Qt::EditRole).toString();
+            QString name = prefix+"_"+modelDataShip->data(modelDataShip->index(i,2),Qt::EditRole).toString();
             name+="_"+nomSert;
             name=name.replace(QRegExp("[^\\w]"), "_");
-            QDir dir(QDir::homePath()+"/el_sertificat");
+            QDir dir(QDir::homePath()+"/sertificat");
             if (!dir.exists()) dir.mkdir(dir.path());
             dir.setPath(dir.path()+"/"+QString::number(yearSert));
             if (!dir.exists()) dir.mkdir(dir.path());
@@ -280,8 +286,9 @@ void FormShip::signPrintAll()
             QCoreApplication::processEvents();
             pprd->setValue(i);
             int id_ship=modelDataShip->data(modelDataShip->index(i,0),Qt::EditRole).toInt();
+            QString prefix=modelDataShip->data(modelDataShip->index(i,1),Qt::EditRole).toString();
             QByteArray data;
-            bool ok = HttpSyncManager::sendGet(Rels::instance()->appServer()+"/s3/img/"+QString::number(id_ship)+"/"+lang+"/300",data);
+            bool ok = HttpSyncManager::sendGet(Rels::instance()->appServer()+"/s3/img/"+prefix+"/"+QString::number(id_ship)+"/"+lang+"/300",data);
             if (ok && data.size()){
                 QImage img = QImage::fromData(data,"png");
                 painter.drawImage(painter.window(),img);
@@ -317,6 +324,8 @@ void ModelShip::refresh(QDate begDate, QDate endDate)
 ModelDataShip::ModelDataShip(QObject *parent) : ModelRo(parent)
 {
     setDecimal(1);
+    mapProd.insert("elrtr",tr("ЭЛЕК."));
+    mapProd.insert("wire",tr("ПРОВ."));
 }
 
 void ModelDataShip::refresh(int id_ship)
@@ -352,7 +361,7 @@ void ModelDataShip::refresh(int id_ship)
                   ") as z order by z.prefix, z.mark, z.parti");
     query.bindValue(":id_ship",id_ship);
     if (execQuery(query)){
-        setHeaderData(1, Qt::Horizontal,tr("Продукция"));
+        setHeaderData(1, Qt::Horizontal,tr("Продукц."));
         setHeaderData(2, Qt::Horizontal,tr("Партия"));
         setHeaderData(3, Qt::Horizontal,tr("Марка"));
         setHeaderData(4, Qt::Horizontal,tr("Масса, кг"));
@@ -387,7 +396,9 @@ QVariant ModelDataShip::data(const QModelIndex &index, int role) const
     }
 
     if (role == Qt::DisplayRole){
-        if (index.column()==5){
+        if (index.column()==1){
+            return mapProd.value(record(index.row()).value(1).toString(),record(index.row()).value(1).toString());
+        } else if (index.column()==5){
             int stat = record(index.row()).value(5).toInt();
             if(stat == 1) {
                 return QString("..");

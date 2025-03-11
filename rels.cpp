@@ -11,12 +11,21 @@ Rels *Rels::instance()
 
 QString Rels::signServer()
 {
-    return "http://127.0.0.1:8000";
+    QSettings settings("szsm", QApplication::applicationName());
+    QString key="signserver";
+    QString defVal=QString("http://127.0.0.1:8000");
+    if (!settings.contains(key)){
+        settings.setValue(key,defVal);
+    }
+    return settings.value(key,defVal).toString();
 }
 
 QString Rels::appServer()
 {
-    return "http://127.0.0.1:7000";
+    QSqlDatabase db=QSqlDatabase::database();
+    const QString host=db.isValid()? db.hostName() : "127.0.0.1";
+    int port=7000;
+    return "http://"+host+":"+QString::number(port);
 }
 
 Rels::Rels(QObject *parent) : QObject(parent)
@@ -124,7 +133,7 @@ void Rels::refreshPolPix()
     }
 }
 
-void Rels::partSelectReq(int id_part)
+void Rels::partSelectReq(int id_part, QString prefix)
 {
-    emit partReq(id_part);
+    emit partReq(id_part,prefix);
 }

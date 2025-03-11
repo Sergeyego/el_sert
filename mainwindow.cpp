@@ -8,7 +8,7 @@ MainWindow::MainWindow(bool readOnly, QWidget *parent) :
     ui->setupUi(this);
 
     if (!readOnly){
-        actAction(ui->actionPart,&MainWindow::part);
+        actAction(ui->actionPartEl,&MainWindow::partEl);
         actAction(ui->actionVed,&MainWindow::ved);
         actAction(ui->actionDoc,&MainWindow::doc);
         actAction(ui->actionMark,&MainWindow::mark);
@@ -19,7 +19,7 @@ MainWindow::MainWindow(bool readOnly, QWidget *parent) :
     loadSettings();
 
     connect(ui->tabWidget,SIGNAL(tabCloseRequested(int)),this,SLOT(closeTab(int)));
-    connect(Rels::instance(),SIGNAL(partReq(int)),ui->actionPart,SLOT(trigger()));
+    connect(Rels::instance(),SIGNAL(partReq(int,QString)),this,SLOT(partReq(int,QString)));
 }
 
 MainWindow::~MainWindow()
@@ -75,7 +75,7 @@ void MainWindow::closeTab(int index)
     ui->tabWidget->widget(index)->close();
 }
 
-void MainWindow::part()
+void MainWindow::partEl()
 {
     if (!exist(sender())){
         addSubWindow(new FormPart(),sender());
@@ -117,6 +117,15 @@ void MainWindow::pos()
     }
 }
 
+void MainWindow::partReq(int /*id_part*/, QString prefix)
+{
+    if (prefix=="elrtr"){
+        ui->actionPartEl->trigger();
+    } else {
+        ui->actionPartWire->trigger();
+    }
+}
+
 void MainWindow::loadSettings()
 {
     QSettings settings("szsm", QApplication::applicationName());
@@ -126,7 +135,7 @@ void MainWindow::loadSettings()
     QString current=settings.value("main_currenttab").toString();
 
     if (opentab.isEmpty()){
-        ui->actionPart->trigger();
+        ui->actionPartEl->trigger();
     } else {
         QStringList l=opentab.split("|");
         foreach (QString a, l) {
