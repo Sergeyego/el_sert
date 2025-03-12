@@ -55,4 +55,16 @@ public:
     ModelMechSert(QObject *parent=0);
 };
 
+class ModelChemSrcWire : public ModelChem
+{
+public:
+    ModelChemSrcWire(QObject *parent=0);
+};
+
+class ModelChemSertWire : public ModelChem
+{
+public:
+    ModelChemSertWire(QObject *parent=0);
+};
+
 #endif // MODELSTU_H

@@ -85,6 +85,8 @@ Rels::Rels(QObject *parent) : QObject(parent)
     relIntClass = new DbSqlRelation("int_class","id","nam",this);
     relIntClass->setSort("int_class.nam");
     relIntClass->setEditable(true);
+    relMechCat = new DbSqlRelation("mech_category","id","nam",this);
+    relMechCat->setSort("mech_category.nam");
     refreshVedPix();
     refreshPolPix();
 }

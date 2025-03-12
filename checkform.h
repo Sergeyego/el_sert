@@ -17,9 +17,12 @@ public:
     explicit CheckForm(QWidget *parent = 0);
     ~CheckForm();
     void closeEvent(QCloseEvent *e);
+    void setCheckEl(bool b);
 
 private:
     Ui::CheckForm *ui;
+    QString checkEl(int id_part, int id_ship);
+    QString checkWire(int id_part, int id_ship);
 private slots:
     void go();
 

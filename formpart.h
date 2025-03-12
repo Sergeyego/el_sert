@@ -67,6 +67,7 @@ private:
     int currentIdPart();
     void loadsettings();
     void savesettings();
+    void setLock(bool b);
 
 private slots:
     void refresh();

@@ -177,7 +177,7 @@ void FormShip::refresh()
     } else {
         modelDataShip->refresh(-1);
         editor->document()->clear();
-        reader->setCurrentIdShip(-1,"","elrtr");
+        reader->clear();
     }
 }
 
@@ -230,7 +230,7 @@ void FormShip::signAll()
         QByteArray st;
         HttpSyncManager::sendGet(Rels::instance()->appServer()+"/s3/sync",st);
         delete pprd;
-        reloadDataShip();
+        signFinished();
     }
 }
 

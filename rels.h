@@ -42,6 +42,7 @@ public:
     DbSqlRelation *relVar;
     DbSqlRelation *relSertType;
     DbSqlRelation *relIntClass;
+    DbSqlRelation *relMechCat;
     QString signServer();
     QString appServer();
 

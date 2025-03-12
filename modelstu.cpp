@@ -166,3 +166,35 @@ ModelMechSert::ModelMechSert(QObject *parent) : ModelChem("sert_mech",parent)
             "m.id_el = (select p.id_el from parti as p where p.id = :id ) "
             "and m.id_var = (select p.id_var from parti as p where p.id = :id )";
 }
+
+ModelChemSrcWire::ModelChemSrcWire(QObject *parent) : ModelChem("prov_chem",parent)
+{
+    addColumn("id_buht","id_buht");
+    addColumn("id_el",tr("Элем."),Rels::instance()->relChem);
+    addColumn("kvo",tr("Сод., %"));
+    setDecimals(2,3);
+    setSort("chem_tbl.sig");
+    flt=tableName+".id_buht";
+    colIdPart=0;
+    colIdChem=1;
+    colVal=2;
+    tuQuery="select c.id_chem, c.min, c.max from wire_chem_tu as c where c.id_provol = "
+              "(select COALESCE(pr.id_base, pp.id_pr) from prov_buht as b inner join prov_prih as pp on b.id_prih=pp.id "
+              "inner join provol as pr on pp.id_pr=pr.id where b.id = :id )";
+}
+
+ModelChemSertWire::ModelChemSertWire(QObject *parent) : ModelChem("wire_parti_chem",parent)
+{
+    addColumn("id","id");
+    addColumn("id_part","id_part");
+    addColumn("id_chem",tr("Элем."),Rels::instance()->relChem);
+    addColumn("value",tr("Сод., %"));
+    setDecimals(3,3);
+    setSort("chem_tbl.sig");
+    flt=tableName+".id_part";
+    colIdPart=1;
+    colIdChem=2;
+    colVal=3;
+    tuQuery="select c.id_chem, c.min, c.max from wire_chem_tu as c where c.id_provol = "
+              "(select COALESCE(pr.id_base, p.id_provol) from wire_parti_m as p inner join provol as pr on p.id_provol=pr.id where p.id = :id )";
+}

@@ -197,6 +197,29 @@ void FormPart::savesettings()
     settings.setValue("part_splitter_width",ui->splitterVert->saveState());
 }
 
+void FormPart::setLock(bool b)
+{
+    ui->textEditPrim->setEnabled(!b);
+    ui->textEditPrimProd->setEnabled(!b);
+    ui->tableViewSrcChem->setEnabled(!b);
+    ui->tableViewSertChem->setEnabled(!b);
+    ui->toolButtonGenChem->setEnabled(!b);
+    ui->tableViewSrcMech->setEnabled(!b);
+    ui->tableViewSertMech->setEnabled(!b);
+    ui->tableViewSertMechx->setEnabled(!b);
+    ui->toolButtonGenMech->setEnabled(!b);
+    ui->cmdLbl->setEnabled(!b);
+    ui->cmdLblSmall->setEnabled(!b);
+    ui->cmdLblSmall2->setEnabled(!b);
+    ui->cmdPartSert->setEnabled(!b);
+    ui->lineEditZnam->setEnabled(!b);
+    ui->cmdSaveZnam->setEnabled(!b);
+    ui->checkBoxOk->setEnabled(!b);
+    ui->cmdCopyZnam->setEnabled(!b);
+    ui->cmdCopyMechForward->setEnabled(!b);
+    ui->pushButtonCopy->setEnabled(!b);
+}
+
 void FormPart::savePrim()
 {
     int id=currentIdPart();
@@ -277,7 +300,6 @@ void FormPart::genMech()
         }
     }
 }
-
 
 void FormPart::copyMechForward()
 {
@@ -457,7 +479,7 @@ void FormPart::refresh()
         return;
     }
 
-    if (sender()==ui->checkBoxOnly){
+    if (sender()==ui->checkBoxOnly && modelPart->rowCount()){
         colVal d;
         d.val=modelPart->data(modelPart->index(ui->tableViewPart->currentIndex().row(),7),Qt::EditRole).toInt();
         ui->comboBoxMar->setCurrentData(d);
@@ -467,6 +489,7 @@ void FormPart::refresh()
     if (ui->checkBoxOnly->isChecked() && ui->comboBoxMar->currentIndex()>=0){
         id_el=ui->comboBoxMar->getCurrentData().val.toInt();
     }
+
     modelPart->refresh(ui->dateEditBeg->date(),ui->dateEditEnd->date(),id_el);
     ui->tableViewPart->setColumnHidden(0,true);
     ui->tableViewPart->setColumnHidden(7,true);
@@ -479,7 +502,18 @@ void FormPart::refresh()
     if (ui->tableViewPart->model()->rowCount()){
         ui->tableViewPart->selectRow(ui->tableViewPart->model()->rowCount()-1);
         ui->tableViewPart->scrollToBottom();
+    } else {
+        modelAdd->clear();
+        modelSrcGost->clear();
+        ui->lineEditSrcZnam->clear();
+        ui->lineEditZnam->clear();
+        ui->textEditPrim->clear();
+        ui->textEditPrimProd->clear();
     }
+
+    setLock(ui->tableViewPart->model()->rowCount()<1);
+    ui->cmdSavePrim->setEnabled(false);
+
     if (sender()==ui->cmdUpd){
         Rels::instance()->relElMark->refreshModel();
         Rels::instance()->refreshVedPix();

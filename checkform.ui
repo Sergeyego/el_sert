@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>475</width>
-    <height>167</height>
+    <width>550</width>
+    <height>300</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -30,6 +30,27 @@
       <widget class="QPushButton" name="cmdGo">
        <property name="text">
         <string>Проверить</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <item>
+      <widget class="QRadioButton" name="radioButtonEl">
+       <property name="text">
+        <string>Электроды</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QRadioButton" name="radioButtonWire">
+       <property name="text">
+        <string>Проволока</string>
        </property>
       </widget>
      </item>
