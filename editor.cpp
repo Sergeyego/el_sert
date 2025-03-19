@@ -535,6 +535,9 @@ void Editor::signDS()
 {
     DialogSignature d;
     if (d.exec()==QDialog::Accepted){
+        if (d.getSN().isEmpty()){
+            return;
+        }
         QProgressDialog* pprd = new QProgressDialog(tr("Идет подписание документов..."),"", 0, 2, this);
         pprd->setCancelButton(0);
         pprd->setMinimumDuration(0);
@@ -547,9 +550,9 @@ void Editor::signDS()
             pprd->setLabelText("Синхронизация с облачным сервисом...");
             QByteArray st;
             HttpSyncManager::sendGet(Rels::instance()->appServer()+"/s3/sync",st);
-            delete pprd;
             emit signFinished();
         }
+        delete pprd;
     }
 }
 

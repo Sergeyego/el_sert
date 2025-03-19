@@ -6,9 +6,6 @@
 #include <QPrinter>
 #include <QPainter>
 #include "rels.h"
-//#include <poppler/qt5/poppler-qt5.h>
-#include <QApplication>
-#include <QDesktopWidget>
 #include "httpsyncmanager.h"
 #include <QFile>
 #include <QSettings>

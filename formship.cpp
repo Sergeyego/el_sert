@@ -215,6 +215,9 @@ void FormShip::signAll()
     DialogSignature d;
     if (d.exec()==QDialog::Accepted){
         QString sn=d.getSN();
+        if (sn.isEmpty()){
+            return;
+        }
         QProgressDialog* pprd = new QProgressDialog(tr("Идет подписание документов..."),"", 0, modelDataShip->rowCount(), this);
         pprd->setCancelButton(0);
         pprd->setMinimumDuration(0);

@@ -50,7 +50,7 @@ void Reader::reload()
 {
     setLock(true);
     double scale=ui->spinBoxScale->value()/100.0;
-    int dpi=QApplication::desktop()->physicalDpiX()*scale;
+    int dpi=96*scale;
     QNetworkRequest request(QUrl::fromUserInput(Rels::instance()->appServer()+"/s3/img/"+spref+"/"+QString::number(id_ship)+"/"+getCurrentLang()+"/"+QString::number(dpi)));
     request.setRawHeader("Accept-Charset", "UTF-8");
     request.setRawHeader("User-Agent", "Appszsm");
