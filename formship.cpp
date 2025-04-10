@@ -43,6 +43,7 @@ FormShip::FormShip(QWidget *parent) :
     connect(ui->cmdPrintAll,SIGNAL(clicked()),this,SLOT(printAll()));
     connect(ui->cmdSaveAll,SIGNAL(clicked()),this,SLOT(pdfAll()));
     connect(ui->cmdUpd,SIGNAL(clicked()),this,SLOT(refresh()));
+    connect(ui->pushButtonPdf,SIGNAL(clicked(bool)),this,SLOT(multiPagePdf()));
 
     connect(editor,SIGNAL(signFinished()),this,SLOT(signFinished()));
     connect(editor,SIGNAL(signEnChanged(bool)),ui->cmdDsAll,SLOT(setEnabled(bool)));
@@ -159,6 +160,30 @@ void FormShip::pdfAll()
     }
     delete pprd;
     reloadDataShip();
+}
+
+void FormShip::multiPagePdf()
+{
+    if (!ui->tableViewShipData->model()->rowCount()){
+        return;
+    }
+    QString name=ui->tableViewShip->model()->data(ui->tableViewShip->model()->index(ui->tableViewShip->currentIndex().row(),1),Qt::EditRole).toString();
+    QSettings settings("szsm", QApplication::applicationName());
+    QDir dir(settings.value("sertPath",QDir::homePath()).toString());
+    QString fname = QFileDialog::getSaveFileName(this,tr("Сохранить PDF"),dir.path()+"/"+name+".pdf", "*.pdf");
+    if (!fname.isEmpty()){
+        QPrinter pdfPrinter;
+        pdfPrinter.setOutputFileName(fname);
+        pdfPrinter.setOutputFormat(QPrinter::PdfFormat);
+        pdfPrinter.setOutputFileName(fname);
+        pdfPrinter.setColorMode(QPrinter::Color);
+        pdfPrinter.setPageMargins(QMarginsF(30, 30, 30, 30));
+        pdfPrinter.setResolution(QPrinter::HighResolution);
+        printAll(&pdfPrinter);
+        QFile file(fname);
+        QFileInfo info(file);
+        settings.setValue("sertPath",info.path());
+    }
 }
 
 void FormShip::refresh()

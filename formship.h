@@ -56,6 +56,7 @@ private slots:
     void printAll();
     void printAll(QPagedPaintDevice *printer);
     void pdfAll();
+    void multiPagePdf();
     void refresh();
     void partReq(QModelIndex index);
     void signFinished();
