@@ -138,14 +138,16 @@ ModelChemSert::ModelChemSert(QObject *parent) : ModelChem("sert_chem",parent)
 ModelMechSrc::ModelMechSrc(QObject *parent) : ModelChem("parti_mech",parent)
 {
     addColumn("id_part","id_part");
+    addColumn("tm",tr("Темп."));
+    addColumn("num",tr("№ об."));
     addColumn("id_mech",tr("Параметр"),Rels::instance()->relMech);
     addColumn("kvo",tr("Значение"));
-    setSort("parti_mech.id_mech");
-    setDecimals(2,2);
+    setSort("parti_mech.tm, parti_mech.id_mech, parti_mech.num");
+    setDecimals(4,2);
     flt=tableName+".id_part";
     colIdPart=0;
-    colIdChem=1;
-    colVal=2;
+    colIdChem=3;
+    colVal=4;
     tuQuery="select m.id_mech, m.min, m.max from mech_tu as m where "
             "m.id_el = (select p.id_el from parti as p where p.id = :id ) "
             "and m.id_var = (select p.id_var from parti as p where p.id = :id )";
