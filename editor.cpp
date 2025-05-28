@@ -574,10 +574,10 @@ bool Editor::signDS(QString sn)
         QFile file(filename);
         if (ok && file.open(QIODevice::ReadOnly)){
             QByteArray data;
-            ok = HttpSyncManager::sendRequest(Rels::instance()->signServer()+"/pdf/"+sn+"?lang="+s->getLang(),"POST",file.readAll(),data,HttpSyncManager::typePdf);
+            ok = HttpSyncManager::sendRequest(Rels::instance()->signServer()+"/pdf/"+sn+"?lang="+s->getLang(),"POST",file.readAll(),data,"application/pdf");
             if (ok){
                 QByteArray resp;
-                ok = HttpSyncManager::sendRequest(Rels::instance()->appServer()+"/s3/local/"+s->getPrefix()+"/"+QString::number(s->getIdShip())+"/"+s->getLang(),"POST",data,resp,HttpSyncManager::typePdf);
+                ok = HttpSyncManager::sendRequest(Rels::instance()->appServer()+"/s3/local/"+s->getPrefix()+"/"+QString::number(s->getIdShip())+"/"+s->getLang(),"POST",data,resp,"application/pdf");
             }
             file.close();
         }
