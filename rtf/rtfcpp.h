@@ -28,7 +28,6 @@ The above copyright notice and this permission notice shall be included in
 #include <QString>
 #include <QFile>
 #include <QTextStream>
-#include <QTextCodec>
 #include <QDebug>
 #include <QStringList>
 #include <QImage>

@@ -262,7 +262,7 @@ void FormPartWire::showShipSert(QModelIndex index)
         QDate date=ui->tableViewPart->model()->data(ui->tableViewPart->model()->index(row,2),Qt::EditRole).toDate();
         int id_ship=ui->tableViewShip->model()->data(ui->tableViewShip->model()->index(index.row(),0),Qt::EditRole).toInt();
         QString name=n_s+"_"+QString::number(date.year())+"_"+ui->tableViewShip->model()->data(ui->tableViewShip->model()->index(index.row(),2),Qt::EditRole).toString();
-        name=name.replace(QRegExp("[^\\w]"), "_");
+        name=name.replace(QRegularExpression("[^\\w]"), "_");
         int sign=ui->tableViewShip->model()->data(ui->tableViewShip->model()->index(index.row(),6),Qt::EditRole).toInt();
         if (sign>0){
             readerPart->setCurrentIdShip(id_ship,name,"wire");

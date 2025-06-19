@@ -4,7 +4,6 @@
 #include <QObject>
 #include <QDomDocument>
 #include <QFile>
-#include <QTextCodec>
 #include <QTextStream>
 #include <QSqlQuery>
 #include <QSqlError>

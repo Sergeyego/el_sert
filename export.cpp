@@ -122,7 +122,6 @@ void Export::createXml()
         QFile file(filename);
         if ( file.open( QIODevice::WriteOnly ) ) {
             QTextStream stream( &file );
-            stream.setCodec(QTextCodec::codecForName("UTF-8"));
             doc.save(stream,1);
             file.close();
         }

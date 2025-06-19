@@ -177,7 +177,7 @@ void Editor::setupTextActions()
 
     comboFont = new QFontComboBox(toolBarFont);
     toolBarFont->addWidget(comboFont);
-    connect(comboFont,SIGNAL(activated(QString)),this,SLOT(textFamily(QString)));
+    connect(comboFont,SIGNAL(textActivated(QString)),this,SLOT(textFamily(QString)));
 
     comboSize = new QComboBox(toolBarFont);
     comboSize->setObjectName("comboSize");
@@ -188,7 +188,7 @@ void Editor::setupTextActions()
     foreach (int size, standardSizes)
         comboSize->addItem(QString::number(size));
     comboSize->setCurrentIndex(standardSizes.indexOf(QApplication::font().pointSize()));
-    connect(comboSize,SIGNAL(activated(QString)),this,SLOT(textSize(QString)));
+    connect(comboSize,SIGNAL(textActivated(QString)),this,SLOT(textSize(QString)));
 
     toolBarFont->addSeparator();
 

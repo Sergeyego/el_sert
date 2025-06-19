@@ -594,14 +594,16 @@ void CustomDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, co
         QLineEdit *line = qobject_cast<QLineEdit *>(editor);
         if (line){
             QString text=line->text();
-            QRegExp reg("^\\s*(\\d+)\\s*±\\s*(\\d+)\\s*°C\\s+(\\d+)\\s+(\\w+)");
+            QRegularExpression reg("^\\s*(\\d+)\\s*±\\s*(\\d+)\\s*°C\\s+(\\d+)\\s+(\\w+)$");
+            reg.setPatternOptions(QRegularExpression::UseUnicodePropertiesOption);
+            QRegularExpressionMatch match = reg.match(text);
             QString s;
-            if (reg.indexIn(text)!=-1){
-                for (int i=1; i<=reg.captureCount(); i++){
+            if (match.hasMatch()){
+                for (int i=1; i<=match.lastCapturedIndex(); i++){
                     if(!s.isEmpty()){
                         s+=":";
                     }
-                    s+=reg.cap(i);
+                    s+=match.captured(i);
                 }
             }
             model->setData(index,s);

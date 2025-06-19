@@ -51,7 +51,6 @@
 #include "qtcpsocket.h"
 #include "qurlinfo.h"
 #include "qstringlist.h"
-#include "qregexp.h"
 #include "qtimer.h"
 #include "qfileinfo.h"
 #include "qhash.h"
@@ -326,7 +325,7 @@ void QFtpDTP::connectToHost(const QString & host, quint16 port)
     socket->setObjectName(QLatin1String("QFtpDTP Passive state socket"));
     connect(socket, SIGNAL(connected()), SLOT(socketConnected()));
     connect(socket, SIGNAL(readyRead()), SLOT(socketReadyRead()));
-    connect(socket, SIGNAL(error(QAbstractSocket::SocketError)), SLOT(socketError(QAbstractSocket::SocketError)));
+    connect(socket, SIGNAL(errorOccurred(QAbstractSocket::SocketError)), SLOT(socketError(QAbstractSocket::SocketError)));
     connect(socket, SIGNAL(disconnected()), SLOT(socketConnectionClosed()));
     connect(socket, SIGNAL(bytesWritten(qint64)), SLOT(socketBytesWritten(qint64)));
 
@@ -620,21 +619,25 @@ bool QFtpDTP::parseDir(const QByteArray &buffer, const QString &userName, QUrlIn
     if (buffer.isEmpty())
         return false;
 
-    QString bufferStr = QString::fromLatin1(buffer).trimmed();
+    QString bufferStr = QString::fromLocal8Bit(buffer).trimmed();
 
     // Unix style FTP servers
-    QRegExp unixPattern(QLatin1String("^([\\-dl])([a-zA-Z\\-]{9,9})\\s+\\d+\\s+(\\S*)\\s+"
+    QRegularExpression unixPattern(QLatin1String("^([\\-dl])([a-zA-Z\\-]{9,9})\\s+\\d+\\s+(\\S*)\\s+"
                                       "(\\S*)\\s+(\\d+)\\s+(\\S+\\s+\\S+\\s+\\S+)\\s+(\\S.*)"));
-    if (unixPattern.indexIn(bufferStr) == 0) {
-        _q_parseUnixDir(unixPattern.capturedTexts(), userName, info);
+    unixPattern.setPatternOptions(QRegularExpression::UseUnicodePropertiesOption);
+    QRegularExpressionMatch unixPatternMatch = unixPattern.match(bufferStr);
+    if (unixPatternMatch.capturedStart() == 0) {
+        _q_parseUnixDir(unixPatternMatch.capturedTexts(), userName, info);
         return true;
     }
 
     // DOS style FTP servers
-    QRegExp dosPattern(QLatin1String("^(\\d\\d-\\d\\d-\\d\\d\\d?\\d?\\ \\ \\d\\d:\\d\\d[AP]M)\\s+"
+    QRegularExpression dosPattern(QLatin1String("^(\\d\\d-\\d\\d-\\d\\d\\d?\\d?\\ \\ \\d\\d:\\d\\d[AP]M)\\s+"
                                      "(<DIR>|\\d+)\\s+(\\S.*)$"));
-    if (dosPattern.indexIn(bufferStr) == 0) {
-        _q_parseDosDir(dosPattern.capturedTexts(), userName, info);
+    dosPattern.setPatternOptions(QRegularExpression::UseUnicodePropertiesOption);
+    QRegularExpressionMatch dosPatternMatch = dosPattern.match(bufferStr);
+    if (dosPatternMatch.capturedStart() == 0) {
+        _q_parseDosDir(dosPatternMatch.capturedTexts(), userName, info);
         return true;
     }
 
@@ -768,7 +771,7 @@ void QFtpDTP::setupSocket()
     socket->setObjectName(QLatin1String("QFtpDTP Active state socket"));
     connect(socket, SIGNAL(connected()), SLOT(socketConnected()));
     connect(socket, SIGNAL(readyRead()), SLOT(socketReadyRead()));
-    connect(socket, SIGNAL(error(QAbstractSocket::SocketError)), SLOT(socketError(QAbstractSocket::SocketError)));
+    connect(socket, SIGNAL(errorOccurred(QAbstractSocket::SocketError)), SLOT(socketError(QAbstractSocket::SocketError)));
     connect(socket, SIGNAL(disconnected()), SLOT(socketConnectionClosed()));
     connect(socket, SIGNAL(bytesWritten(qint64)), SLOT(socketBytesWritten(qint64)));
 
@@ -806,7 +809,7 @@ QFtpPI::QFtpPI(QObject *parent) :
             SLOT(connectionClosed()));
     connect(&commandSocket, SIGNAL(readyRead()),
             SLOT(readyRead()));
-    connect(&commandSocket, SIGNAL(error(QAbstractSocket::SocketError)),
+    connect(&commandSocket, SIGNAL(errorOccurred(QAbstractSocket::SocketError)),
             SLOT(error(QAbstractSocket::SocketError)));
 
     connect(&dtp, SIGNAL(connectState(int)),
@@ -942,9 +945,10 @@ void QFtpPI::readyRead()
             }
         }
         QString endOfMultiLine;
-        endOfMultiLine[0] = '0' + replyCode[0];
-        endOfMultiLine[1] = '0' + replyCode[1];
-        endOfMultiLine[2] = '0' + replyCode[2];
+        endOfMultiLine.resize(4);
+        endOfMultiLine[0] = QString::number(replyCode[0]).at(0);
+        endOfMultiLine[1] = QString::number(replyCode[1]).at(0);
+        endOfMultiLine[2] = QString::number(replyCode[2]).at(0);
         endOfMultiLine[3] = QLatin1Char(' ');
         QString lineCont(endOfMultiLine);
         lineCont[3] = QLatin1Char('-');
@@ -1058,14 +1062,15 @@ bool QFtpPI::processReply()
         // both examples where the parenthesis are used, and where
         // they are missing. We need to scan for the address and host
         // info.
-        QRegExp addrPortPattern(QLatin1String("(\\d+),(\\d+),(\\d+),(\\d+),(\\d+),(\\d+)"));
-        if (addrPortPattern.indexIn(replyText) == -1) {
+        QRegularExpression addrPortPattern(QLatin1String("(\\d+),(\\d+),(\\d+),(\\d+),(\\d+),(\\d+)"));
+        addrPortPattern.setPatternOptions(QRegularExpression::UseUnicodePropertiesOption);
+        if (!addrPortPattern.match(replyText).hasMatch()) {
 #if defined(QFTPPI_DEBUG)
             qDebug("QFtp: bad 227 response -- address and port information missing");
 #endif
             // this error should be reported
         } else {
-            QStringList lst = addrPortPattern.capturedTexts();
+            QStringList lst = addrPortPattern.match(replyText).capturedTexts();
             QString host = lst[1] + QLatin1Char('.') + lst[2] + QLatin1Char('.') + lst[3] + QLatin1Char('.') + lst[4];
             quint16 port = (lst[5].toUInt() << 8) + lst[6].toUInt();
             waitForDtpToConnect = true;
@@ -1212,7 +1217,7 @@ bool QFtpPI::startNextCmd()
     qDebug("QFtpPI send: %s", currentCmd.left(currentCmd.length()-2).toLatin1().constData());
 #endif
     state = Waiting;
-    commandSocket.write(currentCmd.toLatin1());
+    commandSocket.write(currentCmd.toLocal8Bit());
     return true;
 }
 

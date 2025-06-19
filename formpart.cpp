@@ -349,7 +349,7 @@ void FormPart::showPartSert()
 {
     QString name=modelPart->data(modelPart->index(ui->tableViewPart->currentIndex().row(),1),Qt::EditRole).toString();
     name+="_"+QString::number(modelPart->data(modelPart->index(ui->tableViewPart->currentIndex().row(),2),Qt::EditRole).toDate().year());
-    name=name.replace(QRegExp("[^\\w]"), "_");
+    name=name.replace(QRegularExpression("[^\\w]"), "_");
     sertificatPart->build(currentIdPart(),-1,name,"elrtr");
     editorPart->show();
 }
@@ -361,7 +361,7 @@ void FormPart::showShipSert(QModelIndex index)
         name+="_"+QString::number(modelPart->data(modelPart->index(ui->tableViewPart->currentIndex().row(),2),Qt::EditRole).toDate().year());
         int id_ship=ui->tableViewAdd->model()->data(ui->tableViewAdd->model()->index(index.row(),6),Qt::EditRole).toInt();
         name+="_"+ui->tableViewAdd->model()->data(ui->tableViewAdd->model()->index(index.row(),0),Qt::EditRole).toString();
-        name=name.replace(QRegExp("[^\\w]"), "_");
+        name=name.replace(QRegularExpression("[^\\w]"), "_");
         int sign=ui->tableViewAdd->model()->data(ui->tableViewAdd->model()->index(index.row(),5),Qt::EditRole).toInt();
         if (sign>0){
             readerPart->setCurrentIdShip(id_ship,name,"elrtr");

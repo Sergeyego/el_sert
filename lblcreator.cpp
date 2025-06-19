@@ -546,7 +546,7 @@ QString LblCreator::getSrtStr(int id_el, int id_diam, QDate date, int id_var)
 
             QStringList list(srt.values(id_doc_t));
 
-            if (list.indexOf(QRegExp(QString("^"+s+".*")))==-1){
+            if (list.indexOf(QRegularExpression(QString("^"+s+".*")))==-1){
                 srt.insert(id_doc_t,s);
             }
         }
@@ -562,7 +562,7 @@ QString LblCreator::getSrtStr(int id_el, int id_diam, QDate date, int id_var)
         }
         srtStr+=mapDocTypes.value(keys.at(i))+":";
         QList<QString> v = srt.values(keys.at(i));
-        qSort(v.begin(),v.end());
+        std::sort(v.begin(),v.end());
         for (QString st:v){
             if (!srtStr.isEmpty()){
                 srtStr+="\n";

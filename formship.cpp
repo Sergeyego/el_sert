@@ -103,7 +103,7 @@ void FormShip::refreshShipSert(QModelIndex index)
     QString nomSert=ui->tableViewShip->model()->data(ui->tableViewShip->model()->index(ui->tableViewShip->currentIndex().row(),1),Qt::EditRole).toString();
     QString name = prefix+"_"+modelDataShip->data(modelDataShip->index(index.row(),2),Qt::EditRole).toString();
     name+="_"+nomSert;
-    name=name.replace(QRegExp("[^\\w]"), "_");
+    name=name.replace(QRegularExpression("[^\\w]"), "_");
     sertificat->build(id_part,id_ship,name,prefix);
     reader->setCurrentIdShip(id_ship,name,prefix);
 }
@@ -281,7 +281,7 @@ void FormShip::signPdfAll()
         if (ok && data.size()){
             QString name = prefix+"_"+modelDataShip->data(modelDataShip->index(i,2),Qt::EditRole).toString();
             name+="_"+nomSert;
-            name=name.replace(QRegExp("[^\\w]"), "_");
+            name=name.replace(QRegularExpression("[^\\w]"), "_");
             QDir dir(QDir::homePath()+"/sertificat");
             if (!dir.exists()) dir.mkdir(dir.path());
             dir.setPath(dir.path()+"/"+QString::number(yearSert));

@@ -157,7 +157,6 @@ bool GlabelsLbl::saveFile(QString name)
     bool ok=file.open(QIODevice::WriteOnly);
     if (ok) {
         QTextStream stream( &file );
-        stream.setCodec("iso-8859-1");
         doc.save(stream,2,QDomNode::EncodingFromTextStream);
         file.close();
     }

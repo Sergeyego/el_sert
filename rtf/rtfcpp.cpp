@@ -1348,7 +1348,6 @@ bool RtfWriter::saveDoc(QString filename)
     bool ok=file.open(QIODevice::WriteOnly | QIODevice::Text);
     if (ok){
         QTextStream out(&file);
-        out.setCodec(QTextCodec::codecForName("CP1252"));
         out<<_rtfString;
         file.close();
     }
@@ -1359,10 +1358,11 @@ const QString RtfWriter::encode(const QString &s)
 {
     QString so;
     for (int i=0; i<s.size(); i++){
-        if (s.at(i)>=0 && s.at(i)<128){
+        int code = int(s.at(i).unicode());
+        if (code>=0 && code<128){
             so+=s.at(i);
         } else {
-            so+=QString("\\u%1?").arg(s.at(i).unicode());
+            so+=QString("\\u%1?").arg(code);
         }
     }
     return so;

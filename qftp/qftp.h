@@ -44,6 +44,7 @@
 
 #include <QtCore/qstring.h>
 #include <QtCore/qobject.h>
+#include <QRegularExpression>
 #include "qurlinfo.h"
 
 QT_BEGIN_NAMESPACE

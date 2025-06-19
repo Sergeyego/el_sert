@@ -121,7 +121,7 @@ void SertBuild::loadDoc(const QString &html)
                     resList.push_back(name);
                     if (!map.contains(name)){
                         QByteArray resp;
-                        bool ok=HttpSyncManager::sendGet(Rels::instance()->appServer()+"/"+name,resp);
+                        bool ok=HttpSyncManager::sendGet(Rels::instance()->appServer()/*+"/"*/+name,resp);
                         if (ok){
                             if (!name.contains("qrcode")){
                                 map.insert(name,resp);
