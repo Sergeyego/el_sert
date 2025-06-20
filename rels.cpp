@@ -82,6 +82,7 @@ Rels::Rels(QObject *parent) : QObject(parent)
     relDocType->setEditable(true);
     relSertType = new DbSqlRelation("sertifikat_type","id","nam",this);
     relSertType->setSort("sertifikat_type.id");
+    relSertType->model()->setAsync(false);
     relIntClass = new DbSqlRelation("int_class","id","nam",this);
     relIntClass->setSort("int_class.nam");
     relIntClass->setEditable(true);
