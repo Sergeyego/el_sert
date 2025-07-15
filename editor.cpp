@@ -33,7 +33,7 @@ Editor::Editor(QTextDocument *doc, QWidget *parent) :
     ui->verticalLayoutTool->addWidget(toolBarFont);
 
     printer = new QPrinter();
-    printer->setPageMargins(QMarginsF(30, 30, 30, 30));
+    printer->setPageMargins(QMarginsF(15, 15, 15, 15),QPageLayout::Millimeter);
     printer->setColorMode(QPrinter::Color);
     printer->setPageOrientation(QPageLayout::Portrait);
     printer->setPageSize(QPageSize(QPageSize::A4));
@@ -625,7 +625,7 @@ void Editor::exportPdf(QString filename)
     p.setOutputFormat(QPrinter::PdfFormat);
     p.setOutputFileName(filename);
     p.setColorMode(QPrinter::Color);
-    p.setPageMargins(QMarginsF(30, 30, 30, 30));
+    p.setPageMargins(QMarginsF(15, 15, 15, 15), QPageLayout::Millimeter);
     p.setResolution(QPrinter::HighResolution);
     print(&p);
 }

@@ -177,7 +177,7 @@ void FormShip::multiPagePdf()
         pdfPrinter.setOutputFormat(QPrinter::PdfFormat);
         pdfPrinter.setOutputFileName(fname);
         pdfPrinter.setColorMode(QPrinter::Color);
-        pdfPrinter.setPageMargins(QMarginsF(30, 30, 30, 30));
+        pdfPrinter.setPageMargins(QMarginsF(15, 15, 15, 15),QPageLayout::Millimeter);
         pdfPrinter.setResolution(QPrinter::HighResolution);
         printAll(&pdfPrinter);
         QFile file(fname);
