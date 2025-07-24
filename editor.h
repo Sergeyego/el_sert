@@ -59,7 +59,8 @@ public:
     QTextDocument* document();
     ~Editor();
     QPrinter *printer;
-    bool signDS(QString sn);
+    bool signDS(QString sn, QString fname = QString());
+    void sign(QString fname);
     
 private:
     Ui::Editor *ui;
@@ -93,6 +94,7 @@ public slots:
     void drawDoc(QPainter *painter);
     void exportHtml();
     void signDS();
+    void loadDS();
 
 private slots:
     void textBold();

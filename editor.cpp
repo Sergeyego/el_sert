@@ -74,6 +74,7 @@ Editor::Editor(QTextDocument *doc, QWidget *parent) :
     connect(ui->toolButtonHTMLSave,SIGNAL(clicked(bool)),this,SLOT(exportHtml()));
     connect(ui->toolButtonHTMLLoad,SIGNAL(clicked(bool)),this,SLOT(loadHtml()));
     connect(ui->pushButtonDS,SIGNAL(clicked(bool)),this,SLOT(signDS()));
+    connect(ui->pushButtonLoad,SIGNAL(clicked(bool)),this,SLOT(loadDS()));
 }
 
 QTextDocument *Editor::document()
@@ -533,30 +534,23 @@ void Editor::setType()
 
 void Editor::signDS()
 {
-    DialogSignature d;
-    if (d.exec()==QDialog::Accepted){
-        if (d.getSN().isEmpty()){
-            return;
-        }
-        QProgressDialog* pprd = new QProgressDialog(tr("Идет подписание документов..."),"", 0, 2, this);
-        pprd->setCancelButton(0);
-        pprd->setMinimumDuration(0);
-        pprd->setWindowTitle(tr("Пожалуйста, подождите"));
-        pprd->setValue(0);
-        bool ok=signDS(d.getSN());
-        if (ok){
-            QCoreApplication::processEvents();
-            pprd->setValue(1);
-            pprd->setLabelText("Синхронизация с облачным сервисом...");
-            QByteArray st;
-            HttpSyncManager::sendGet(Rels::instance()->appServer()+"/s3/sync",st);
-            emit signFinished();
-        }
-        delete pprd;
+    sign(QString());
+}
+
+void Editor::loadDS()
+{
+    QSettings settings("szsm", QApplication::applicationName());
+    QDir dir(settings.value("loadPath",QDir::homePath()).toString());
+    QString fileName = QFileDialog::getOpenFileName(this,tr("Открыть pdf"),dir.path(), tr("PDF Files (*.pdf)"));
+    if (!fileName.isEmpty()){
+        sign(fileName);
+        QFile file(fileName);
+        QFileInfo info(file);
+        settings.setValue("loadPath",info.path());
     }
 }
 
-bool Editor::signDS(QString sn)
+bool Editor::signDS(QString sn, QString fname)
 {
     QByteArray st;
     bool ok=false;
@@ -569,9 +563,11 @@ bool Editor::signDS(QString sn)
                 return false;
             }
         }
-        QString filename="tmpUnsignedCert.pdf";
-        exportPdf(filename);
-        QFile file(filename);
+        if (fname.isEmpty()){
+            fname="tmpUnsignedCert.pdf";
+            exportPdf(fname);
+        }
+        QFile file(fname);
         if (ok && file.open(QIODevice::ReadOnly)){
             QByteArray data;
             ok = HttpSyncManager::sendRequest(Rels::instance()->signServer()+"/pdf/"+sn+"?lang="+s->getLang(),"POST",file.readAll(),data,"application/pdf");
@@ -583,6 +579,31 @@ bool Editor::signDS(QString sn)
         }
     }
     return ok;
+}
+
+void Editor::sign(QString fname)
+{
+    DialogSignature d;
+    if (d.exec()==QDialog::Accepted){
+        if (d.getSN().isEmpty()){
+            return;
+        }
+        QProgressDialog* pprd = new QProgressDialog(tr("Идет подписание документов..."),"", 0, 2, this);
+        pprd->setCancelButton(0);
+        pprd->setMinimumDuration(0);
+        pprd->setWindowTitle(tr("Пожалуйста, подождите"));
+        pprd->setValue(0);
+        bool ok=signDS(d.getSN(),fname);
+        if (ok){
+            QCoreApplication::processEvents();
+            pprd->setValue(1);
+            pprd->setLabelText("Синхронизация с облачным сервисом...");
+            QByteArray st;
+            HttpSyncManager::sendGet(Rels::instance()->appServer()+"/s3/sync",st);
+            emit signFinished();
+        }
+        delete pprd;
+    }
 }
 
 void Editor::filePrint()
