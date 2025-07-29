@@ -46,8 +46,6 @@ private slots:
     void updImg();
     void updVarsList();
     void gelLbl();
-    void gelLblSmall();
-    void gelLblSmall2();
     void exportXml();
     void createXml();
     void blockVar(bool b);

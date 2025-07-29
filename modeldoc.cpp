@@ -51,11 +51,14 @@ bool ModelDoc::ftpGet(int id, int type)
     if (!ok){
         ftpConnect();
     }
-
     int interval= ok ? 0 : delay;
     QTimer::singleShot(interval, [this, id, type]() {
         if (ftpClient->state()==QFtp::LoggedIn && docMap.contains(id)){
-            getFile = new QFile(docMap.value(id));
+            QDir dir(QDir::homePath()+"/.szsm");
+            if (!dir.exists()){
+                dir.mkdir(dir.path());
+            }
+            getFile = new QFile(dir.path()+"/"+docMap.value(id));
             if (!getFile->open(QIODevice::ReadWrite)){
                 delete getFile;
             } else {
@@ -186,7 +189,11 @@ void ModelDoc::ftpCommandFinished(int /*commandId*/, bool error)
         getFile->close();
         if (!error) {
             if (getState==1){
-                QString tmpname="temp.pdf";
+                QDir dir(QDir::homePath()+"/.szsm");
+                if (!dir.exists()){
+                    dir.mkdir(dir.path());
+                }
+                QString tmpname=dir.path()+"/temp.pdf";
                 QFile file(tmpname);
                 if (file.exists()){
                     file.remove();

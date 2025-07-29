@@ -39,7 +39,6 @@ SOURCES += main.cpp\
     qftp/qftp.cpp \
     qftp/qurlinfo.cpp \
     modeldoc.cpp \
-    glabels/glabelslbl.cpp \
     dialogcopy.cpp \
     modelro.cpp \
     db/executor.cpp \
@@ -77,7 +76,6 @@ HEADERS  += formpart.h \
     qftp/qftp.h \
     qftp/qurlinfo.h \
     modeldoc.h \
-    glabels/glabelslbl.h \
     dialogcopy.h \
     modelro.h \
     db/executor.h \
@@ -109,7 +107,4 @@ RESOURCES += \
 RC_FILE = ico.rc
 
 DISTFILES += \
-    images/logo2.png \
-    images/otk.png \
-    ico.rc \
-    templates/glabels_szsm.xml
+    ico.rc

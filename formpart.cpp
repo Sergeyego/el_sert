@@ -91,8 +91,6 @@ FormPart::FormPart(QWidget *parent) :
     connect(ui->cmdCopyZnam,SIGNAL(clicked()),this,SLOT(copyZnam()));
     connect(ui->tableViewAdd,SIGNAL(doubleClicked(QModelIndex)),this,SLOT(showShipSert(QModelIndex)));
     connect(ui->cmdLbl,SIGNAL(clicked(bool)),this,SLOT(genLbl()));
-    connect(ui->cmdLblSmall,SIGNAL(clicked(bool)),this,SLOT(genLblSmall()));
-    connect(ui->cmdLblSmall2,SIGNAL(clicked(bool)),this,SLOT(genLblSmall2()));
     connect(ui->textEditPrim,SIGNAL(textChanged()),this,SLOT(enPrimSave()));
     connect(ui->textEditPrimProd,SIGNAL(textChanged()),this,SLOT(enPrimSave()));
     connect(ui->lineEditZnam,SIGNAL(textChanged(QString)),this,SLOT(enZnamSave()));
@@ -211,8 +209,6 @@ void FormPart::setLock(bool b)
     ui->tableViewSertMechx->setEnabled(!b);
     ui->toolButtonGenMech->setEnabled(!b);
     ui->cmdLbl->setEnabled(!b);
-    ui->cmdLblSmall->setEnabled(!b);
-    ui->cmdLblSmall2->setEnabled(!b);
     ui->cmdPartSert->setEnabled(!b);
     ui->lineEditZnam->setEnabled(!b);
     ui->cmdSaveZnam->setEnabled(!b);
@@ -385,20 +381,6 @@ void FormPart::genLbl()
     int id=currentIdPart();
     LblCreator c;
     c.createLbl(id,false);
-}
-
-void FormPart::genLblSmall()
-{
-    int id=currentIdPart();
-    LblCreator c;
-    c.createLblGlabels(id);
-}
-
-void FormPart::genLblSmall2()
-{
-    int id=currentIdPart();
-    LblCreator c;
-    c.createLblGlabels2(id);
 }
 
 void FormPart::enPrimSave()

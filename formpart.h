@@ -83,8 +83,6 @@ private slots:
     void showShipSert(QModelIndex index);
     void showCheckForm();
     void genLbl();
-    void genLblSmall();
-    void genLblSmall2();
     void enPrimSave();
     void enZnamSave();
     void copyVal();

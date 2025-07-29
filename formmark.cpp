@@ -208,16 +208,12 @@ FormMark::FormMark(QWidget *parent) :
     mapper->addEmptyLock(ui->tableViewProvol);
     mapper->addEmptyLock(ui->cmdExt);
     mapper->addEmptyLock(ui->cmdLbl);
-    mapper->addEmptyLock(ui->cmdLblSmall);
-    mapper->addEmptyLock(ui->cmdLblSmall2);
     mapper->addEmptyLock(ui->tableViewPack);
     mapper->addEmptyLock(ui->tableViewGost);
 
     connect(mapper,SIGNAL(currentIndexChanged(int)),this,SLOT(refreshCont(int)));
     connect(modelMark,SIGNAL(sigUpd()),Rels::instance()->relElMark,SLOT(refreshModel()));
     connect(ui->cmdLbl,SIGNAL(clicked(bool)),this,SLOT(gelLbl()));
-    connect(ui->cmdLblSmall,SIGNAL(clicked(bool)),this,SLOT(gelLblSmall()));
-    connect(ui->cmdLblSmall2,SIGNAL(clicked(bool)),this,SLOT(gelLblSmall2()));
     connect(ui->cmdExt,SIGNAL(clicked(bool)),this,SLOT(exportXml()));
     connect(ui->pushButtonCreVar,SIGNAL(clicked(bool)),this,SLOT(createVar()));
     connect(ui->pushButtonDelVar,SIGNAL(clicked(bool)),this,SLOT(deleteVar()));
@@ -391,18 +387,6 @@ void FormMark::gelLbl()
 {
     LblCreator c;
     c.createLbl(id_el(),id_diam(),QString(),ui->dateEdit->date(),false,ui->checkBoxOrder->isChecked(),id_var());
-}
-
-void FormMark::gelLblSmall()
-{
-    LblCreator c;
-    c.createLblGlabels(id_el(),id_diam(),QString(),ui->dateEdit->date(),id_var());
-}
-
-void FormMark::gelLblSmall2()
-{
-    LblCreator c;
-    c.createLblGlabels2(id_el(),id_diam(),QString(),ui->dateEdit->date(),id_var());
 }
 
 void FormMark::exportXml()

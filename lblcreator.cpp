@@ -4,13 +4,14 @@ LblCreator::LblCreator(QObject *parent) : QObject(parent)
 {
     Rels::instance()->refreshPolPix();
     QSqlQuery query;
-    query.prepare("select nam_lbl, adr, otk, kach from hoz where id=1");
+    query.prepare("select gd.snam, gd.adr, gd.otk, gd.otk_title "
+                  "from general_data gd where gd.dat = (select max(dat) from general_data)");
     if (query.exec()){
         while(query.next()){
             orgNam=query.value(0).toString();
             adres=query.value(1).toString();
             otk=query.value(2).toString();
-            kach=query.value(3).toString();
+            otkTit=query.value(3).toString();
         }
     } else {
         QMessageBox::critical(nullptr,tr("Error"),query.lastError().text(),QMessageBox::Ok);
@@ -159,7 +160,7 @@ bool LblCreator::createLbl(int id_el, int id_diam, QString ibco, QDate date, boo
 
     rtfWriter.start_tablerow();
     rtfWriter.start_tablecell(sz1);
-    QImage img(QDir::currentPath()+"/images/"+QString::number(data.id_pix)+".png");
+    QImage img(":/images/"+QString::number(data.id_pix)+".png");
     rtfWriter.insert_image(img,szImg,szImg);
     rtfWriter.end_tablecell();//1
 
@@ -308,184 +309,21 @@ bool LblCreator::createLbl(int id_el, int id_diam, QString ibco, QDate date, boo
         rtfWriter.start_paragraph("",true);
         rtfWriter.start_paragraph(QString::fromUtf8("СОГЛАСОВАНО:"),false);
         rtfWriter.start_paragraph("",true);
-        rtfWriter.start_paragraph(QString::fromUtf8("Начальник ОТК_________________________")+otk,true);
-        rtfWriter.start_paragraph("",true);
-        rtfWriter.start_paragraph(QString::fromUtf8("Директор по качеству__________________")+kach,true);
+        rtfWriter.start_paragraph(otkTit+QString::fromUtf8("_________________________")+otk,true);
     }
 
     rtfWriter.end_doc();
-    QString fname=QString("lbl.rtf");
+    QDir dir(QDir::homePath()+"/.szsm");
+    if (!dir.exists()){
+        dir.mkdir(dir.path());
+    }
+
+    QString fname=QString(dir.path()+"/lbl.rtf");
     if (rtfWriter.saveDoc(fname)){
         sysCommand(fname);
     }
 
     return true;
-}
-
-bool LblCreator::createLblGlabels(int id_el, int id_diam, QString ibco, QDate date, int id_var)
-{
-    GlabelsLbl lbl;
-    bool ok=false;
-    if (lbl.createLbl(QString("SZSM-03"),true)){
-        dataLbl data=getData(id_el,id_diam,id_var);
-        if (!ibco.isEmpty()){
-            data.znam=ibco;
-        }
-
-        lbl.newRect(1.5,1.5,140,60);
-        lbl.newLine(1.5,11.5,140,0);
-        lbl.newLine(36.5,11.5,0,-10);
-        lbl.newLine(82.5,11.5,0,-10);
-        lbl.newLine(1.5,58,140,0);
-        lbl.newLine(1.5,54.3,140,0);
-        lbl.newLine(1.5,30,140,0);
-        lbl.newLine(82.5,54.3,0,-24.3);
-
-        lbl.newLine(1.5,38.1,81,0);
-        lbl.newLine(20,54.3,0,-42.8);
-        lbl.newLine(20,35.4,62.5,0);
-        lbl.newLine(20,32.7,62.5,0);
-
-        lbl.newLine(40.5,35.4,0,18.9);
-        lbl.newLine(61,35.4,0,18.9);
-
-        QString ch=getCh(data);
-        lbl.newText(2.5,2.5,33,8,data.marka,11,true);
-        lbl.newText(82.5,2.5,59,4,ch,9,true,(Qt::AlignCenter | Qt::AlignVCenter ));
-        if (!data.znam.isEmpty()&& data.znam!=QString("-")){
-            if (ch.size()<19){
-                lbl.newLine(98.5,6.5,27,0);
-            } else {
-                lbl.newLine(88.5,6.5,47,0);
-            }
-            lbl.newText(83.5,6.5,57,4,data.znam,9,true,(Qt::AlignCenter | Qt::AlignVCenter ));
-        }
-
-        QString tuList=getTuList(id_el,id_diam,date,id_var);
-        int ftusize = (tuList.split("\n").size()>3) ? 6 : 7;
-        lbl.newText(37.5,2.5,44.5,8.5,tuList,ftusize,false);
-        int fdsize= (data.descr.size()<500) ? 7 : 6;
-        lbl.newText(20.5,12,120.5,17.5,data.descr,fdsize,false);
-        lbl.newImage(3,13,15,15,QDir::currentPath()+"/images/"+QString::number(data.id_pix)+".png");
-        lbl.newText(85,32,55,21,getSrtStr(id_el,id_diam,date,id_var),7,false);
-
-        lbl.newText(2.5,31,16,6,QString::fromUtf8("Диаметр\nмм"),6,false,(Qt::AlignCenter | Qt::AlignVCenter ));
-        lbl.newText(20,30,62.5,2.7,QString::fromUtf8("Рекомендуемое значение тока (А)"),6,false,(Qt::AlignCenter | Qt::AlignVCenter ));
-        lbl.newText(20,32.7,62.5,2.7,QString::fromUtf8("Положение шва"),6,false,(Qt::AlignCenter | Qt::AlignVCenter ));
-        lbl.newText(20,35.4,20.5,2.7,QString::fromUtf8("нижнее"),6,false,(Qt::AlignCenter | Qt::AlignVCenter ));
-        lbl.newText(40.5,35.4,20.5,2.7,QString::fromUtf8("вертикальное"),6,false,(Qt::AlignCenter | Qt::AlignVCenter ));
-        lbl.newText(61,35.4,21.5,2.7,QString::fromUtf8("потолочное"),6,false,(Qt::AlignCenter | Qt::AlignVCenter ));
-        QVector<dataAmp> amps=getAmp(id_el,id_diam,true,false,id_var);
-        for (int i=0; i<amps.size(); i++){
-            if (i>5){
-                break;
-            }
-            lbl.newText(2.5,38.1+(2.7*i),16,2.7,amps.at(i).diam,6,false,(Qt::AlignCenter | Qt::AlignVCenter ));
-            lbl.newText(20,38.1+(2.7*i),20.5,2.7,amps.at(i).bottom,6,false,(Qt::AlignCenter | Qt::AlignVCenter ));
-            lbl.newText(40.5,38.1+(2.7*i),20.5,2.7,amps.at(i).vert,6,false,(Qt::AlignCenter | Qt::AlignVCenter ));
-            lbl.newText(61,38.1+(2.7*i),21.5,2.7,amps.at(i).top,6,false,(Qt::AlignCenter | Qt::AlignVCenter ));
-            if (i<5){
-                lbl.newLine(1.5,40.8+(2.7*i),81,0);
-            }
-        }
-
-        lbl.newText(2.5,54.5,138,3.5,getProc(data),6,false);
-        lbl.newText(2.5,58,138,3.5,getIzg(),5,false);
-        QString fname="small.glabels";
-        ok=lbl.saveFile(fname);
-        if (ok){
-            sysCommand(fname);
-        }
-    }
-    return ok;
-}
-
-bool LblCreator::createLblGlabels(int id_part)
-{
-    dataPart data=getDataPart(id_part);
-    return createLblGlabels(data.id_el,data.id_diam,data.ibco,data.datePart,data.id_var);
-}
-
-bool LblCreator::createLblGlabels2(int id_el, int id_diam, QString ibco, QDate date, int id_var)
-{
-    GlabelsLbl lbl;
-    bool ok=false;
-    if (lbl.createLbl(QString("SZSM-04"),true)){
-        dataLbl data=getData(id_el,id_diam,id_var);
-        if (!ibco.isEmpty()){
-            data.znam=ibco;
-        }
-        lbl.newRect(1,1,133,44);
-
-        lbl.newLine(1,12,133,0);
-        lbl.newLine(33,12,0,-11);
-        lbl.newLine(67,12,0,-11);
-        lbl.newLine(1,42,133,0);
-        lbl.newLine(1,39,133,0);
-        lbl.newLine(11,12,0,27);
-        lbl.newLine(80,12,0,27);
-        lbl.newLine(47,27,0,12);
-        lbl.newLine(1,27,79,0);
-        lbl.newLine(1,36,46,0);
-        lbl.newLine(11,30,36,0);
-        lbl.newLine(11,33,36,0);
-        lbl.newLine(23,39,0,-6);
-        lbl.newLine(35,39,0,-6);
-
-        QString ch=getCh(data);
-        lbl.newText(2,2,30,9,data.marka,11,true);
-        lbl.newText(68,2,65,4,ch,9,true,(Qt::AlignCenter | Qt::AlignVCenter ));
-        if (!data.znam.isEmpty()&& data.znam!=QString("-")){
-            if (ch.size()<19){
-                lbl.newLine(87,6.5,27,0);
-            } else {
-                lbl.newLine(77,6.5,47,0);
-            }
-            lbl.newText(68,7,65,4,data.znam,9,true,(Qt::AlignCenter | Qt::AlignVCenter ));
-        }
-
-        QString tuList=getTuList(id_el,id_diam,date,id_var);
-        lbl.newText(34,2,32,9,tuList,6,false);
-        int fdsize= (data.descr.size()<400) ? 7 : 6;
-        lbl.newText(11,12,69,15,data.descr,fdsize,false,(Qt::AlignLeft| Qt::AlignVCenter),0.7);
-
-        lbl.newImage(2,13,8,8,QDir::currentPath()+"/images/"+QString::number(data.id_pix)+".png");
-        lbl.newText(47,27,33,12,getSrtStr(id_el,id_diam,date,id_var),5,false,(Qt::AlignLeft| Qt::AlignVCenter),0.7);
-
-        lbl.newText(2,28,8,7,QString::fromUtf8("Диаметр\nмм"),6,false,(Qt::AlignCenter | Qt::AlignVCenter ));
-        lbl.newText(11,27,36,3,QString::fromUtf8("Рекомендуемое значение тока (А)"),6,false,(Qt::AlignCenter | Qt::AlignVCenter ));
-        lbl.newText(11,30,36,3,QString::fromUtf8("Положение шва"),6,false,(Qt::AlignCenter | Qt::AlignVCenter ));
-        lbl.newText(11,33,12,3,QString::fromUtf8("нижнее"),5,false,(Qt::AlignCenter | Qt::AlignVCenter ));
-        lbl.newText(23,33,12,3,QString::fromUtf8("вертикальное"),5,false,(Qt::AlignCenter | Qt::AlignVCenter ));
-        lbl.newText(35,33,12,3,QString::fromUtf8("потолочное"),5,false,(Qt::AlignCenter | Qt::AlignVCenter ));
-
-        QVector<dataAmp> amps=getAmp(id_el,id_diam,true,true,id_var);
-        for (int i=0; i<amps.size(); i++){
-            if (i>0){
-                break;
-            }
-            lbl.newText(1,36+(3*i),10,3,amps.at(i).diam,6,false,(Qt::AlignCenter | Qt::AlignVCenter ));
-            lbl.newText(11,36+(3*i),12,3,amps.at(i).bottom,6,false,(Qt::AlignCenter | Qt::AlignVCenter ));
-            lbl.newText(23,36+(3*i),12,3,amps.at(i).vert,6,false,(Qt::AlignCenter | Qt::AlignVCenter ));
-            lbl.newText(35,36+(3*i),12,3,amps.at(i).top,6,false,(Qt::AlignCenter | Qt::AlignVCenter ));
-        }
-
-        lbl.newText(1,39,133,3,getProc(data),6,false);
-        lbl.newText(1,42,133,3,getIzg(),5,false);
-
-        QString fname="small2.glabels";
-        ok=lbl.saveFile(fname);
-        if (ok){
-            sysCommand(fname);
-        }
-    }
-    return ok;
-}
-
-bool LblCreator::createLblGlabels2(int id_part)
-{
-    dataPart data=getDataPart(id_part);
-    return createLblGlabels2(data.id_el,data.id_diam,data.ibco,data.datePart,data.id_var);
 }
 
 void LblCreator::sysCommand(QString fname)

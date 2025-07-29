@@ -8,9 +8,9 @@
 #include <QFileInfo>
 #include <QDesktopServices>
 #include <QUrl>
+#include <QDir>
 #include "rtf/rtfcpp.h"
 #include "rels.h"
-#include "glabels/glabelslbl.h"
 
 struct dataPart{
     int id_el;
@@ -48,16 +48,12 @@ public:
     explicit LblCreator(QObject *parent = nullptr);
     bool createLbl(int id_part, bool shortAmp=true);
     bool createLbl(int id_el, int id_diam, QString ibco=QString(), QDate date=QDate::currentDate(), bool shortAmp=true, bool order=false, int id_var=1);
-    bool createLblGlabels(int id_el, int id_diam, QString ibco=QString(), QDate date=QDate::currentDate(), int id_var=1);
-    bool createLblGlabels(int id_part);
-    bool createLblGlabels2(int id_el, int id_diam, QString ibco=QString(), QDate date=QDate::currentDate(), int id_var=1);
-    bool createLblGlabels2(int id_part);
 
 private:
     QString orgNam;
     QString adres;
     QString otk;
-    QString kach;
+    QString otkTit;
     QMap<int,QString> mapDocTypes;
     void sysCommand(QString fname);
     QString getTuList(int id_el, int id_diam, QDate date, int id_var=1);
