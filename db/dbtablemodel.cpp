@@ -243,6 +243,16 @@ int DbTableModel::currentEdtRow() const
     return editor->currentPos();
 }
 
+QVector<colVal> DbTableModel::oldRow()
+{
+    return editor->oldRow();
+}
+
+QVector<colVal> DbTableModel::newRow()
+{
+    return editor->newRow();
+}
+
 QValidator *DbTableModel::validator(int column) const
 {
     return modelData->column(column)->validator;
@@ -957,7 +967,7 @@ DbSqlLikeModel::DbSqlLikeModel(DbSqlRelation *r, QObject *parent) : QSortFilterP
     setSourceModel(origModel);
     setFilterKeyColumn(2);
     setFilterRegularExpression(relation->getCurrentFilterRegExp());
-    connect(relation,SIGNAL(filterRegExpInstalled(QString)),this,SLOT(setFilterRegularExpression(QString)));
+    connect(relation,SIGNAL(filterRegExpInstalled(QString)),this,SLOT(setFlt(QString)));
 }
 
 void DbSqlLikeModel::setAsync(bool b)
@@ -1061,4 +1071,11 @@ void DbSqlLikeModel::queryFinished()
         emit searchFinished(s);
         e->deleteLater();
     }
+}
+
+void DbSqlLikeModel::setFlt(QString reg)
+{
+    QRegularExpression exp(reg);
+    exp.setPatternOptions(QRegularExpression::UseUnicodePropertiesOption);
+    setFilterRegularExpression(exp);
 }
