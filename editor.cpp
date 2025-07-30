@@ -75,6 +75,7 @@ Editor::Editor(QTextDocument *doc, QWidget *parent) :
     connect(ui->toolButtonHTMLLoad,SIGNAL(clicked(bool)),this,SLOT(loadHtml()));
     connect(ui->pushButtonDS,SIGNAL(clicked(bool)),this,SLOT(signDS()));
     connect(ui->pushButtonLoad,SIGNAL(clicked(bool)),this,SLOT(loadDS()));
+
 }
 
 QTextDocument *Editor::document()
