@@ -40,7 +40,7 @@
         <enum>QTextEdit::LineWrapMode::FixedPixelWidth</enum>
        </property>
        <property name="lineWrapColumnOrWidth">
-        <number>700</number>
+        <number>830</number>
        </property>
       </widget>
      </item>
