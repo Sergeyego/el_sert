@@ -202,7 +202,8 @@ void ModelDoc::ftpCommandFinished(int /*commandId*/, bool error)
                 QFileInfo fileInfo(tmpname);
                 QDesktopServices::openUrl((QUrl(QUrl::fromLocalFile(fileInfo.absoluteFilePath()))));
             } else {
-                QString id=getFile->fileName();
+                QFileInfo inf(getFile->fileName());
+                QString id=inf.fileName();
                 id.truncate(id.length()-4);
                 QString docNum=getDocNumrer(id.toInt());
                 QString filename=QFileDialog::getSaveFileName(NULL, QString::fromUtf8("Сохранить файл"),QDir::homePath()+QString("/")+docNum+".pdf",tr("pdf (*.pdf)"));

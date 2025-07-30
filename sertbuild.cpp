@@ -47,12 +47,16 @@ void SertBuild::rebuild()
             docs+=QString::number(id_doc);
         }
     }
-    int id = (current_id_ship>=0) ? current_id_ship : current_id_part;
-    QString path=QString(Rels::instance()->appServer()+"/certificates/"+spref+"/%1/%2?lang=%3&part=%4&docs=%5").arg(sertType).arg(id).arg(lang).arg((current_id_ship>=0) ? "false" : "true").arg(docs);
-    QByteArray resp;
-    bool ok=HttpSyncManager::sendGet(path,resp);
-    if (ok){
-        loadDoc(resp);
+    if (!spref.isEmpty()){
+        int id = (current_id_ship>=0) ? current_id_ship : current_id_part;
+        QString path=QString(Rels::instance()->appServer()+"/certificates/"+spref+"/%1/%2?lang=%3&part=%4&docs=%5").arg(sertType).arg(id).arg(lang).arg((current_id_ship>=0) ? "false" : "true").arg(docs);
+        QByteArray resp;
+        bool ok=HttpSyncManager::sendGet(path,resp);
+        if (ok){
+            loadDoc(resp);
+        } else {
+            this->clear();
+        }
     } else {
         this->clear();
     }
@@ -148,8 +152,11 @@ void SertBuild::loadDoc(const QString &html)
 
 void SertBuild::updSData()
 {
-    QByteArray resp;
     sdata.clear();
+    if (spref.isEmpty()){
+        return;
+    }
+    QByteArray resp;
     bool ok=HttpSyncManager::sendGet(Rels::instance()->appServer()+"/"+spref+"/sertdata/"+QString::number(current_id_part),resp);
     if (ok){
         QJsonDocument respDoc;

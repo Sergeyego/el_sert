@@ -79,8 +79,8 @@ void FormShip::refreshDataShip(QModelIndex index)
     int id_ship=modelShip->data(modelShip->index(index.row(),0),Qt::EditRole).toInt();
     modelDataShip->refresh(id_ship);
     ui->tableViewShipData->setColumnHidden(0,true);
-    ui->tableViewShipData->setColumnWidth(1,65);
-    ui->tableViewShipData->setColumnWidth(2,75);
+    ui->tableViewShipData->setColumnWidth(1,55);
+    ui->tableViewShipData->setColumnWidth(2,80);
     ui->tableViewShipData->setColumnWidth(3,250);
     ui->tableViewShipData->setColumnWidth(4,65);
     ui->tableViewShipData->setColumnWidth(5,45);
@@ -389,7 +389,7 @@ void ModelDataShip::refresh(int id_ship)
                   ") as z order by z.prefix, z.mark, z.parti");
     query.bindValue(":id_ship",id_ship);
     if (execQuery(query)){
-        setHeaderData(1, Qt::Horizontal,tr("Продукц."));
+        setHeaderData(1, Qt::Horizontal,tr("Прод."));
         setHeaderData(2, Qt::Horizontal,tr("Партия"));
         setHeaderData(3, Qt::Horizontal,tr("Марка"));
         setHeaderData(4, Qt::Horizontal,tr("Масса, кг"));

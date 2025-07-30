@@ -564,7 +564,11 @@ bool Editor::signDS(QString sn, QString fname)
             }
         }
         if (fname.isEmpty()){
-            fname="tmpUnsignedCert.pdf";
+            QDir dir(QDir::homePath()+"/.szsm");
+            if (!dir.exists()){
+                dir.mkdir(dir.path());
+            }
+            fname=dir.path()+"/tmpUnsignedCert.pdf";
             exportPdf(fname);
         }
         QFile file(fname);
