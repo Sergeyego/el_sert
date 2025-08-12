@@ -34,7 +34,7 @@ QVariant DbTableModel::data(const QModelIndex &index, int role) const
             if (type==QVariant::Date){
                 value=origVal.toDate().toString("dd.MM.yy");
             } else if (type==QVariant::DateTime){
-                value=origVal.toDateTime().toString("dd.MM.yy hh:mm");
+                value=origVal.toDateTime().toLocalTime().toString("dd.MM.yy hh:mm");
             } else if (type==QVariant::Double){
                 int dec=3;
                 if (modelData->column(index.column())->validator){

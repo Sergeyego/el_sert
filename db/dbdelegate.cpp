@@ -16,32 +16,32 @@ QWidget *DbDelegate::createEditor (QWidget * parent, const QStyleOptionViewItem 
         switch (sqlModel->columnType(index.column())){
         case QVariant::Bool:
         {
-            editor=nullptr;
+            editor = nullptr;
             break;
         }
         case QVariant::String:
         {
-            editor=new QLineEdit(parent);
+            editor = new QLineEdit(parent);
             break;
         }
         case QVariant::Int:
         {
-            editor= sqlModel->data(index,Qt::CheckStateRole).isNull() ? new QLineEdit(parent) : nullptr;
+            editor = sqlModel->data(index,Qt::CheckStateRole).isNull() ? new QLineEdit(parent) : nullptr;
             break;
         }
         case QVariant::LongLong:
         {
-            editor= new QLineEdit(parent);
+            editor = new QLineEdit(parent);
             break;
         }
         case QVariant::Double:
         {
-            editor=new QLineEdit(parent);
+            editor = new QLineEdit(parent);
             break;
         }
         case QVariant::Date:
         {
-            editor= new DbDateEdit(parent);
+            editor = new DbDateEdit(parent);
             break;
         }
         default:
