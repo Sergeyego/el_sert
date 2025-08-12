@@ -3,7 +3,7 @@
  <class>Editor</class>
  <widget class="QWidget" name="Editor">
   <property name="windowModality">
-   <enum>Qt::WindowModality::ApplicationModal</enum>
+   <enum>Qt::ApplicationModal</enum>
   </property>
   <property name="geometry">
    <rect>
@@ -37,7 +37,7 @@
         </size>
        </property>
        <property name="lineWrapMode">
-        <enum>QTextEdit::LineWrapMode::FixedPixelWidth</enum>
+        <enum>QTextEdit::FixedPixelWidth</enum>
        </property>
        <property name="lineWrapColumnOrWidth">
         <number>810</number>
@@ -84,7 +84,16 @@
          <item>
           <spacer name="verticalSpacer">
            <property name="orientation">
-            <enum>Qt::Orientation::Vertical</enum>
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeType">
+            <enum>QSizePolicy::Expanding</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>0</width>
+             <height>0</height>
+            </size>
            </property>
           </spacer>
          </item>
@@ -150,7 +159,7 @@
      <item>
       <spacer name="horizontalSpacer">
        <property name="orientation">
-        <enum>Qt::Orientation::Horizontal</enum>
+        <enum>Qt::Horizontal</enum>
        </property>
        <property name="sizeHint" stdset="0">
         <size>
