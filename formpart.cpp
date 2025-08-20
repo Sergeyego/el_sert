@@ -273,6 +273,7 @@ void FormPart::genChem()
         query.bindValue(":id",currentIdPart());
         if (query.exec()){
             modelSertChem->select();
+            modelPart->refreshState();
         } else {
             QMessageBox::critical(this,"Error",query.lastError().text(),QMessageBox::Cancel);
         }
@@ -293,6 +294,7 @@ void FormPart::genMech()
         if (query.exec()){
             modelSertMech->select();
             modelSertMechx->select();
+            modelPart->refreshState();
         } else {
             QMessageBox::critical(this,"Error",query.lastError().text(),QMessageBox::Cancel);
         }
@@ -436,6 +438,7 @@ void FormPart::copyVal()
                 QMessageBox::critical(this,tr("Ошибка"),queryMechx.lastError().text(),QMessageBox::Ok);
             }
         }
+        modelPart->refreshState();
     }
 }
 
