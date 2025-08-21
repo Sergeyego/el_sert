@@ -34,7 +34,11 @@ QVariant DbTableModel::data(const QModelIndex &index, int role) const
             if (type==QVariant::Date){
                 value=origVal.toDate().toString("dd.MM.yy");
             } else if (type==QVariant::DateTime){
-                value=origVal.toDateTime().toLocalTime().toString("dd.MM.yy hh:mm");
+                if (origVal.toDateTime().timeSpec()==Qt::UTC){
+                    value=origVal.toDateTime().toLocalTime().toString("dd.MM.yy hh:mm");
+                } else {
+                    value=origVal.toDateTime().toString("dd.MM.yy hh:mm");
+                }
             } else if (type==QVariant::Double){
                 int dec=3;
                 if (modelData->column(index.column())->validator){
@@ -241,16 +245,6 @@ QVariant DbTableModel::nullVal(int column) const
 int DbTableModel::currentEdtRow() const
 {
     return editor->currentPos();
-}
-
-QVector<colVal> DbTableModel::oldRow()
-{
-    return editor->oldRow();
-}
-
-QVector<colVal> DbTableModel::newRow()
-{
-    return editor->newRow();
 }
 
 QValidator *DbTableModel::validator(int column) const
@@ -967,7 +961,7 @@ DbSqlLikeModel::DbSqlLikeModel(DbSqlRelation *r, QObject *parent) : QSortFilterP
     setSourceModel(origModel);
     setFilterKeyColumn(2);
     setFilterRegularExpression(relation->getCurrentFilterRegExp());
-    connect(relation,SIGNAL(filterRegExpInstalled(QString)),this,SLOT(setFlt(QString)));
+    connect(relation,SIGNAL(filterRegExpInstalled(QString)),this,SLOT(setFilterRegularExpression(QString)));
 }
 
 void DbSqlLikeModel::setAsync(bool b)
@@ -1071,11 +1065,4 @@ void DbSqlLikeModel::queryFinished()
         emit searchFinished(s);
         e->deleteLater();
     }
-}
-
-void DbSqlLikeModel::setFlt(QString reg)
-{
-    QRegularExpression exp(reg);
-    exp.setPatternOptions(QRegularExpression::UseUnicodePropertiesOption);
-    setFilterRegularExpression(exp);
 }

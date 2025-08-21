@@ -39,7 +39,9 @@ DbMapper::DbMapper(QAbstractItemView *v, QWidget *parent) :
 
     DbTableModel *sqlModel = qobject_cast<DbTableModel *>(mapper->model());
     if (sqlModel){
-        cmdNew->setVisible(sqlModel->isInsertable());
+        if (!sqlModel->isInsertable()){
+            cmdNew->hide();
+        }
         connect(sqlModel,SIGNAL(sigRefresh()),this,SLOT(last()));
         connect(sqlModel,SIGNAL(sigRefresh()),this,SLOT(checkEmpty()));
     }
@@ -147,7 +149,8 @@ void DbMapper::setItemDelegate(QAbstractItemDelegate *delegate)
 {
     mapper->setItemDelegate(delegate);
     DbDelegate *d = qobject_cast<DbDelegate *>(delegate);
-    if (d){
+    DbViewer *v = qobject_cast<DbViewer *>(viewer);
+    if (d && !v){
         connect(d,SIGNAL(sigActionEdtRel(QModelIndex)),this,SLOT(edtRels(QModelIndex)));
     }
 }
