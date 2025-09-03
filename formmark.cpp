@@ -81,6 +81,18 @@ FormMark::FormMark(QWidget *parent) :
     modelAmp->addColumn("ceil",QString::fromUtf8("Потолоч."));
     modelAmp->setSort("diam.sdim");
 
+    modelAmpTu = new DbTableModel("amp_tu",this);
+    modelAmpTu->addColumn("id","id");
+    modelAmpTu->addColumn("id_el","id_el");
+    modelAmpTu->addColumn("id_var","id_var");
+    modelAmpTu->addColumn("id_diam",QString::fromUtf8("Ф, мм"),Rels::instance()->relDiam);
+    modelAmpTu->addColumn("lay",QString::fromUtf8("Слой шва"));
+    modelAmpTu->addColumn("id_polar",QString::fromUtf8("Полярность"),Rels::instance()->relPolar);
+    modelAmpTu->addColumn("bot",QString::fromUtf8("Нижнее"));
+    modelAmpTu->addColumn("vert",QString::fromUtf8("Вертик."));
+    modelAmpTu->addColumn("ceil",QString::fromUtf8("Потолоч."));
+    modelAmpTu->setSort("diam.sdim, amp_tu.id");
+
     ui->tableViewAmp->setModel(modelAmp);
     ui->tableViewAmp->setColumnHidden(0,true);
     ui->tableViewAmp->setColumnHidden(1,true);
@@ -89,6 +101,17 @@ FormMark::FormMark(QWidget *parent) :
     ui->tableViewAmp->setColumnWidth(4,90);
     ui->tableViewAmp->setColumnWidth(5,90);
     ui->tableViewAmp->setColumnWidth(6,90);
+
+    ui->tableViewAmpTu->setModel(modelAmpTu);
+    ui->tableViewAmpTu->setColumnHidden(0,true);
+    ui->tableViewAmpTu->setColumnHidden(1,true);
+    ui->tableViewAmpTu->setColumnHidden(2,true);
+    ui->tableViewAmpTu->setColumnWidth(3,60);
+    ui->tableViewAmpTu->setColumnWidth(4,180);
+    ui->tableViewAmpTu->setColumnWidth(5,80);
+    ui->tableViewAmpTu->setColumnWidth(6,75);
+    ui->tableViewAmpTu->setColumnWidth(7,75);
+    ui->tableViewAmpTu->setColumnWidth(8,75);
 
     modelChemTu = new DbTableModel("chem_tu",this);
     modelChemTu->addColumn("id_el","id_el");
@@ -219,6 +242,7 @@ FormMark::FormMark(QWidget *parent) :
     connect(ui->pushButtonDelVar,SIGNAL(clicked(bool)),this,SLOT(deleteVar()));
     connect(ui->comboBoxVar,SIGNAL(currentIndexChanged(int)),this,SLOT(loadVars()));
     connect(ui->plainTextEditDescr,SIGNAL(textChanged()),this,SLOT(varChanged()));
+    connect(ui->plainTextEditDescrTu,SIGNAL(textChanged()),this,SLOT(varChanged()));
     connect(ui->lineEditVarZnam,SIGNAL(textChanged(QString)),this,SLOT(varChanged()));
     connect(ui->lineEditProcVar,SIGNAL(textChanged(QString)),this,SLOT(varChanged()));
     connect(ui->pushButtonSaveVar,SIGNAL(clicked(bool)),this,SLOT(saveVar()));
@@ -284,7 +308,7 @@ void FormMark::loadVars()
     int id_v=id_var();
     bool ok=false;
     QSqlQuery query;
-    query.prepare("select znam, descr, proc from el_var where id_el = :id_el and id_var=:id_var");
+    query.prepare("select znam, descr, proc, descrtu from el_var where id_el = :id_el and id_var=:id_var");
     query.bindValue(":id_el",id_e);
     query.bindValue(":id_var",id_v);
     if (query.exec()){
@@ -294,6 +318,7 @@ void FormMark::loadVars()
             ui->lineEditVarZnam->setText(query.value(0).toString());
             ui->plainTextEditDescr->setPlainText(query.value(1).toString());
             ui->lineEditProcVar->setText(query.value(2).toString());
+            ui->plainTextEditDescrTu->setPlainText(query.value(3).toString());
         }
     } else {
         QMessageBox::critical(this,tr("Ошибка"),query.lastError().text(),QMessageBox::Cancel);
@@ -304,6 +329,11 @@ void FormMark::loadVars()
     modelAmp->setDefaultValue(2,id_v);
     modelAmp->setFilter("amp.id_el = "+QString::number(id_e)+" and amp.id_var = "+QString::number(id_v));
     modelAmp->select();
+
+    modelAmpTu->setDefaultValue(1,id_e);
+    modelAmpTu->setDefaultValue(2,id_v);
+    modelAmpTu->setFilter("amp_tu.id_el = "+QString::number(id_e)+" and amp_tu.id_var = "+QString::number(id_v));
+    modelAmpTu->select();
 
     modelChemTu->setDefaultValue(0,id_e);
     modelChemTu->setDefaultValue(1,id_v);
@@ -414,6 +444,7 @@ void FormMark::blockVar(bool b)
         ui->lineEditVarZnam->clear();
         ui->plainTextEditDescr->clear();
         ui->lineEditProcVar->clear();
+        ui->plainTextEditDescrTu->clear();
     }
 }
 
@@ -440,14 +471,16 @@ void FormMark::saveVar()
 {
     QString znam=ui->lineEditVarZnam->text();
     QString descr=ui->plainTextEditDescr->toPlainText();
+    QString descrTu=ui->plainTextEditDescrTu->toPlainText();
 
     QSqlQuery query;
-    query.prepare("update el_var set znam = :znam, descr = :descr, proc = :proc where id_el = :id_el and id_var = :id_var");
+    query.prepare("update el_var set znam = :znam, descr = :descr, proc = :proc, descrtu = :descrtu where id_el = :id_el and id_var = :id_var");
     query.bindValue(":id_el",id_el());
     query.bindValue(":id_var",id_var());
     query.bindValue(":znam",znam);
     query.bindValue(":descr",descr);
     query.bindValue(":proc",ui->lineEditProcVar->text());
+    query.bindValue(":descrtu",descrTu);
     if (query.exec()){
         loadVars();
     } else {

@@ -26,6 +26,7 @@ private:
     DbMapper *mapper;
     DbTableModel *modelMark;
     DbTableModel *modelAmp;
+    DbTableModel *modelAmpTu;
     DbTableModel *modelChemTu;
     DbTableModel *modelMechTu;
     DbTableModel *modelPlav;

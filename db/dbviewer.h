@@ -35,7 +35,6 @@ private slots:
      void remove();
      void submit(QModelIndex ind, QModelIndex oldInd);
      void focusOutEvent(QFocusEvent *event);
-     void edtRel(QModelIndex index);
 
 public slots:
      void setMenuEnabled(bool value);

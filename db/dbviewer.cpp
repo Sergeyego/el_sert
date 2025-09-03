@@ -20,7 +20,6 @@ DbViewer::DbViewer(QWidget *parent) :
     writeOk=true;
     connect(updAct,SIGNAL(triggered()),this,SLOT(upd()));
     connect(removeAct,SIGNAL(triggered()),this,SLOT(remove()));
-    connect(delegate,SIGNAL(sigActionEdtRel(QModelIndex)),this,SLOT(edtRel(QModelIndex)));
 }
 
 void DbViewer::setModel(QAbstractItemModel *model)
@@ -167,19 +166,6 @@ void DbViewer::focusOutEvent(QFocusEvent *event)
         }
     }
     return QTableView::focusOutEvent(event);
-}
-
-void DbViewer::edtRel(QModelIndex index)
-{
-    DbTableModel *sqlModel = qobject_cast<DbTableModel *>(this->model());
-    if (sqlModel){
-        DbRelationEditDialog d(index);
-        if (d.exec()==QDialog::Accepted){
-            colVal c = d.currentData();
-            sqlModel->setData(index,c.val,Qt::EditRole);
-            sqlModel->setData(index,c.disp,Qt::DisplayRole);
-        }
-    }
 }
 
 void DbViewer::setMenuEnabled(bool value)

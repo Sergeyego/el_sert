@@ -14,6 +14,7 @@ FormVed::FormVed(QWidget *parent) :
     modelVed->addColumn("fnam",QString::fromUtf8("Полное название"));
     modelVed->addColumn("fnam_en",QString::fromUtf8("Полное название анг."));
     modelVed->addColumn("short_en",QString::fromUtf8("Кратеое название анг."));
+    modelVed->addColumn("iss_f",QString::fromUtf8("Кем выдано"));
     modelVed->setSort("zvd_ved.nam");
     modelVed->select();
 
@@ -24,6 +25,7 @@ FormVed::FormVed(QWidget *parent) :
     ui->tableViewVed->setColumnWidth(3,530);
     ui->tableViewVed->setColumnWidth(4,530);
     ui->tableViewVed->setColumnWidth(5,170);
+    ui->tableViewVed->setColumnWidth(6,530);
 
     modelDoc = new DbTableModel("zvd_doc",this);
     modelDoc->addColumn("id","id");
@@ -31,6 +33,7 @@ FormVed::FormVed(QWidget *parent) :
     modelDoc->addColumn("fnam",QString::fromUtf8("Полное название"));
     modelDoc->addColumn("id_doc_type",QString::fromUtf8("Тип"),Rels::instance()->relDocType);
     modelDoc->addColumn("fnam_en",QString::fromUtf8("Полное название анг."));
+    modelDoc->addColumn("iss",QString::fromUtf8("Выдан скл."));
     modelDoc->setSort("zvd_doc.nam");
     modelDoc->select();
     ui->tableViewDocVid->setModel(modelDoc);
@@ -39,6 +42,7 @@ FormVed::FormVed(QWidget *parent) :
     ui->tableViewDocVid->setColumnWidth(2,480);
     ui->tableViewDocVid->setColumnWidth(3,150);
     ui->tableViewDocVid->setColumnWidth(4,470);
+    ui->tableViewDocVid->setColumnWidth(5,100);
 
     connect(ui->tableViewVed->selectionModel(),SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),this,SLOT(loadImg(QModelIndex)));
     connect(ui->cmdBrowse,SIGNAL(clicked(bool)),this,SLOT(newImg()));

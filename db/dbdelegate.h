@@ -35,7 +35,9 @@ public:
 
 signals:
     void createEdt(const QModelIndex index) const;
-    void sigActionEdtRel(const QModelIndex index) const;
+
+private slots:
+    void edtRels(QModelIndex index);
 };
 
 #endif // DBDELEGATE_H

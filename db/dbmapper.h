@@ -56,7 +56,6 @@ public slots:
 private slots:
     void checkEmpty();
     void lock(bool val);
-    void edtRels(QModelIndex index);
 
 signals:
     void currentIndexChanged(int index);

@@ -93,19 +93,6 @@ void DbMapper::lock(bool val)
     emit lockChanged(val);
 }
 
-void DbMapper::edtRels(QModelIndex index)
-{
-    DbTableModel *sqlModel = qobject_cast<DbTableModel *>(mapper->model());
-    if (sqlModel){
-        DbRelationEditDialog d(index);
-        if (d.exec()==QDialog::Accepted){
-            colVal c = d.currentData();
-            sqlModel->setData(index,c.val,Qt::EditRole);
-            sqlModel->setData(index,c.disp,Qt::DisplayRole);
-        }
-    }
-}
-
 void DbMapper::checkEmpty()
 {
     DbTableModel *sqlModel = qobject_cast<DbTableModel *>(mapper->model());
@@ -148,11 +135,6 @@ void DbMapper::setDefaultFocus(int n)
 void DbMapper::setItemDelegate(QAbstractItemDelegate *delegate)
 {
     mapper->setItemDelegate(delegate);
-    DbDelegate *d = qobject_cast<DbDelegate *>(delegate);
-    DbViewer *v = qobject_cast<DbViewer *>(viewer);
-    if (d && !v){
-        connect(d,SIGNAL(sigActionEdtRel(QModelIndex)),this,SLOT(edtRels(QModelIndex)));
-    }
 }
 
 QVariant DbMapper::modelData(int row, int column)
