@@ -12,11 +12,13 @@ TARGET = el_sert
 TEMPLATE = app
 
 SOURCES += main.cpp\
+    dialogauthor.cpp \
     dialogsignature.cpp \
         formpart.cpp \
     formpartwire.cpp \
     httpsyncmanager.cpp \
     editor.cpp \
+    pasportmanager.cpp \
     reader.cpp \
     sertbuild.cpp \
     checkform.cpp \
@@ -49,10 +51,12 @@ SOURCES += main.cpp\
     tableview.cpp
 
 HEADERS  += formpart.h \
+    dialogauthor.h \
     dialogsignature.h \
     formpartwire.h \
     httpsyncmanager.h \
     editor.h \
+    pasportmanager.h \
     reader.h \
     sertbuild.h \
     checkform.h \
@@ -86,6 +90,7 @@ HEADERS  += formpart.h \
     tableview.h
 
 FORMS    += formpart.ui \
+    dialogauthor.ui \
     dialogsignature.ui \
     editor.ui \
     checkform.ui \

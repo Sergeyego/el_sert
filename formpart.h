@@ -14,6 +14,8 @@
 #include "dialogcopy.h"
 #include "modelro.h"
 #include "reader.h"
+#include "pasportmanager.h"
+#include "dialogauthor.h"
 
 class ModelPart : public QSqlQueryModel
 {
@@ -60,6 +62,7 @@ private:
     ModelRo *modelSrcGost;
 
     ModelRo *modelAdd;
+    PasportManager *manager;
 
     void loadPrim(int id_part);
     void loadAdd(int id_part);
@@ -82,6 +85,7 @@ private slots:
     void showPartSert();
     void showShipSert(QModelIndex index);
     void showCheckForm();
+    void createPasport();
     void genLbl();
     void enPrimSave();
     void enZnamSave();

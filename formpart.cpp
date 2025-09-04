@@ -13,6 +13,8 @@ FormPart::FormPart(QWidget *parent) :
     editorPart = new Editor(sertificatPart);
     readerPart = new Reader();
 
+    manager = new PasportManager(this);
+
     ui->dateEditBeg->setDate(QDate::currentDate().addDays(-QDate::currentDate().dayOfYear()+1));
     ui->dateEditEnd->setDate(ui->dateEditBeg->date().addYears(1));
 
@@ -102,6 +104,7 @@ FormPart::FormPart(QWidget *parent) :
     connect(ui->toolButtonGenChem,SIGNAL(clicked(bool)),this,SLOT(genChem()));
     connect(ui->toolButtonGenMech,SIGNAL(clicked(bool)),this,SLOT(genMech()));
     connect(editorPart,SIGNAL(signFinished()),modelAdd,SLOT(select()));
+    connect(ui->pushButtonPasport,SIGNAL(clicked(bool)),this,SLOT(createPasport()));
 
     refresh();
 }
@@ -216,6 +219,7 @@ void FormPart::setLock(bool b)
     ui->cmdCopyZnam->setEnabled(!b);
     ui->cmdCopyMechForward->setEnabled(!b);
     ui->pushButtonCopy->setEnabled(!b);
+    ui->pushButtonPasport->setEnabled(!b);
 }
 
 void FormPart::savePrim()
@@ -376,6 +380,17 @@ void FormPart::showCheckForm()
     CheckForm *f = new CheckForm();
     f->show();
     connect(f,SIGNAL(sigClose()),f,SLOT(deleteLater()));
+}
+
+void FormPart::createPasport()
+{
+    DialogAuthor d;
+    if(d.exec()==QDialog::Accepted){
+        int year=modelPart->data(modelPart->index(ui->tableViewPart->currentIndex().row(),2),Qt::EditRole).toDate().year();
+        QString n_s=modelPart->data(modelPart->index(ui->tableViewPart->currentIndex().row(),1),Qt::EditRole).toString();
+        QString marka=modelPart->data(modelPart->index(ui->tableViewPart->currentIndex().row(),3),Qt::EditRole).toString();
+        manager->getPasport(currentIdPart(),n_s+"_"+marka,year,d.getJson());
+    }
 }
 
 void FormPart::genLbl()
