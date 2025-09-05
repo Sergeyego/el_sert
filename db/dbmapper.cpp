@@ -55,7 +55,6 @@ DbMapper::DbMapper(QAbstractItemView *v, QWidget *parent) :
     connect(mapper->itemDelegate(),SIGNAL(commitData(QWidget*)),this,SLOT(slotEdt()));
     connect(viewer->selectionModel(),SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),mapper,SLOT(setCurrentModelIndex(QModelIndex)));
     connect(mapper,SIGNAL(currentIndexChanged(int)),this,SIGNAL(currentIndexChanged(int)));
-    connect(delegate,SIGNAL(sigActionEdtRel(QModelIndex)),this,SLOT(edtRels(QModelIndex)));
 
 }
 

@@ -453,7 +453,7 @@ void FormMark::createVar()
     QString znam=ui->comboBoxZnam->currentText();
 
     QSqlQuery query;
-    query.prepare("insert into el_var (id_el, id_var, znam, descr, proc) values (:id_el, :id_var, :znam, (select e.descr from elrtr as e where e.id = :id ), :proc )");
+    query.prepare("insert into el_var (id_el, id_var, znam, descr, proc, descrtu) values (:id_el, :id_var, :znam, (select e.descr from elrtr as e where e.id = :id ), :proc, (select descrtu from el_var where id_el = :id_el and id_var=1))");
     query.bindValue(":id_el",id_el());
     query.bindValue(":id_var",id_var());
     query.bindValue(":znam",znam);
@@ -480,7 +480,7 @@ void FormMark::saveVar()
     query.bindValue(":znam",znam);
     query.bindValue(":descr",descr);
     query.bindValue(":proc",ui->lineEditProcVar->text());
-    query.bindValue(":descrtu",descrTu);
+    query.bindValue(":descrtu",descrTu.isEmpty()? nullptr : descrTu);
     if (query.exec()){
         loadVars();
     } else {
@@ -557,6 +557,17 @@ void FormMark::copyTableData()
         }
     }
 
+    if (modelAmpTu->isEmpty()){
+        QSqlQuery queryAmpTu;
+        queryAmpTu.prepare("insert into amp_tu (id_el, id_diam, bot, vert, ceil, id_var, lay, id_polar) "
+                         "(select id_el, id_diam, bot, vert, ceil, :id_var, lay, id_polar from amp_tu where id_el = :id_el and id_var = 1 order by id)");
+        queryAmpTu.bindValue(":id_el",id_el());
+        queryAmpTu.bindValue(":id_var",id_var());
+        if (!queryAmpTu.exec()){
+            QMessageBox::critical(this,tr("Ошибка"),queryAmpTu.lastError().text(),QMessageBox::Cancel);
+        }
+    }
+
     loadVars();
 }
 
@@ -570,6 +581,7 @@ void FormMark::upd()
     modelChemTu->refreshRelsModel();
     modelMechTu->refreshRelsModel();
     Rels::instance()->relVar->refreshModel();
+    Rels::instance()->relPol->refreshModel();
 }
 
 void FormMark::edtVar()

@@ -101,7 +101,7 @@ void DbDelegate::setEditorData ( QWidget * editor, const QModelIndex & index ) c
                 if (dat.isNull()){
                     dateTimeEdit->setDateTime(dateTimeEdit->minimumDateTime());
                 } else {
-                    if (dat.toDateTime().timeSpec()!=Qt::UTC){
+                    if (sqlModel->udtType(index.column())=="timestamp"){
                         dateTimeEdit->setTimeSpec(Qt::UTC);
                     }
                     dateTimeEdit->setDateTime(dat.toDateTime());

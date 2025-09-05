@@ -1,4 +1,5 @@
 #include "dbtablemodel.h"
+#include <QTimeZone>
 
 
 DbTableModel::DbTableModel(QString table, QObject *parent) :
@@ -13,6 +14,16 @@ DbTableModel::DbTableModel(QString table, QObject *parent) :
     defaultRecord=QSqlDatabase::database().driver()->record(tableName);
     //qDebug()<<pkList;
     //qDebug()<<defaultRecord;
+    QSqlQuery query;
+    query.prepare("select column_name, udt_name from information_schema.columns where table_name = :table");
+    query.bindValue(":table",table);
+    if (query.exec()){
+        while (query.next()){
+            hTypes.insert(query.value(0).toString(),query.value(1).toString());
+        }
+    } else {
+        QMessageBox::critical(nullptr,tr("Error"),query.lastError().text(),QMessageBox::Cancel);
+    }
 }
 
 Qt::ItemFlags DbTableModel::flags(const QModelIndex &index) const
@@ -34,10 +45,10 @@ QVariant DbTableModel::data(const QModelIndex &index, int role) const
             if (type==QVariant::Date){
                 value=origVal.toDate().toString("dd.MM.yy");
             } else if (type==QVariant::DateTime){
-                if (origVal.toDateTime().timeSpec()==Qt::UTC){
-                    value=origVal.toDateTime().toLocalTime().toString("dd.MM.yy hh:mm");
-                } else {
+                if (udtType(index.column())=="timestamp"){
                     value=origVal.toDateTime().toString("dd.MM.yy hh:mm");
+                } else {
+                    value=origVal.toDateTime().toLocalTime().toString("dd.MM.yy hh:mm");
                 }
             } else if (type==QVariant::Double){
                 int dec=3;
@@ -235,6 +246,11 @@ DbSqlRelation *DbTableModel::sqlRelation(int column) const
 QVariant::Type DbTableModel::columnType(int column) const
 {
     return nullVal(column).type();
+}
+
+QString DbTableModel::udtType(int column) const
+{
+    return hTypes.value(modelData->column(column)->name);
 }
 
 QVariant DbTableModel::nullVal(int column) const

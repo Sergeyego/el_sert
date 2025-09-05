@@ -181,6 +181,7 @@ public:
     virtual bool insertRow(int row, const QModelIndex &parent=QModelIndex());
     DbSqlRelation *sqlRelation(int column) const;
     QVariant::Type columnType(int column) const;
+    QString udtType(int column) const;
     QVariant nullVal(int column) const;
     int currentEdtRow() const;
     QValidator* validator(int column) const;
@@ -209,6 +210,7 @@ private:
     bool insertable;
     QSqlIndex pkList;
     QSqlRecord defaultRecord;
+    QHash<QString,QString> hTypes;
 
 signals:
     void sigUpd();
