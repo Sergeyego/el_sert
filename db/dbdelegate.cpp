@@ -181,7 +181,12 @@ void DbDelegate::setModelData ( QWidget * editor, QAbstractItemModel * model, co
                     if (dateTimeEdit->dateTime()==dateTimeEdit->minimumDateTime()){
                         sqlModel->setData(index,sqlModel->nullVal(index.column()),Qt::EditRole);
                     } else {
-                        sqlModel->setData(index,dateTimeEdit->dateTime(),Qt::EditRole);
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+                        QDateTime t(dateTimeEdit->dateTime());
+#else
+                        QDateTime t(dateTimeEdit->date(),dateTimeEdit->time());
+#endif
+                        sqlModel->setData(index,t,Qt::EditRole);
                     }
                     return;
                 }

@@ -202,10 +202,10 @@ protected:
     virtual bool insertDb();
     virtual bool updateDb();
     virtual bool deleteDb(int row);
+        DataEditor *editor;
     
 private:
     MData *modelData;
-    DataEditor *editor;
     bool block;
     bool insertable;
     QSqlIndex pkList;
