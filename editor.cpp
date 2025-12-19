@@ -499,7 +499,10 @@ void Editor::loadHtml()
         QFile file(fileName);
         if (file.open(QIODevice::ReadOnly | QIODevice::Text)){
             QString html=file.readAll();
-            this->document()->setHtml(html);
+            SertBuild *s=qobject_cast<SertBuild *>(this->document());
+            if (s){
+                s->loadDoc(html);
+            }
             file.close();
         }
     }

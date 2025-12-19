@@ -44,13 +44,13 @@ public slots:
     int getIdShip();
     QString getLang();
     QString getPrefix();
+    void loadDoc(const QString &html);
 
 private:
     int sertType;
     int current_id_part;
     int current_id_ship;
     QString lang;
-    void loadDoc(const QString &html);
     void updSData();
     QMap<QString,QByteArray> map;
     svData sdata;
