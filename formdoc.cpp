@@ -118,6 +118,7 @@ FormDoc::FormDoc(QWidget *parent) :
     connect(modelDoc,SIGNAL(sigList()),this,SLOT(updState()));
     connect(ui->toolButtonCheckAll,SIGNAL(clicked(bool)),modelEn,SLOT(checkAll()));
     connect(ui->toolButtonUnCheckAll,SIGNAL(clicked(bool)),modelEn,SLOT(unCheckAll()));
+    connect(ui->pushButtonSite,SIGNAL(clicked(bool)),this,SIGNAL(reqUpdSite()));
 
 
     if (ui->tableViewDoc->model()->rowCount()){
@@ -205,27 +206,27 @@ void FormDoc::updElDim()
 
 void FormDoc::upload()
 {
-    modelDoc->ftpPut(currentId());
+    modelDoc->upload(mapper->currentIndex());
 }
 
 void FormDoc::viewSert()
 {
-    modelDoc->ftpGet(currentId(),1);
+    modelDoc->viewDoc(mapper->currentIndex());
 }
 
 void FormDoc::saveAs()
 {
-    modelDoc->ftpGet(currentId(),2);
+    modelDoc->saveAs(mapper->currentIndex());
 }
 
 void FormDoc::updState()
 {
-    setOk(modelDoc->ftpExist(currentId()));
+    setOk(modelDoc->fileExist(mapper->currentIndex()));
 }
 
 void FormDoc::delSert()
 {
-    modelDoc->ftpDel(currentId());
+    modelDoc->clearFile(mapper->currentIndex());
 }
 
 ModelEn::ModelEn(QWidget *parent) : QSqlQueryModel(parent)

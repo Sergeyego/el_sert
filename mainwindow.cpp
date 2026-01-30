@@ -7,6 +7,10 @@ MainWindow::MainWindow(bool readOnly, QWidget *parent) :
 {
     ui->setupUi(this);
 
+    manager = new QNetworkAccessManager(this);
+    prd = new ProgressReportDialog(this);
+    prd->setMessage(QString::fromUtf8("Обновляем данные на сайте..."));
+
     if (!readOnly){
         actAction(ui->actionPartEl,&MainWindow::partEl);
         actAction(ui->actionPartWire,&MainWindow::partWire);
@@ -21,6 +25,7 @@ MainWindow::MainWindow(bool readOnly, QWidget *parent) :
 
     connect(ui->tabWidget,SIGNAL(tabCloseRequested(int)),this,SLOT(closeTab(int)));
     connect(Rels::instance(),SIGNAL(partReq(int,QString)),this,SLOT(partReq(int,QString)));
+    connect(ui->actionSite,SIGNAL(triggered(bool)),this,SLOT(updSite()));
 }
 
 MainWindow::~MainWindow()
@@ -107,7 +112,9 @@ void MainWindow::ved()
 void MainWindow::doc()
 {
     if (!exist(sender())){
-        addSubWindow(new FormDoc(),sender());
+        FormDoc *doc = new FormDoc();
+        connect(doc,SIGNAL(reqUpdSite()),this,SLOT(updSite()));
+        addSubWindow(doc,sender());
     }
 }
 
@@ -131,6 +138,33 @@ void MainWindow::partReq(int /*id_part*/, QString prefix)
         ui->actionPartEl->trigger();
     } else {
         ui->actionPartWire->trigger();
+    }
+}
+
+void MainWindow::updSite()
+{
+    QNetworkRequest request(QUrl::fromUserInput(Rels::instance()->appServer()+QString("/site/sync")));
+    request.setRawHeader("Accept-Charset", "UTF-8");
+    request.setRawHeader("User-Agent", "Appszsm");
+    QNetworkReply *reply;
+    reply=manager->get(request);
+    connect(reply,SIGNAL(finished()),this,SLOT(updSiteFinished()));
+    prd->show();
+}
+
+void MainWindow::updSiteFinished()
+{
+    prd->hide();
+    QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+    if (reply){
+        QByteArray data=reply->readAll();
+        bool ok=(reply->error()==QNetworkReply::NoError);
+        if (!ok){
+            QMessageBox::critical(nullptr,tr("Ошибка"),reply->errorString()+"\n",QMessageBox::Cancel);
+        } else {
+            QMessageBox::information(this,QString::fromUtf8("Обновление завершено"),data,QMessageBox::Ok);
+        }
+        reply->deleteLater();
     }
 }
 

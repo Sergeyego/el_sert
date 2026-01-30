@@ -39,7 +39,7 @@
      <x>0</x>
      <y>0</y>
      <width>1014</width>
-     <height>22</height>
+     <height>30</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu">
@@ -69,10 +69,17 @@
     <addaction name="actionMark"/>
     <addaction name="actionPos"/>
    </widget>
+   <widget class="QMenu" name="menu_5">
+    <property name="title">
+     <string>Сервис</string>
+    </property>
+    <addaction name="actionSite"/>
+   </widget>
    <addaction name="menu"/>
    <addaction name="menu_2"/>
    <addaction name="menu_3"/>
    <addaction name="menu_4"/>
+   <addaction name="menu_5"/>
   </widget>
   <action name="actionPartEl">
    <property name="checked">
@@ -128,6 +135,11 @@
    </property>
    <property name="shortcut">
     <string>F2</string>
+   </property>
+  </action>
+  <action name="actionSite">
+   <property name="text">
+    <string>Обновить данные на сайте</string>
    </property>
   </action>
  </widget>

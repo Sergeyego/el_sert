@@ -3,12 +3,7 @@
 
 ModelDoc::ModelDoc(QObject *parent) : DbTableModel("zvd_sert",parent)
 {
-    ftpClient = new QFtp(this);
-    updateFtpInfo();
-    getState=0;
-    connect(ftpClient,SIGNAL(commandStarted(int)),this,SLOT(ftpCommandStart(int)));
-    connect(ftpClient, SIGNAL(commandFinished(int,bool)),this, SLOT(ftpCommandFinished(int,bool)));
-    connect(ftpClient, SIGNAL(listInfo(QUrlInfo)),this, SLOT(addToList(QUrlInfo)));
+    manager = new QNetworkAccessManager(this);
 
     addColumn("id","id");
     addColumn("nom_doc",QString::fromUtf8("Номер документа"));
@@ -35,8 +30,7 @@ ModelDoc::ModelDoc(QObject *parent) : DbTableModel("zvd_sert",parent)
 QVariant ModelDoc::data(const QModelIndex &index, int role) const
 {
     if (role==Qt::BackgroundRole){
-        int id = data(this->index(index.row(),0),Qt::EditRole).toInt();
-        if (ftpExist(id) && ModelDoc::isActive(index.row())){
+        if (fileExist(index.row()) && isActive(index.row())){
             return QVariant(QColor(170,255,170));
         } else {
             return QVariant(QColor(255,170,170));
@@ -45,92 +39,13 @@ QVariant ModelDoc::data(const QModelIndex &index, int role) const
     return DbTableModel::data(index,role);
 }
 
-bool ModelDoc::ftpGet(int id, int type)
+bool ModelDoc::fileExist(int ind) const
 {
-    bool ok=(ftpClient->state()==QFtp::LoggedIn);
-    if (!ok){
-        ftpConnect();
-    }
-    int interval= ok ? 0 : delay;
-    QTimer::singleShot(interval, [this, id, type]() {
-        if (ftpClient->state()==QFtp::LoggedIn && docMap.contains(id)){
-            QDir dir(QDir::homePath()+"/.szsm");
-            if (!dir.exists()){
-                dir.mkdir(dir.path());
-            }
-            getFile = new QFile(dir.path()+"/"+docMap.value(id));
-            if (!getFile->open(QIODevice::ReadWrite)){
-                delete getFile;
-            } else {
-                getState=type;
-                ftpClient->get(docMap.value(id),getFile);
-            }
-        }
-    } );
-    return ok;
-}
-
-bool ModelDoc::ftpPut(int id)
-{
-    bool ok=(ftpClient->state()==QFtp::LoggedIn);
-    if (!ok){
-        ftpConnect();
-    }
-    int interval= ok ? 0 : delay;
-    QTimer::singleShot(interval, [this, id]() {
-        if (ftpClient->state()==QFtp::LoggedIn){
-            QSettings settings("szsm", QApplication::applicationName());
-            QDir dir(settings.value("savePath",QDir::homePath()).toString());
-            QString filename=QFileDialog::getOpenFileName(NULL, QString::fromUtf8("Открыть файл"),dir.path(),tr("pdf (*.pdf)"));
-            putFile = new QFile(filename);
-            if (putFile->open(QIODevice::ReadOnly)){
-                QFileInfo info(*putFile);
-                settings.setValue("savePath",info.path());
-                ftpClient->put(putFile,QString::number(id)+".pdf");
-            }
-        }
-    } );
-    return ok;
-}
-
-bool ModelDoc::ftpExist(int id) const
-{
-    return docMap.contains(id);
-}
-
-bool ModelDoc::ftpDel(int id)
-{
-    bool ok=(ftpClient->state()==QFtp::LoggedIn);
-    if (!ok){
-        ftpConnect();
-    }
-    int interval= ok ? 0 : delay;
-    QTimer::singleShot(interval, [this, id]() {
-        if (ftpClient->state()==QFtp::LoggedIn && docMap.contains(id)){
-            int n=QMessageBox::question(NULL,QString::fromUtf8("Подтвердите удаление"),
-                                        QString::fromUtf8("Подтветждаете удаление ")+getDocNumrer(id)+QString::fromUtf8("?"),QMessageBox::Yes| QMessageBox::No);
-            if (n==QMessageBox::Yes) {
-                ftpClient->remove(docMap.value(id));
-            }
-        }
-    } );
-    return ok;
-}
-
-QString ModelDoc::getDocNumrer(int id)
-{
-    QString docNum("-");
-    QSqlQuery query;
-    query.prepare("select nom_doc from zvd_sert where id = :id");
-    query.bindValue(":id",id);
-    if (query.exec()){
-        while (query.next()){
-            docNum=query.value(0).toString();
-        }
-    } else {
-        QMessageBox::critical(NULL, QString::fromUtf8("Ошибка"),query.lastError().text());
-    }
-    return docNum;
+    QString nom=this->data(this->index(ind,1),Qt::EditRole).toString();
+    docInfo def;
+    def.id="-1";
+    def.file="";
+    return docMap.contains(nom) && !docMap.value(nom,def).file.isEmpty();
 }
 
 bool ModelDoc::isActive(int ind) const
@@ -151,114 +66,201 @@ void ModelDoc::refresh(bool activeOnly)
     select();
 }
 
-void ModelDoc::updateFtpInfo()
+void ModelDoc::viewDoc(int ind)
 {
-    QSqlQuery query;
-    query.prepare("select host_int, user_rw, pass_rw, path_sert, conn_delay from ftp_info where id = 1");
-    if (query.exec()){
-        while (query.next()){
-            ftphost=query.value(0).toString();
-            ftpuser=query.value(1).toString();
-            ftppassword=query.value(2).toString();
-            ftppath=query.value(3).toString();
-            delay=query.value(4).toInt();
-        }
-    } else {
-        QMessageBox::critical(NULL, QString::fromUtf8("Ошибка"),query.lastError().text());
+    if (fileExist(ind)){
+        QString nom=this->data(this->index(ind,1),Qt::EditRole).toString();
+        QNetworkRequest request(QUrl::fromUserInput(docMap.value(nom).file));
+        request.setRawHeader("Accept-Charset", "UTF-8");
+        request.setRawHeader("User-Agent", "Appszsm");
+        QNetworkReply *reply;
+        reply=manager->get(request);
+        connect(reply,SIGNAL(finished()),this,SLOT(replyViewFinished()));
     }
 }
 
-void ModelDoc::ftpConnect()
+void ModelDoc::saveAs(int ind)
 {
-    ftpClient->connectToHost(ftphost);
+    if (fileExist(ind)){
+        QString nom=this->data(this->index(ind,1),Qt::EditRole).toString();
+        QNetworkRequest request(QUrl::fromUserInput(docMap.value(nom).file));
+        request.setRawHeader("Accept-Charset", "UTF-8");
+        request.setRawHeader("User-Agent", "Appszsm");
+        QNetworkReply *reply;
+        reply=manager->get(request);
+        reply->setProperty("index",ind);
+        connect(reply,SIGNAL(finished()),this,SLOT(replySaveAsFinished()));
+    }
+}
+
+void ModelDoc::upload(int ind)
+{
+    QSettings settings("szsm", QApplication::applicationName());
+    QDir dir(settings.value("savePath",QDir::homePath()).toString());
+    QString filename=QFileDialog::getOpenFileName(NULL, QString::fromUtf8("Открыть файл"),dir.path(),tr("pdf (*.pdf)"));
+    QFile file(filename);
+    if (file.open(QIODevice::ReadOnly)){
+        QFileInfo info(file);
+        settings.setValue("savePath",info.path());
+        QString nom = this->data(this->index(ind,1),Qt::EditRole).toString();
+        int id_doc = this->data(this->index(ind,0),Qt::EditRole).toInt();
+        QUrl url;
+        if (docMap.contains(nom)){
+            docInfo info = docMap.value(nom);
+            url = QUrl::fromUserInput(Rels::instance()->appServer()+QString("/site/docs/upd?id=%1&elementId=%2").arg(id_doc).arg(info.id));
+        } else {
+            url = QUrl::fromUserInput(Rels::instance()->appServer()+QString("/site/docs/add?id=%1").arg(id_doc));
+        }
+        QNetworkRequest request(url);
+        request.setRawHeader("Accept-Charset", "UTF-8");
+        request.setRawHeader("User-Agent", "Appszsm");
+        request.setRawHeader("Content-Type","application/pdf");
+        QNetworkReply *reply;
+        reply=manager->post(request,file.readAll());
+        reply->setProperty("index",ind);
+        connect(reply,SIGNAL(finished()),this,SLOT(replyUpdFinished()));
+        file.close();
+    }
+}
+
+void ModelDoc::clearFile(int ind)
+{
+    QString nom = this->data(this->index(ind,1),Qt::EditRole).toString();
+    int n=QMessageBox::question(NULL,QString::fromUtf8("Подтвердите удаление"),QString::fromUtf8("Подтветждаете удаление ")+nom+QString::fromUtf8("?"),QMessageBox::Yes| QMessageBox::No);
+    if (n==QMessageBox::Yes) {
+        if (docMap.contains(nom)){
+            int id_doc = this->data(this->index(ind,0),Qt::EditRole).toInt();
+            docInfo info = docMap.value(nom);
+            QNetworkRequest request(QUrl::fromUserInput(Rels::instance()->appServer()+QString("/site/docs/upd?id=%1&elementId=%2").arg(id_doc).arg(info.id)));
+            request.setRawHeader("Accept-Charset", "UTF-8");
+            request.setRawHeader("User-Agent", "Appszsm");
+            request.setRawHeader("Content-Type","application/pdf");
+            QNetworkReply *reply;
+            reply=manager->post(request,QByteArray());
+            reply->setProperty("index",ind);
+            connect(reply,SIGNAL(finished()),this,SLOT(replyUpdFinished()));
+        }
+    }
 }
 
 void ModelDoc::updateList()
 {
-    //qDebug()<<"upd"<<ftpClient->state();
-    if (ftpClient->state()==QFtp::LoggedIn){
-        ftpClient->list();
-    } else {
-        ftpConnect();
+    QNetworkRequest request(QUrl::fromUserInput(Rels::instance()->appServer()+"/site/docs/list"));
+    request.setRawHeader("Accept-Charset", "UTF-8");
+    request.setRawHeader("User-Agent", "Appszsm");
+    QNetworkReply *reply;
+    reply=manager->get(request);
+    connect(reply,SIGNAL(finished()),this,SLOT(replyListFinished()));
+}
+
+void ModelDoc::replyListFinished()
+{
+    QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+    if (reply){
+        QByteArray data=reply->readAll();
+        bool ok=(reply->error()==QNetworkReply::NoError);
+        if (!ok){
+            QMessageBox::critical(nullptr,tr("Ошибка"),reply->errorString()+"\n"+data,QMessageBox::Cancel);
+        } else {
+            QJsonDocument respDoc;
+            respDoc=QJsonDocument::fromJson(data);
+            if (respDoc.isArray()){
+                docMap.clear();
+                QJsonArray arr = respDoc.array();
+                for (QJsonValue v : arr){
+                    QString name=v.toObject().value("NAME").toString();
+                    docInfo info;
+                    info.id=v.toObject().value("ID").toString();
+                    info.file=v.toObject().value("FILE").toString();
+                    docMap.insert(name,info);
+                }
+            }
+            emit dataChanged(this->index(0,0),this->index(rowCount()-1,columnCount()-1));
+            emit sigList();
+        }
+        reply->deleteLater();
     }
 }
 
-void ModelDoc::ftpCommandFinished(int /*commandId*/, bool error)
+void ModelDoc::replyViewFinished()
 {
-    if (ftpClient->currentCommand() == QFtp::Get){
-        getFile->close();
-        if (!error) {
-            if (getState==1){
-                QDir dir(QDir::homePath()+"/.szsm");
-                if (!dir.exists()){
-                    dir.mkdir(dir.path());
-                }
-                QString tmpname=dir.path()+"/temp.pdf";
-                QFile file(tmpname);
-                if (file.exists()){
-                    file.remove();
-                }
-                getFile->copy(tmpname);
+    QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+    if (reply){
+        QByteArray data=reply->readAll();
+        bool ok=(reply->error()==QNetworkReply::NoError);
+        if (!ok){
+            QMessageBox::critical(nullptr,tr("Ошибка"),reply->errorString()+"\n",QMessageBox::Cancel);
+        } else {
+            QDir dir(QDir::homePath()+"/.szsm");
+            if (!dir.exists()){
+                dir.mkdir(dir.path());
+            }
+            QString tmpname=dir.path()+"/temp.pdf";
+            QFile file(tmpname);
+            if (file.open(QFile::WriteOnly)){
+                file.write(data);
+                file.close();
                 QFileInfo fileInfo(tmpname);
                 QDesktopServices::openUrl((QUrl(QUrl::fromLocalFile(fileInfo.absoluteFilePath()))));
-            } else {
-                QFileInfo inf(getFile->fileName());
-                QString id=inf.fileName();
-                id.truncate(id.length()-4);
-                QString docNum=getDocNumrer(id.toInt());
-                QString filename=QFileDialog::getSaveFileName(NULL, QString::fromUtf8("Сохранить файл"),QDir::homePath()+QString("/")+docNum+".pdf",tr("pdf (*.pdf)"));
-                if (!filename.isEmpty()){
-                    getFile->copy(filename);
+            }
+        }
+        reply->deleteLater();
+    }
+
+}
+
+void ModelDoc::replySaveAsFinished()
+{
+    QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+    if (reply){
+        QByteArray data=reply->readAll();
+        bool ok=(reply->error()==QNetworkReply::NoError);
+        if (!ok){
+            QMessageBox::critical(nullptr,tr("Ошибка"),reply->errorString()+"\n",QMessageBox::Cancel);
+        } else {
+            int index = reply->property("index").toInt();
+            QString name=this->data(this->index(index,1),Qt::EditRole).toString();
+            QSettings settings("szsm", QApplication::applicationName());
+            QDir dir(settings.value("savePath",QDir::homePath()).toString());
+            QString filename=QFileDialog::getSaveFileName(NULL, QString::fromUtf8("Сохранить файл"),dir.path()+QString("/")+name+".pdf",tr("pdf (*.pdf)"));
+            if (!filename.isEmpty()){
+                QFile file(filename);
+                if (file.open(QFile::WriteOnly)){
+                    file.write(data);
+                    file.close();
+                    QFileInfo info(file);
+                    settings.setValue("savePath",info.path());
                 }
             }
         }
-        getState=0;
-        getFile->remove();
-        delete getFile;
-    } else if (ftpClient->currentCommand() == QFtp::Put){
-        putFile->close();
-        delete putFile;
-        if (!error){
-            updateList();
-        }
+        reply->deleteLater();
     }
-    if (error) {
-        QMessageBox::critical(NULL, tr("FTP"),ftpClient->errorString());
-    } else {
-        if (ftpClient->currentCommand() == QFtp::ConnectToHost) {
-            ftpClient->login(QString(ftpuser),QString(ftppassword));
-        } else if (ftpClient->currentCommand() == QFtp::Login){
-            ftpClient->cd(ftppath);
-        } else if (ftpClient->currentCommand() == QFtp::List) {
-            emit dataChanged(this->index(0,0),this->index(rowCount()-1,columnCount()-1));
+}
+
+void ModelDoc::replyUpdFinished()
+{
+    QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+    if (reply){
+        QByteArray data=reply->readAll();
+        bool ok=(reply->error()==QNetworkReply::NoError);
+        if (!ok){
+            QMessageBox::critical(nullptr,tr("Ошибка"),reply->errorString()+"\n"+data,QMessageBox::Cancel);
+        } else {
+            int index = reply->property("index").toInt();
+            QJsonDocument respDoc;
+            respDoc=QJsonDocument::fromJson(data);
+            if (respDoc.isObject()){
+                QJsonObject o=respDoc.object().value("result").toObject();
+                QString name=o.value("NAME").toString();
+                docInfo info;
+                info.id=o.value("ID").toString();
+                info.file=o.value("FILE").toString();
+                //qDebug()<<name<<info.id<<info.file;
+                docMap[name]=info;
+            }
+            emit dataChanged(this->index(index,0),this->index(index,columnCount()-1));
             emit sigList();
-            //qDebug()<<"list finished";
-        } else if (ftpClient->currentCommand()==QFtp::Cd){
-            ftpClient->list();
-        } else if (ftpClient->currentCommand()==QFtp::Remove){
-            ftpClient->list();
         }
+        reply->deleteLater();
     }
 }
-
-void ModelDoc::ftpCommandStart(int /*commandId*/)
-{
-    if (ftpClient->currentCommand()==QFtp::List){
-        docMap.clear();
-        //qDebug()<<"Start list";
-    }
-}
-
-void ModelDoc::addToList(const QUrlInfo &urlInfo)
-{
-    if (urlInfo.isFile()){
-        QString name=urlInfo.name();
-        name.truncate(name.length()-4);
-        bool ok;
-        int id=name.toInt(&ok);
-        if (ok){
-            docMap.insert(id,urlInfo.name());
-        }
-    }
-}
-

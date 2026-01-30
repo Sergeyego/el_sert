@@ -9,6 +9,8 @@
 #include "formmark.h"
 #include "formpos.h"
 #include "formpartwire.h"
+#include <QNetworkAccessManager>
+#include "progressreportdialog.h"
 
 namespace Ui {
 class MainWindow;
@@ -38,11 +40,15 @@ private slots:
     void mark();
     void pos();
     void partReq(int id_part, QString prefix);
+    void updSite();
+    void updSiteFinished();
 
 private:
     Ui::MainWindow *ui;
     void loadSettings();
     void saveSettings();
+    QNetworkAccessManager *manager;
+    ProgressReportDialog *prd;
 };
 
 #endif // MAINWINDOW_H

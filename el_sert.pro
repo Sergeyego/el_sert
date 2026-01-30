@@ -19,6 +19,7 @@ SOURCES += main.cpp\
     httpsyncmanager.cpp \
     editor.cpp \
     pasportmanager.cpp \
+    progressreportdialog.cpp \
     reader.cpp \
     sertbuild.cpp \
     checkform.cpp \
@@ -57,6 +58,7 @@ HEADERS  += formpart.h \
     httpsyncmanager.h \
     editor.h \
     pasportmanager.h \
+    progressreportdialog.h \
     reader.h \
     sertbuild.h \
     checkform.h \
@@ -104,6 +106,7 @@ FORMS    += formpart.ui \
     formpos.ui \
     dialogcopy.ui \
     db/dbrelationeditdialog.ui \
+    progressreportdialog.ui \
     reader.ui
 
 RESOURCES += \

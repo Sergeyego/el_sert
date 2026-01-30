@@ -388,6 +388,13 @@
            </property>
           </spacer>
          </item>
+         <item>
+          <widget class="QPushButton" name="pushButtonSite">
+           <property name="text">
+            <string>Обновить данные на сайте</string>
+           </property>
+          </widget>
+         </item>
         </layout>
        </item>
       </layout>

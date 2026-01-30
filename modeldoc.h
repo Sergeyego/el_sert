@@ -4,7 +4,8 @@
 #include <QObject>
 #include "db/dbtablemodel.h"
 #include "rels.h"
-#include "qftp/qftp.h"
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
 #include <QMap>
 #include <QFile>
 #include <QFileInfo>
@@ -13,7 +14,15 @@
 #include <QFileDialog>
 #include <QSettings>
 #include <QApplication>
-#include <QTimer>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
+
+
+struct docInfo {
+    QString id;
+    QString file;
+};
 
 class ModelDoc : public DbTableModel
 {
@@ -21,36 +30,26 @@ class ModelDoc : public DbTableModel
 public:
     ModelDoc(QObject *parent=0);
     QVariant data(const QModelIndex &index, int role) const;
-    bool ftpGet(int id, int type);
-    bool ftpPut(int id);
-    bool ftpExist(int id) const;
-    bool ftpDel(int id);
-    QString getDocNumrer(int id);
+    bool fileExist(int ind) const;
     bool isActive(int ind) const;
 
 public slots:
     void refresh(bool activeOnly);
-    void updateFtpInfo();
+    void viewDoc(int ind);
+    void saveAs(int ind);
+    void upload(int ind);
+    void clearFile(int ind);
 
 private:
-    QFtp *ftpClient;
-    QMap <int, QString> docMap;
-    bool ftpGet(int id, QFile *file);
-    int getState;
-    QFile *getFile;
-    QFile *putFile;
-    QString ftphost;
-    QString ftpuser;
-    QString ftppassword;
-    QString ftppath;
-    int delay=0;
+    QNetworkAccessManager *manager;
+    QMap <QString, docInfo> docMap;
 
 private slots:
-    void ftpConnect();
     void updateList();
-    void ftpCommandFinished(int commandId, bool error);
-    void ftpCommandStart(int commandId);
-    void addToList(const QUrlInfo &urlInfo);
+    void replyListFinished();
+    void replyViewFinished();
+    void replySaveAsFinished();
+    void replyUpdFinished();
 
 signals:
     void sigList();

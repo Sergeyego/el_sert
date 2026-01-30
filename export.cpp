@@ -379,7 +379,7 @@ QDomElement Export::getSertMark(int id_sert, QDomDocument *doc)
             QSqlQuery query;
             query.prepare("select d.dim from zvd_eldim as ed "
                           "inner join dry_els as d on d.ide=ed.id_eldr "
-                          "where ed.id_sert= :id_sert and d.id_el= :id_el ");
+                          "where ed.id_sert= :id_sert and d.id_el= :id_el order by d.dim");
             query.bindValue(":id_sert",id_sert);
             query.bindValue(":id_el",markQuery.value(0).toInt());
             QDomElement diam = doc->createElement(QString::fromUtf8("Только_диаметры"));
@@ -536,7 +536,7 @@ QDomElement Export::getPlav(int id_el, QDomDocument *doc)
         while (queryPlav.next()){
             QDomElement pl = doc->createElement(QString::fromUtf8("Характеристика"));
             pl.appendChild(newElement(QString::fromUtf8("Название"),queryPlav.value(0).toString(),doc));
-            pl.appendChild(newElement(QString::fromUtf8("Значение"),fromDouble(queryPlav.value(1),1),doc));
+            pl.appendChild(newElement(QString::fromUtf8("Значение"),fromDouble(queryPlav.value(1),2),doc));
             plav.appendChild(pl);
         }
     } else {

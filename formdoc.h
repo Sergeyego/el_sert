@@ -64,6 +64,9 @@ private slots:
     void saveAs();
     void updState();
     void delSert();
+
+signals:
+    void reqUpdSite();
 };
 
 #endif // FORMDOC_H
