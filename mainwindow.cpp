@@ -18,6 +18,7 @@ MainWindow::MainWindow(bool readOnly, QWidget *parent) :
         actAction(ui->actionDoc,&MainWindow::doc);
         actAction(ui->actionMark,&MainWindow::mark);
         actAction(ui->actionPos,&MainWindow::pos);
+        actAction(ui->actionSigPasport,&MainWindow::sigPastort);
     }
     actAction(ui->actionSert,&MainWindow::ship);
 
@@ -165,6 +166,13 @@ void MainWindow::updSiteFinished()
             QMessageBox::information(this,QString::fromUtf8("Обновление завершено"),data,QMessageBox::Ok);
         }
         reply->deleteLater();
+    }
+}
+
+void MainWindow::sigPastort()
+{
+    if (!exist(sender())){
+        addSubWindow(new FormSigPasport(),sender());
     }
 }
 

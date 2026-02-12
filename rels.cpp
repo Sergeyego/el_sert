@@ -23,7 +23,7 @@ QString Rels::signServer()
 QString Rels::appServer()
 {
     QSqlDatabase db=QSqlDatabase::database();
-    const QString host=db.isValid()? db.hostName() : "127.0.0.1";
+    const QString host=/*db.isValid()? db.hostName() : */"127.0.0.1";
     int port=7000;
     return "http://"+host+":"+QString::number(port);
 }
@@ -90,6 +90,13 @@ Rels::Rels(QObject *parent) : QObject(parent)
     relMechCat->setSort("mech_category.nam");
     relPolar = new DbSqlRelation("polar","id","nam",this);
     relPolar->setSort("polar.nam");
+
+    relPasportRole = new DbSqlRelation("pasport_role","id","nam",this);
+    relPasportRole->setSort("pasport_role.id");
+
+    relEmpl = new DbSqlRelation("kamin_empl","id","str",this);
+    relEmpl->setSort("kamin_empl.str");
+
     refreshVedPix();
     refreshPolPix();
 }

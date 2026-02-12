@@ -44,6 +44,8 @@ public:
     DbSqlRelation *relIntClass;
     DbSqlRelation *relMechCat;
     DbSqlRelation *relPolar;
+    DbSqlRelation *relPasportRole;
+    DbSqlRelation *relEmpl;
     QString signServer();
     QString appServer();
 

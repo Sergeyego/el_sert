@@ -11,6 +11,7 @@
 #include "formpartwire.h"
 #include <QNetworkAccessManager>
 #include "progressreportdialog.h"
+#include "formsigpasport.h"
 
 namespace Ui {
 class MainWindow;
@@ -42,6 +43,7 @@ private slots:
     void partReq(int id_part, QString prefix);
     void updSite();
     void updSiteFinished();
+    void sigPastort();
 
 private:
     Ui::MainWindow *ui;

@@ -16,6 +16,7 @@ SOURCES += main.cpp\
     dialogsignature.cpp \
         formpart.cpp \
     formpartwire.cpp \
+    formsigpasport.cpp \
     httpsyncmanager.cpp \
     editor.cpp \
     pasportmanager.cpp \
@@ -55,6 +56,7 @@ HEADERS  += formpart.h \
     dialogauthor.h \
     dialogsignature.h \
     formpartwire.h \
+    formsigpasport.h \
     httpsyncmanager.h \
     editor.h \
     pasportmanager.h \
@@ -98,6 +100,7 @@ FORMS    += formpart.ui \
     checkform.ui \
     db/dblogin.ui \
     formpartwire.ui \
+    formsigpasport.ui \
     mainwindow.ui \
     formship.ui \
     formved.ui \

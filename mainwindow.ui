@@ -74,6 +74,7 @@
      <string>Сервис</string>
     </property>
     <addaction name="actionSite"/>
+    <addaction name="actionSigPasport"/>
    </widget>
    <addaction name="menu"/>
    <addaction name="menu_2"/>
@@ -140,6 +141,11 @@
   <action name="actionSite">
    <property name="text">
     <string>Обновить данные на сайте</string>
+   </property>
+  </action>
+  <action name="actionSigPasport">
+   <property name="text">
+    <string>Подписанты паспорта</string>
    </property>
   </action>
  </widget>

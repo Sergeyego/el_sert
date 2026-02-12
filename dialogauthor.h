@@ -24,7 +24,10 @@ public:
 
 private:
     Ui::DialogAuthor *ui;
-    void insRab(QString pattern, QLineEdit *title, QLineEdit *name);
+    QMap <int,QByteArray> mapSig;
+
+private slots:
+    void updInfo();
 };
 
 #endif // DIALOGAUTHOR_H
