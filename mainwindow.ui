@@ -73,7 +73,6 @@
     <property name="title">
      <string>Сервис</string>
     </property>
-    <addaction name="actionSite"/>
     <addaction name="actionSigPasport"/>
    </widget>
    <addaction name="menu"/>
@@ -136,11 +135,6 @@
    </property>
    <property name="shortcut">
     <string>F2</string>
-   </property>
-  </action>
-  <action name="actionSite">
-   <property name="text">
-    <string>Обновить данные на сайте</string>
    </property>
   </action>
   <action name="actionSigPasport">

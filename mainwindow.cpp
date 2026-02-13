@@ -26,7 +26,6 @@ MainWindow::MainWindow(bool readOnly, QWidget *parent) :
 
     connect(ui->tabWidget,SIGNAL(tabCloseRequested(int)),this,SLOT(closeTab(int)));
     connect(Rels::instance(),SIGNAL(partReq(int,QString)),this,SLOT(partReq(int,QString)));
-    connect(ui->actionSite,SIGNAL(triggered(bool)),this,SLOT(updSite()));
 }
 
 MainWindow::~MainWindow()

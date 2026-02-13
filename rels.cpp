@@ -23,7 +23,7 @@ QString Rels::signServer()
 QString Rels::appServer()
 {
     QSqlDatabase db=QSqlDatabase::database();
-    const QString host=/*db.isValid()? db.hostName() : */"127.0.0.1";
+    const QString host=db.isValid()? db.hostName() : "127.0.0.1";
     int port=7000;
     return "http://"+host+":"+QString::number(port);
 }
